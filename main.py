@@ -23,11 +23,14 @@ def info() -> typing.Dict:
     return {
         "apiversion": "1",
         "author": "",  # TODO: Your Battlesnake Username
-        "color": "#888888",  # TODO: Choose color
+        "color": "#FF0000",  
         "head": "default",  # TODO: Choose head
         "tail": "default",  # TODO: Choose tail
     }
 
+def print_game_state(game_state: typing.Dict):
+
+    print(game_state)
 
 # start is called when your Battlesnake begins a game
 def start(game_state: typing.Dict):
@@ -66,8 +69,35 @@ def move(game_state: typing.Dict) -> typing.Dict:
     # board_width = game_state['board']['width']
     # board_height = game_state['board']['height']
 
+    #x von 0 bis board_width -1
+    #y von 0 bis board_height -1
+    #Koordinaten zählen von 0, 
+    #während board_width und board_height von 1 zählen
+    
+    board_width = game_state["board"]["width"]
+    board_hight = game_state["board"]["height"]
+    
+    if my_head["x"] == board_width -1:
+
+        is_move_safe["right"] = False
+
+    if my_head["x"] == 0:
+
+        is_move_safe["left"] = False
+
+    if my_head["y"] == board_hight -1:
+
+        is_move_safe["up"] = False
+
+    if my_head["y"] == 0:
+
+        is_move_safe["down"] = False
+
     # TODO: Step 2 - Prevent your Battlesnake from colliding with itself
     # my_body = game_state['you']['body']
+
+    my_body = game_state["you"]["body"]
+
 
     # TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
     # opponents = game_state['board']['snakes']
@@ -96,4 +126,4 @@ def move(game_state: typing.Dict) -> typing.Dict:
 if __name__ == "__main__":
     from server import run_server
 
-    run_server({"info": info, "start": start, "move": move, "end": end})
+    run_server({"info": info, "start": start, "move": move, "end": end, "print_game_state": print_game_state})

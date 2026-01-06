@@ -22,6 +22,7 @@ def run_server(handlers: typing.Dict):
     @app.post("/move")
     def on_move():
         game_state = request.get_json()
+        print(handlers["print_game_state"](game_state))
         return handlers["move"](game_state)
 
     @app.post("/end")
