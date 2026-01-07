@@ -82,11 +82,52 @@ class Move():
 
                 self.is_move_safe["down"] = False
 
+    def not_enemy_collision(self, game_state):
+
+        my_position = game_state["you"]["head"]
+
+        my_position_x = my_position["x"]
+        my_position_y = my_position["y"]
+
+        snakes = game_state["board"]["snakes"]
+
+        my_id = game_state["you"]["id"]
+
+        for e in snakes:
+
+            body = e["body"]
+
+            id = e["id"]
+
+            if my_id != id:
+            
+                for position in body:
+
+                    x = position["x"]
+                    y = position["y"]
+
+                    if my_position_x + 1 == x and my_position_y == y:
+
+                        self.is_move_safe["right"] = False
+
+                    if my_position_x - 1 == x and my_position_y == y:
+
+                        self.is_move_safe["left"] = False
+
+                    if my_position_y + 1 == y and my_position_x == x:
+
+                        self.is_move_safe["up"] = False
+
+                    if my_position_y - 1 == y and my_position_x == x:
+
+                        self.is_move_safe["down"] = False
+    
     def choose_move(self, game_state):
 
         self.not_backward(game_state)
         self.not_wall_collision(game_state)
         self.not_itself_collision(game_state)
+        self.not_enemy_collision(game_state)
         
         # Are there any safe moves left?
         safe_moves = []
