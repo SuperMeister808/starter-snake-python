@@ -57,27 +57,30 @@ class Move():
 
         position = game_state["you"]["head"]
 
-        position_x , position_y = position.item()
+        position_x = position["x"]
+
+        position_y = position["y"]
         
         for e in my_body:
 
-            for x , y in e.item():
+            x = e["x"]
+            y = e["y"]
 
-                if position_x + 1 == x:
+            if (position_x) + 1 == x and position_y == y:
 
-                    self.is_move_safe["right"] = False
+                self.is_move_safe["right"] = False
 
-                if position_x - 1 == x:
+            if (position_x) - 1 == x and position_y == y:
 
-                    self.is_move_safe["left"] = False
+                self.is_move_safe["left"] = False
 
-                if position_y + 1 == y:
+            if (position_y) + 1 == y and position_x == x:
 
-                    self.is_move_safe["right"] = False
+                self.is_move_safe["up"] = False
 
-                if position_y - 1 == y:
+            if (position_y) - 1 == y and position_x == x:
 
-                    self.is_move_safe["left"] = False
+                self.is_move_safe["down"] = False
 
     def choose_move(self, game_state):
 
