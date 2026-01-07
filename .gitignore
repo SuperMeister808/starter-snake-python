@@ -3,3 +3,4 @@
 __pycache__/
 game_state_example.txt
 .venv
+__init__.py
