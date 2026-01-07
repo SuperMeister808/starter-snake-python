@@ -47,7 +47,10 @@ def end(game_state: typing.Dict):
 # See https://docs.battlesnake.com/api/example-move for available data
 def move(game_state: typing.Dict) -> typing.Dict:
 
-    next_move = Mo
+    next_move = Move()
+    game_move = next_move.choose_move(game_state)
+
+    return game_move
 
     
 
