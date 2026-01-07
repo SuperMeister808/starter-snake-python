@@ -55,6 +55,30 @@ class Move():
 
         my_body = game_state["you"]["body"]
 
+        position = game_state["you"]["head"]
+
+        position_x , position_y = position.item()
+        
+        for e in my_body:
+
+            for x , y in e.item():
+
+                if position_x + 1 == x:
+
+                    self.is_move_safe["right"] = False
+
+                if position_x - 1 == x:
+
+                    self.is_move_safe["left"] = False
+
+                if position_y + 1 == y:
+
+                    self.is_move_safe["right"] = False
+
+                if position_y - 1 == y:
+
+                    self.is_move_safe["left"] = False
+
     def choose_move(self, game_state):
 
         self.not_backward(game_state)
