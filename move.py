@@ -114,43 +114,83 @@ class Move():
 
                 self.is_move_safe["down"] = False
 
+    def is_growing(self, snake, game_state):
+
+        head = snake["head"]
+
+        food = game_state["board"]["food"]
+
+        for entry in food:
+
+            if entry == {"x": head["x"] + 1,"y": head["y"]}:
+
+                return True
+            
+            if entry == {"x": head["x"] - 1, "y": head["y"]}:
+
+                return True
+            
+            if entry == {"x": head["x"], "y": head["y"] + 1}:
+
+                return True
+            
+            if entry == {"x": head["x"], "y": head["y"] - 1}:
+
+                return True
+            
+        return False
+
+
+    
     def calculate_opponents_positions(self, game_state):
 
+        positions = []
+        
         snakes = game_state["board"]["snakes"]
 
-        positions = []
+        my_length = game_state["you"]["length"]
         
         for snake in snakes:
 
             if snake["id"] != game_state["you"]["id"]:
 
                 body = snake["body"]
-                
-                head = body[0]
 
-                body_parts = body[1:]
+                head = snake["head"]
+
+                body_parts = body[1:-1]
+
+                tail = body[-1]
+
+                opponent_length = snake["length"]
 
                 positions.append(head)
+                
+                if opponent_length >= my_length:
+                    
+                    first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-                first_move = {"x": head["x"] + 1, "y": head["y"]}
+                    positions.append(first_move)
 
-                positions.append(first_move)
+                    second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                second_move = {"x": head["x"] - 1, "y": head["y"]}
+                    positions.append(second_move)
 
-                positions.append(second_move)
+                    third_move = {"x": head["x"], "y": head["y"] + 1}
 
-                third_move = {"x": head["x"], "y": head["y"] + 1}
+                    positions.append(third_move)
 
-                positions.append(third_move)
+                    fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-                fourth_move = {"x": head["x"], "y": head["y"] - 1}
-
-                positions.append(fourth_move)
+                    positions.append(fourth_move)
 
                 for body_part in body_parts:
 
                     positions.append(body_part)
+
+                if self.is_growing(snake, game_state):
+
+                    positions.append(tail)
 
         return positions
     
