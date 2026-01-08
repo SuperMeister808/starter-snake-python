@@ -5,7 +5,10 @@ class Move():
 
     def __init__(self):
 
-        self.is_move_safe = {"up": True, "down": True, "left": True, "right": True}
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
 
     def not_backward(self, game_state):
 
@@ -37,19 +40,19 @@ class Move():
     
         if my_head["x"] == board_width -1:
 
-            self.is_move_safe["right"] = False
+            self.is_move_safe["right"]["is_safe"] = False
 
         if my_head["x"] == 0:
 
-            self.is_move_safe["left"] = False
+            self.is_move_safe["left"]["is_safe"] = False
 
         if my_head["y"] == board_hight -1:
 
-            self.is_move_safe["up"] = False
+            self.is_move_safe["up"]["is_safe"] = False
 
         if my_head["y"] == 0:
 
-            self.is_move_safe["down"] = False    
+            self.is_move_safe["down"]["is_safe"] = False
 
     def not_itself_collision(self, game_state):
 
@@ -68,19 +71,19 @@ class Move():
 
             if (position_x) + 1 == x and position_y == y:
 
-                self.is_move_safe["right"] = False
+                self.is_move_safe["right"]["is_safe"] = False
 
             if (position_x) - 1 == x and position_y == y:
 
-                self.is_move_safe["left"] = False
+                self.is_move_safe["left"]["is_safe"] = False
 
             if (position_y) + 1 == y and position_x == x:
 
-                self.is_move_safe["up"] = False
+                self.is_move_safe["up"]["is_safe"] = False
 
             if (position_y) - 1 == y and position_x == x:
 
-                self.is_move_safe["down"] = False
+                self.is_move_safe["down"]["is_safe"] = False
 
     def not_enemy_collision(self, game_state):
         
@@ -96,23 +99,43 @@ class Move():
 
         opponents_positions = self.calculate_opponents_positions(game_state)
 
-        for opponent_position in opponents_positions:
+        for snake in opponents_positions:
                 
-            if opponent_position == first_move:
+            for entry in snake["unsafe"]:
+            
+                if entry == first_move:
 
-                self.is_move_safe["right"] = False
+                    self.is_move_safe["right"]["is_safe"] = False
 
-            if opponent_position == second_move:
+                if entry == second_move:
 
-                self.is_move_safe["left"] = False
+                    self.is_move_safe["left"]["is_safe"] = False
 
-            if opponent_position == third_move:
+                if entry == third_move:
 
-                self.is_move_safe["up"] = False
+                    self.is_move_safe["up"]["is_safe"] = False
 
-            if opponent_position == fourth_move:
+                if entry == fourth_move:
 
-                self.is_move_safe["down"] = False
+                    self.is_move_safe["down"]["is_safe"] = False
+
+            for entry in snake["priority"]:
+
+                if entry == first_move:
+
+                    self.is_move_safe["right"]["priority"] += 1
+
+                if entry == second_move:
+
+                    self.is_move_safe["left"]["priority"] += 1
+
+                if entry == third_move:
+
+                    self.is_move_safe["up"]["priority"] += 1
+
+                if entry == fourth_move:
+
+                    self.is_move_safe["down"]["priority"] += 1
 
     def is_growing(self, snake, game_state):
 
@@ -150,10 +173,12 @@ class Move():
 
         my_length = game_state["you"]["length"]
         
+        i = 0
+        
         for snake in snakes:
 
             if snake["id"] != game_state["you"]["id"]:
-
+                
                 body = snake["body"]
 
                 head = snake["head"]
@@ -164,25 +189,35 @@ class Move():
 
                 opponent_length = snake["length"]
 
-                positions.append(head)
+                positions.append({snake["id"]: {"unsafe": [], "priority": []}})
+                
+                positions[i][snake["id"]]["unsafe"].append(head)
                 
                 if opponent_length >= my_length:
                     
                     first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-                    positions.append(first_move)
+                    positions[snake["id"]]["unsafe"].append(first_move)
 
                     second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    positions.append(second_move)
+                    positions[snake["id"]]["unsafe"].append(second_move)
 
                     third_move = {"x": head["x"], "y": head["y"] + 1}
 
-                    positions.append(third_move)
+                    positions[snake["id"]]["unsafe"].append(third_move)
 
                     fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-                    positions.append(fourth_move)
+                    positions[snake["id"]]["unsafe"].append(fourth_move)
+                else:
+                    positions[i][snake["id"]]["priority"].append(first_move)
+
+                    positions[i][snake["id"]]["priority"].append(second_move)
+
+                    positions[i][snake["id"]]["priority"].append(third_move)
+
+                    positions[i][snake["id"]]["priority"].append(fourth_move)
 
                 for body_part in body_parts:
 
@@ -191,6 +226,8 @@ class Move():
                 if self.is_growing(snake, game_state):
 
                     positions.append(tail)
+
+                i += 1
 
         return positions
     
@@ -203,16 +240,43 @@ class Move():
         
         # Are there any safe moves left?
         safe_moves = []
-        for move, isSafe in self.is_move_safe.items():
-            if isSafe:
-                safe_moves.append(move)
+        for move in self.is_move_safe:
+
+            key = move.keys()
+
+            data = move[key]
+
+            if data["is_safe"] == True:
+
+                safe_moves.append({"move": key, "priority": data["priority"]})  
 
         if len(safe_moves) == 0:
             print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
             return {"move": "down"}
         
-        # Choose a random move from the safe ones
-        next_move = random.choice(safe_moves)
+        # Choose a random move from the safe ones 
+        memory_move = None
+        memory_priority = None
+        
+        for move in safe_moves:
+
+            if memory_move == None and memory_priority == None:
+
+                if move["priority"] != 0:
+                
+                    memory_move = move["move"]
+                    memory_priority = move["priority"]
+
+            if move["priority"] > memory_priority:
+
+                memory_move = move["move"]
+                memory_priority = move["priority"]
+        
+        if memory_move is not None:
+
+            next_move = memory_move
+        else:
+            next_move = random.choice(safe_moves)
 
         print(f"MOVE {game_state['turn']}: {next_move}")
         return {"move": next_move}
