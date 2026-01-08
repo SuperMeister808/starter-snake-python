@@ -83,44 +83,76 @@ class Move():
                 self.is_move_safe["down"] = False
 
     def not_enemy_collision(self, game_state):
-
+        
         my_position = game_state["you"]["head"]
 
-        my_position_x = my_position["x"]
-        my_position_y = my_position["y"]
+        first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
+
+        second_move = {"x": my_position["x"] - 1, "y": my_position["y"]}
+
+        third_move = {"x": my_position["x"], "y": my_position["y"] + 1}
+
+        fourth_move = {"x": my_position["x"], "y": my_position["y"] - 1}
+
+        opponents_positions = self.calculate_opponents_positions(game_state)
+
+        for opponent_position in opponents_positions:
+                
+            if opponent_position == first_move:
+
+                self.is_move_safe["right"] = False
+
+            if opponent_position == second_move:
+
+                self.is_move_safe["left"] = False
+
+            if opponent_position == third_move:
+
+                self.is_move_safe["up"] = False
+
+            if opponent_position == fourth_move:
+
+                self.is_move_safe["down"] = False
+
+    def calculate_opponents_positions(self, game_state):
 
         snakes = game_state["board"]["snakes"]
 
-        my_id = game_state["you"]["id"]
+        positions = []
+        
+        for snake in snakes:
 
-        for e in snakes:
+            if snake["id"] != game_state["you"]["id"]:
 
-            body = e["body"]
+                body = snake["body"]
+                
+                head = body[0]
 
-            id = e["id"]
+                body_parts = body[1:]
 
-            if my_id != id:
-            
-                for position in body:
+                positions.append(head)
 
-                    x = position["x"]
-                    y = position["y"]
+                first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-                    if my_position_x + 1 == x and my_position_y == y:
+                positions.append(first_move)
 
-                        self.is_move_safe["right"] = False
+                second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    if my_position_x - 1 == x and my_position_y == y:
+                positions.append(second_move)
 
-                        self.is_move_safe["left"] = False
+                third_move = {"x": head["x"], "y": head["y"] + 1}
 
-                    if my_position_y + 1 == y and my_position_x == x:
+                positions.append(third_move)
 
-                        self.is_move_safe["up"] = False
+                fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-                    if my_position_y - 1 == y and my_position_x == x:
+                positions.append(fourth_move)
 
-                        self.is_move_safe["down"] = False
+                for body_part in body_parts:
+
+                    positions.append(body_part)
+
+        return positions
     
     def choose_move(self, game_state):
 
