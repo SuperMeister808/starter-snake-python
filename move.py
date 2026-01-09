@@ -17,16 +17,16 @@ class Move():
         my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
 
         if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
-            self.is_move_safe["left"] = False
+            self.is_move_safe["left"]["is_safe"] = False
 
         elif my_neck["x"] > my_head["x"]:  # Neck is right of head, don't move right
-            self.is_move_safe["right"] = False
+            self.is_move_safe["right"]["is_safe"] = False
 
         elif my_neck["y"] < my_head["y"]:  # Neck is below head, don't move down
-            self.is_move_safe["down"] = False
+            self.is_move_safe["down"]["is_safe"] = False
 
         elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
-            self.is_move_safe["up"] = False         
+            self.is_move_safe["up"]["is_safe"] = False         
 
        
         
@@ -101,7 +101,7 @@ class Move():
 
         for i , snake in enumerate(opponents_positions):
                 
-            for entry in snake[i]["unsafe"]:
+            for entry in snake[i]["is_safe"]:
             
                 if entry == first_move:
 
@@ -210,27 +210,39 @@ class Move():
                 else:
                     first_move = first_move = {"x": head["x"] + 1, "y": head["y"]}
                     
-                    positions[i][i]["priority"].append(first_move)
+                    current = positions[i]
+                    
+                    current[i]["priority"].append(first_move)
 
                     second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    positions[i][i]["priority"].append(second_move)
+                    current = positions[i]
+                    
+                    current[i]["priority"].append(second_move)
 
                     third_move = {"x": head["x"], "y": head["y"] + 1}
                     
-                    positions[i][i]["priority"].append(third_move)
+                    current = positions[i]
+                    
+                    current[i]["priority"].append(third_move)
 
                     fourth_move = {"x": head["x"], "y": head["y"] - 1}
                     
-                    positions[i][i]["priority"].append(fourth_move)
+                    current = positions[i]
+                    
+                    current[i]["priority"].append(fourth_move)
 
                 for body_part in body_parts:
 
-                    positions[i][i]["unsafe"].append(body_part)
+                    current = positions[i]
+                    
+                    current[i]["unsafe"].append(body_part)
 
                 if self.is_growing(snake, game_state):
 
-                    positions[i][i]["unsafe"].append(tail)
+                    current = positions[i]
+                    
+                    current[i]["unsafe"].append(tail)
 
                 i += 1
 
@@ -268,10 +280,12 @@ class Move():
                     memory_move = move["move"]
                     memory_priority = move["priority"]
 
-            if move["priority"] > memory_priority:
+            if memory_priority is not None:
+            
+                if move["priority"] > memory_priority:
 
-                memory_move = move["move"]
-                memory_priority = move["priority"]
+                    memory_move = move["move"]
+                    memory_priority = move["priority"]
         
         if memory_move is not None:
 
