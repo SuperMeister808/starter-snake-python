@@ -13,17 +13,17 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         bot = Move()
         
-        with patch.object(Move, "move.not_backward", return_value = "Patch not_backward") as patch_1:
+        with patch.object(Move, "not_backward", return_value = "Patch not_backward") as patch_1:
 
-            with patch.object(Move, "move.not_wall_collision", return_value = "patch not_wall_collision") as patch2:
+            with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as patch_2:
 
-                with patch.object(Move, "move.not_itself_collision", return_value = "patch not_itself_collision") as patch3:
+                with patch.object(Move, "not_itself_collision", return_value = "patch not_itself_collision") as patch_3:
 
-                    self.assert_any_call(patch_1)
-                    self.assert_any_call(patch2)
-                    self.assert_any_call(patch3)
-                    
                     result = bot.choose_move(game_state)
+                    
+                    patch_1.assert_called_once()
+                    patch_2.assert_called_once()
+                    patch_3.assert_called_once()
 
                     expectation = {"move": "left"}
 
