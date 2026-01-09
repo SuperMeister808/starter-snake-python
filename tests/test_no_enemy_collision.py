@@ -28,3 +28,7 @@ class TestNoEnemyCollision(unittest.TestCase):
                     expectation = {"move": "left"}
 
                     self.assertEqual(result, expectation)
+
+if __name__ == "__main__":
+
+    unittest.main()
