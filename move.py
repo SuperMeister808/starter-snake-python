@@ -101,7 +101,7 @@ class Move():
 
         for i , snake in enumerate(opponents_positions):
                 
-            for entry in snake[i]["is_safe"]:
+            for entry in snake["unsafe"]:
             
                 if entry == first_move:
 
@@ -119,7 +119,7 @@ class Move():
 
                     self.is_move_safe["down"]["is_safe"] = False
 
-            for entry in snake[i]["priority"]:
+            for entry in snake["priority"]:
 
                 if entry == first_move:
 
@@ -186,63 +186,69 @@ class Move():
 
                 opponent_length = snake["length"]
 
-                positions.append({i: {"unsafe": [], "priority": []}})
+                positions.append({"id": snake["id"], "unsafe": [], "priority": []})
                 
-                positions[i][i]["unsafe"].append(head)
+                current = positions[i]
+                
+                current["unsafe"].append(head)
                 
                 if opponent_length >= my_length:
                     
                     first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-                    positions[i][i]["unsafe"].append(first_move)
+                    current = positions[i]
+                    current["unsafe"].append(first_move)
 
                     second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    positions[i][i]["unsafe"].append(second_move)
+                    current = positions[i]
+                    current["unsafe"].append(second_move)
 
                     third_move = {"x": head["x"], "y": head["y"] + 1}
 
-                    positions[i][i]["unsafe"].append(third_move)
+                    current = positions[i]
+                    current["unsafe"].append(third_move)
 
                     fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-                    positions[i][i]["unsafe"].append(fourth_move)
+                    current = positions[i]
+                    current["unsafe"].append(fourth_move)
                 else:
-                    first_move = first_move = {"x": head["x"] + 1, "y": head["y"]}
+                    first_move = {"x": head["x"] + 1, "y": head["y"]}
                     
                     current = positions[i]
                     
-                    current[i]["priority"].append(first_move)
+                    current["priority"].append(first_move)
 
                     second_move = {"x": head["x"] - 1, "y": head["y"]}
 
                     current = positions[i]
                     
-                    current[i]["priority"].append(second_move)
+                    current["priority"].append(second_move)
 
                     third_move = {"x": head["x"], "y": head["y"] + 1}
                     
                     current = positions[i]
                     
-                    current[i]["priority"].append(third_move)
+                    current["priority"].append(third_move)
 
                     fourth_move = {"x": head["x"], "y": head["y"] - 1}
                     
                     current = positions[i]
                     
-                    current[i]["priority"].append(fourth_move)
+                    current["priority"].append(fourth_move)
 
                 for body_part in body_parts:
 
                     current = positions[i]
                     
-                    current[i]["unsafe"].append(body_part)
+                    current["unsafe"].append(body_part)
 
                 if self.is_growing(snake, game_state):
 
                     current = positions[i]
                     
-                    current[i]["unsafe"].append(tail)
+                    current["unsafe"].append(tail)
 
                 i += 1
 
@@ -290,12 +296,12 @@ class Move():
         if memory_move is not None:
 
             next_move = memory_move
+
+            return {"move": next_move}
         else:
             next_move = random.choice(safe_moves)
-            for move , data in next_move.items():
-                
-                print(f"MOVE {game_state['turn']}: {move}")
-                return {"move": move}
+            
+            return {"move": next_move["move"]}
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
 # board_width = game_state['board']['width']
