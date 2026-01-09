@@ -99,9 +99,9 @@ class Move():
 
         opponents_positions = self.calculate_opponents_positions(game_state)
 
-        for snake in opponents_positions:
+        for i , snake in enumerate(opponents_positions):
                 
-            for entry in snake["unsafe"]:
+            for entry in snake[i]["unsafe"]:
             
                 if entry == first_move:
 
@@ -119,7 +119,7 @@ class Move():
 
                     self.is_move_safe["down"]["is_safe"] = False
 
-            for entry in snake["priority"]:
+            for entry in snake[i]["priority"]:
 
                 if entry == first_move:
 
@@ -163,8 +163,6 @@ class Move():
             
         return False
 
-
-    
     def calculate_opponents_positions(self, game_state):
 
         positions = []
@@ -174,7 +172,6 @@ class Move():
         my_length = game_state["you"]["length"]
         
         i = 0
-        
         for snake in snakes:
 
             if snake["id"] != game_state["you"]["id"]:
@@ -189,43 +186,51 @@ class Move():
 
                 opponent_length = snake["length"]
 
-                positions.append({snake["id"]: {"unsafe": [], "priority": []}})
+                positions.append({i: {"unsafe": [], "priority": []}})
                 
-                positions[i][snake["id"]]["unsafe"].append(head)
+                positions[i][i]["unsafe"].append(head)
                 
                 if opponent_length >= my_length:
                     
                     first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-                    positions[snake["id"]]["unsafe"].append(first_move)
+                    positions[i][i]["unsafe"].append(first_move)
 
                     second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    positions[snake["id"]]["unsafe"].append(second_move)
+                    positions[i][i]["unsafe"].append(second_move)
 
                     third_move = {"x": head["x"], "y": head["y"] + 1}
 
-                    positions[snake["id"]]["unsafe"].append(third_move)
+                    positions[i][i]["unsafe"].append(third_move)
 
                     fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-                    positions[snake["id"]]["unsafe"].append(fourth_move)
+                    positions[i][i]["unsafe"].append(fourth_move)
                 else:
-                    positions[i][snake["id"]]["priority"].append(first_move)
+                    first_move = first_move = {"x": head["x"] + 1, "y": head["y"]}
+                    
+                    positions[i][i]["priority"].append(first_move)
 
-                    positions[i][snake["id"]]["priority"].append(second_move)
+                    second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-                    positions[i][snake["id"]]["priority"].append(third_move)
+                    positions[i][i]["priority"].append(second_move)
 
-                    positions[i][snake["id"]]["priority"].append(fourth_move)
+                    third_move = {"x": head["x"], "y": head["y"] + 1}
+                    
+                    positions[i][i]["priority"].append(third_move)
+
+                    fourth_move = {"x": head["x"], "y": head["y"] - 1}
+                    
+                    positions[i][i]["priority"].append(fourth_move)
 
                 for body_part in body_parts:
 
-                    positions.append(body_part)
+                    positions[i][i]["unsafe"].append(body_part)
 
                 if self.is_growing(snake, game_state):
 
-                    positions.append(tail)
+                    positions[i][i]["unsafe"].append(tail)
 
                 i += 1
 
@@ -240,15 +245,11 @@ class Move():
         
         # Are there any safe moves left?
         safe_moves = []
-        for move in self.is_move_safe:
-
-            key = move.keys()
-
-            data = move[key]
+        for move , data in self.is_move_safe.items():
 
             if data["is_safe"] == True:
 
-                safe_moves.append({"move": key, "priority": data["priority"]})  
+                safe_moves.append({"move": move, "priority": data["priority"]})  
 
         if len(safe_moves) == 0:
             print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
@@ -277,9 +278,10 @@ class Move():
             next_move = memory_move
         else:
             next_move = random.choice(safe_moves)
-
-        print(f"MOVE {game_state['turn']}: {next_move}")
-        return {"move": next_move}
+            for move , data in next_move.items()
+                
+                print(f"MOVE {game_state['turn']}: {move}")
+                return {"move": move}
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
 # board_width = game_state['board']['width']
