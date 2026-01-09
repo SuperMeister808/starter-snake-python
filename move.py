@@ -278,7 +278,7 @@ class Move():
             next_move = memory_move
         else:
             next_move = random.choice(safe_moves)
-            for move , data in next_move.items()
+            for move , data in next_move.items():
                 
                 print(f"MOVE {game_state['turn']}: {move}")
                 return {"move": move}
