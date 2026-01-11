@@ -5,6 +5,18 @@ from move import Move
 
 class TestNotBackward(unittest.TestCase):
 
+    def check_safe_moves(self, is_move_safe, excluded_move):
+
+        for move , data in is_move_safe.items():
+
+            if move != excluded_move:
+
+                if data["is_safe"] == False:
+
+                    return False
+                
+        return True
+    
     def test_not_down(self):
 
         game_state = {"you": {"id": "my", "head": {"x": 2, "y": 2} ,"body": [{"x": 2, "y": 2}, {"x": 2, "y": 1}, {"x": 2, "y": 0}],"length": 3}, 
@@ -23,6 +35,8 @@ class TestNotBackward(unittest.TestCase):
                     bot.choose_move(game_state)
         
                     self.assertFalse(bot.is_move_safe["down"]["is_safe"])
+
+                    self.assertTrue(self.check_safe_moves(bot.is_move_safe, "down"))
 
     def test_not_left(self):
 
@@ -43,6 +57,8 @@ class TestNotBackward(unittest.TestCase):
         
                     self.assertFalse(bot.is_move_safe["left"]["is_safe"])
 
+                    self.assertTrue(self.check_safe_moves(bot.is_move_safe, "left"))
+
     def test_not_right(self):
 
         game_state = {"you": {"id": "my", "head": {"x": 2, "y": 2} ,"body": [{"x": 2, "y": 2}, {"x": 3, "y": 2}, {"x": 4, "y": 2}],"length": 3}, 
@@ -62,6 +78,8 @@ class TestNotBackward(unittest.TestCase):
         
                     self.assertFalse(bot.is_move_safe["right"]["is_safe"])
 
+                    self.assertTrue(self.check_safe_moves(bot.is_move_safe, "right"))
+
     def test_not_up(self):
 
         game_state = {"you": {"id": "my", "head": {"x": 2, "y": 2} ,"body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 4}],"length": 3}, 
@@ -80,6 +98,8 @@ class TestNotBackward(unittest.TestCase):
                     bot.choose_move(game_state)
         
                     self.assertFalse(bot.is_move_safe["up"]["is_safe"])
+
+                    self.assertTrue(self.check_safe_moves(bot.is_move_safe, "up"))
 
 if __name__ == "__main__":
 
