@@ -273,28 +273,33 @@ class Move():
             return {"move": "down"}
         
         # Choose a random move from the safe ones 
-        memory_move = None
-        memory_priority = None
+        memory_moves = []
+        memory_priority = 0
         
         for move in safe_moves:
 
-            if memory_move == None and memory_priority == None:
+            if memory_moves == [] and memory_priority == 0:
 
                 if move["priority"] != 0:
                 
-                    memory_move = move["move"]
+                    memory_moves.append(move["move"])
                     memory_priority = move["priority"]
 
-            if memory_priority is not None:
+            if memory_priority != 0:
             
                 if move["priority"] > memory_priority:
 
-                    memory_move = move["move"]
+                    memory_moves.clear()
+                    memory_moves.append(move["move"])
                     memory_priority = move["priority"]
-        
-        if memory_move is not None:
 
-            next_move = memory_move
+                if move["priority"] == memory_priority:
+
+                    memory_moves.append(move["move"])
+        
+        if memory_moves != []:
+
+            next_move = random.choice(memory_moves)
 
             return {"move": next_move}
         else:
