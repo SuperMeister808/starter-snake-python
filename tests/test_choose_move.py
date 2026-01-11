@@ -73,7 +73,7 @@ class TestChooseMove(unittest.TestCase):
 
         bot = Move()
                         
-        with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 1}, "down": {"is_safe": True, "priority": 0}}) as patch_5:
+        with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 2}, "down": {"is_safe": True, "priority": 0}}) as patch_5:
                             
             with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as patch_1:
 
@@ -103,7 +103,7 @@ class TestChooseMove(unittest.TestCase):
 
         bot = Move()
                         
-        with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 1}}) as patch_5:
+        with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 1}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 2}}) as patch_5:
                             
             with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as patch_1:
 
