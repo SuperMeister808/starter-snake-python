@@ -32,8 +32,7 @@ class Move():
         
     def not_wall_collision(self, game_state):
 
-        my_head = game_state["you"]["body"][0]  # Coordinates of your head
-        my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
+        my_head = game_state["you"]["head"]  # Coordinates of your head
         
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
