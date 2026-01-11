@@ -1,4 +1,5 @@
 *.DS_Store
 *.pyc
 __pycache__/
-__init__.py
+game_state_example.txt
+run_local_game.txt
