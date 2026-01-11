@@ -1,6 +1,0 @@
-
-with opponent:
-battlesnake play -W 11 -H 11 --name "Super Meister" --url http://0.0.0.0:8000 --name "Opponent" --url http://0.0.0.0:8001 --browser
-
-without opponent:
-battlesnake play -W 11 -H 11 --name "Super Meister" --url http://0.0.0.0:8000  --browser
