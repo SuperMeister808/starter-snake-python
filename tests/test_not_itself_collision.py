@@ -253,7 +253,7 @@ class TestNotItselfCollision(unittest.TestCase):
 
     def test_no_safe_move(self):
 
-        game_state = {"you": {"id": "my", "head": {"x": 2, "y": 2} ,"body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 1, "y": 3}, {"x": 1, "y": 2}, {"x": 1, "y": 1}, {"x": 2, "y": 1}],"length": 6}, 
+        game_state = {"you": {"id": "my", "head": {"x": 2, "y": 2} ,"body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 1, "y": 3}, {"x": 1, "y": 2}, {"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}, {"x": 3, "y": 2}],"length": 8}, 
                       "board": {"snakes": [], "food": [{"x": 10, "y": 10}]},
                       "turn": 1
                       }
@@ -274,13 +274,9 @@ class TestNotItselfCollision(unittest.TestCase):
 
                     patch_3.assert_called_once()
                     
-                    self.assertFalse(bot.is_move_safe["left"]["is_safe"])
+                    for move , data in bot.is_move_safe.items():
 
-                    self.assertFalse(bot.is_move_safe["up"]["is_safe"])
-
-                    self.assertFalse(bot.is_move_safe["down"]["is_safe"])
-
-                    self.assertTrue(bot.is_move_safe["right"]["is_safe"])
+                        self.assertFalse(data["is_safe"])
 
 
 if __name__ == "__main__":
