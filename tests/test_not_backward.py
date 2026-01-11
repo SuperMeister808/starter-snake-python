@@ -34,6 +34,12 @@ class TestNotBackward(unittest.TestCase):
 
                     bot.choose_move(game_state)
         
+                    patch_1.assert_called_once()
+
+                    patch_2.assert_called_once()
+
+                    patch_3.assert_called_once()
+                    
                     self.assertFalse(bot.is_move_safe["down"]["is_safe"])
 
                     self.assertTrue(self.check_safe_moves(bot.is_move_safe, "down"))
@@ -55,6 +61,12 @@ class TestNotBackward(unittest.TestCase):
 
                     bot.choose_move(game_state)
         
+                    patch_1.assert_called_once()
+
+                    patch_2.assert_called_once()
+
+                    patch_3.assert_called_once()
+                    
                     self.assertFalse(bot.is_move_safe["left"]["is_safe"])
 
                     self.assertTrue(self.check_safe_moves(bot.is_move_safe, "left"))
@@ -76,6 +88,12 @@ class TestNotBackward(unittest.TestCase):
 
                     bot.choose_move(game_state)
         
+                    patch_1.assert_called_once()
+
+                    patch_2.assert_called_once()
+
+                    patch_3.assert_called_once()
+                    
                     self.assertFalse(bot.is_move_safe["right"]["is_safe"])
 
                     self.assertTrue(self.check_safe_moves(bot.is_move_safe, "right"))
@@ -97,6 +115,12 @@ class TestNotBackward(unittest.TestCase):
 
                     bot.choose_move(game_state)
         
+                    patch_1.assert_called_once()
+
+                    patch_2.assert_called_once()
+
+                    patch_3.assert_called_once()
+                    
                     self.assertFalse(bot.is_move_safe["up"]["is_safe"])
 
                     self.assertTrue(self.check_safe_moves(bot.is_move_safe, "up"))
