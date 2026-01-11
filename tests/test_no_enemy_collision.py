@@ -132,15 +132,15 @@ class TestNoEnemyCollision(unittest.TestCase):
 
                     bot = Move()
                     
-                    result = bot.choose_move(game_state)
-                    
+                    bot.choose_move(game_state)
+
                     patch_1.assert_called_once()
                     patch_2.assert_called_once()
                     patch_3.assert_called_once()
 
-                    expectation = {"move": "up"}
+                    self.assertEqual(bot.is_move_safe["up"]["priority"], 1)
 
-                    self.assertEqual(result, expectation)
+                    self.assertTrue(self.check_none_priority(bot.is_move_safe, "up"))
 
     def test_no_priority(self):
 
@@ -157,17 +157,13 @@ class TestNoEnemyCollision(unittest.TestCase):
 
                     bot = Move()
                     
-                    result = bot.choose_move(game_state)
+                    bot.choose_move(game_state)
                     
                     patch_1.assert_called_once()
                     patch_2.assert_called_once()
                     patch_3.assert_called_once()
 
-                    expected_moves = ["up", "down", "left", "right"]
-
-                    move = result["move"]
-
-                    self.assertIn(move, expected_moves)
+                    self.assertTrue(self.check_none_priority(bot.is_move_safe, "None"))
 
     def test_is_growing(self):
 
@@ -184,7 +180,7 @@ class TestNoEnemyCollision(unittest.TestCase):
 
                     bot = Move()
                     
-                    result = bot.choose_move(game_state)
+                    bot.choose_move(game_state)
                     
                     patch_1.assert_called_once()
                     patch_2.assert_called_once()
