@@ -1,7 +1,7 @@
 
 import unittest
 from unittest.mock import patch
-from main import move
+from move import Move
 
 class TestNotBackward(unittest.TestCase):
 
@@ -12,19 +12,13 @@ class TestNotBackward(unittest.TestCase):
                       "turn": 1
                       }
         
-        with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as patch_1:
+        bot = Move()
 
-            with patch.object(Move, "not_itself_collision", return_value = "patch not_itself_collision") as patch_2:
+        bot.choose_move(game_state)
 
-                with patch.object(Move, "not_enemy_collision", return_value = "Patch not_enemy_collision") as patch_3:
+        is_safe = bot.is_move_safe["up"]["is_safe"]
         
-                    bot = Move()
-
-                    bot.choose_move(game_state)
-
-                    is_safe = bot.is_move_safe["up"]["is_safe"]
-        
-                    self.assertFalse(is_safe)
+        self.assertFalse(is_safe)
 
     def test_not_left(self):
 
@@ -33,7 +27,9 @@ class TestNotBackward(unittest.TestCase):
                       "turn": 1
                       }
 
-        move(game_state)
+        bot = Move()
+        
+        bot.choose_move(game_state)
 
         is_safe = bot.is_move_safe["left"]["is_safe"]
         
