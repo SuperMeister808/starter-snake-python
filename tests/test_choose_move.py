@@ -73,27 +73,29 @@ class TestChooseMove(unittest.TestCase):
 
         bot = Move()
                         
-        with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 2}, "down": {"is_safe": True, "priority": 0}}) as patch_5:
+        with patch.object(Move, "reset_is_move_safe", return_value="Mock reset") as reset:
+        
+            with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 2}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
                             
-            with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as patch_1:
+                with patch.object(Move, "not_wall_collision", return_value = "patch not_wall_collision") as not_wall:
 
-                with patch.object(Move, "not_backward", return_value = "patch not_itself_collision") as patch_2:
+                    with patch.object(Move, "not_backward", return_value = "patch not_itself_collision") as not_itself:
 
-                    with patch.object(Move, "not_enemy_collision", return_value = "Patch not_enemy_collision") as patch_3:
-
-                        with patch.object(Move, "not_itself_collision", return_value="Patch not_itself_collision") as patch_4:
-                                
+                        with patch.object(Move, "not_enemy_collision", return_value = "Patch not_enemy_collision") as not_enemy:
+  
                             result = bot.choose_move(game_state)
 
                             expected = ["up"]
+                            
+                            reset.assert_called_once()
 
-                            patch_1.assert_called_once()
+                            not_wall.assert_called_once()
 
-                            patch_2.assert_called_once()
+                            not_itself.assert_called_once()
 
-                            patch_3.assert_called_once()
+                            not_enemy.assert_called_once()
 
-                            patch_4.assert_called_once()
+                            reset.assert_called_once()
                             
                             self.assertIn(result["move"], expected)
 
