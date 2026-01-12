@@ -63,7 +63,7 @@ class Move():
 
         position_y = position["y"]
         
-        for e in my_body:
+        for e in my_body[1:]:
 
             x = e["x"]
             y = e["y"]
