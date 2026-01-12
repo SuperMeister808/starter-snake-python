@@ -32,7 +32,7 @@ class Move():
         
     def not_wall_collision(self, game_state):
 
-        my_head = game_state["you"]["head"]  # Coordinates of your head
+        my_head = game_state["you"]["head"]  
         
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
@@ -211,10 +211,10 @@ class Move():
                 if i != len(snake["body"]) - 1:
                     
                     positions[snake["id"]]["unsafe"].append(body_part)
+                else:
+                    if self.is_growing(snake, game_state):
 
-                if self.is_growing(snake, game_state):
-
-                    positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                        positions[snake["id"]]["unsafe"].append(snake["body"][-1])
 
         return positions
     
@@ -233,7 +233,7 @@ class Move():
 
                 safe_moves[move] = data["priority"]  
 
-        if len(safe_moves) == 0:
+        if safe_moves == {}:
             print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
             return {"move": "down"}
         
