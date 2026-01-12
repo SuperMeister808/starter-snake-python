@@ -9,8 +9,12 @@ def validate_game_state(game_state):
 
                 return False
             
-            if not isinstance(data, dict):
-
-                return False
+            if key != "turn":
+                if not isinstance(data, dict):
+                    return False
+                
+            if key == "turn":
+                if not isinstance(data, int):
+                    return False
             
         return True
