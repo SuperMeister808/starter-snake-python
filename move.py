@@ -218,8 +218,17 @@ class Move():
 
         return positions
     
+    def reset_is_move_safe(self):
+
+        for data in self.is_move_safe.values():
+
+            data["is_safe"] = True
+
+            data["priority"] = 0
+    
     def choose_move(self, game_state):
 
+        self.reset_is_move_safe()
         self.not_backward(game_state)
         self.not_wall_collision(game_state)
         self.not_itself_collision(game_state)
@@ -234,7 +243,8 @@ class Move():
                 safe_moves[move] = data["priority"]  
 
         if safe_moves == {}:
-            print(f"MOVE {game_state['turn']}: No safe moves detected! Moving down")
+            turn = game_state.get("turn", "?")
+            print(f"MOVE {turn}: No safe moves detected! Moving down")
             return {"move": "down"}
         
         # Choose a random move from the safe ones 
