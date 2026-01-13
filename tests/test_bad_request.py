@@ -5,20 +5,42 @@ from unittest.mock import patch
 
 from requests import request
 
-from move import Move
+from server import Server
 
-class TestBadRequest(unittest.main):
+class TestBadRequest(unittest.TestCase):
 
-    def not_bad_request(self):
+    def setUp(self):
+        
+        self.server = Server("not important", 8000)
+    
+    def test_not_bad_request_move(self):
 
         data = {"game": {}}
 
-        url = " http://0.0.0.0:8000"
+        with patch.object(self.server, "handlers", {"move": lambda game_state: {"Succes": "Called move"}}):
         
-        headers = {"contents": "application/json"}
+            test_client = self.server.app.test_client()
+            
+            response = test_client.post("/move", json=data)
 
-        with patch.object(Move, "choose_move", return_value="Called") as choose_move:
+            self.assertEqual(response.json, {"Succes": "Called move"})
+
+    def test_bad_request_move(self):
+
+        data = {"game": 1}
+
+        with patch.object(self.server, "handlers", {"move": lambda game_state: {"Succes": "Called move"}}):
         
-            response = request.post(data=data, url=url, headers=headers)
+            test_client = self.server.app.test_client()
+            
+            response = test_client.post("/move", json=data)
 
-            choose_move.assert_called_once()
+            self.assertEqual(response.json, {"Error": "Game State Validation Failed!"})
+
+if __name__ == "__main__":
+
+    unittest.main()
+
+
+
+            
