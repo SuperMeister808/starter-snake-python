@@ -41,7 +41,7 @@ class Server():
             if validate_game_state(game_state):
                 return self.handlers["move"](game_state)
             else:
-                return "Game State Validation Failed!" , 400
+                return {"Error": "Game State Validation Failed!"} , 400
 
         @self.app.post("/end")
         def on_end():
