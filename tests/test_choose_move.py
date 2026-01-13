@@ -295,6 +295,38 @@ class TestChooseMove(unittest.TestCase):
                             
                     self.assertIn(result["move"], expected)
 
+    def test_multiple_priorities(self):
+         
+         with patch.object(Move, "reset_is_move_safe") as reset, \
+             patch.object(Move, "not_backward") as not_backward, \
+             patch.object(Move, "not_wall_collision") as not_wall, \
+             patch.object(Move, "not_itself_collision") as not_itself, \
+             patch.object(Move, "not_enemy_collision") as not_enemy:
+  
+                game_state = {"turn": 1}
+
+                bot = Move()
+                                
+                with patch.object(bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 2}, "up": {"is_safe": True, "priority": 1}, "down": {"is_safe": True, "priority": 2}}) as is_move_safe:
+                                
+                    result = bot.choose_move(game_state)
+
+                    expected = ["down", "right"]
+                            
+                    reset.assert_called_once()
+
+                    not_backward.assert_called_once()
+                                
+                    not_wall.assert_called_once()
+
+                    not_itself.assert_called_once()
+
+                    not_enemy.assert_called_once()
+
+                    reset.assert_called_once()
+                            
+                    self.assertIn(result["move"], expected)
+
 if __name__ == "__main__":
 
     unittest.main()
