@@ -21,12 +21,16 @@ def run_server(handlers: typing.Dict, port):
         if validate_game_state(game_state):
             handlers["start"](game_state)
             return "ok"
+        else:
+            return "Game State Validation Failed!" , 400
 
     @app.post("/move")
     def on_move():
         game_state = request.get_json()
         if validate_game_state(game_state):
             return handlers["move"](game_state)
+        else:
+            return "Game State Validation Failed!" , 400
 
     @app.post("/end")
     def on_end():
@@ -34,6 +38,8 @@ def run_server(handlers: typing.Dict, port):
         if validate_game_state(game_state):
             handlers["end"](game_state)
             return "ok"
+        else:
+            return "Game State Validation Failed!" , 400
 
     @app.after_request
     def identify_server(response):
