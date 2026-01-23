@@ -173,38 +173,21 @@ class Move():
         for snake in snakes:
 
             positions [snake["id"]] = {"unsafe": [],"priority": []}
-
             positions [snake["id"]]["unsafe"].append(snake["head"])
                 
             my_length = game_state["you"]["length"]
-            
             opponent_length = snake["length"]
+                          
+            first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
+            second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
+            third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1}
+            fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}      
                 
+            moves = [first_move, second_move, third_move, fourth_move]      
             if opponent_length >= my_length:
-                    
-                first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
-
-                second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
-
-                third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1}
-
-                fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}
-
-                unsafe_moves = [first_move, second_move, third_move, fourth_move]
-                
-                positions[snake["id"]]["unsafe"].extend(unsafe_moves)
+                positions[snake["id"]]["unsafe"].extend(moves)
             else:
-                first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
-
-                second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
-
-                third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1}
-
-                fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}
-
-                priority_moves = [first_move, second_move, third_move, fourth_move]
-
-                positions[snake["id"]]["priority"].extend(priority_moves)
+                positions[snake["id"]]["priority"].extend(moves)
 
             for i , body_part in enumerate(snake["body"]):
 
