@@ -29,7 +29,6 @@ class Move():
             self.is_move_safe["up"]["is_safe"] = False         
 
        
-        
     def not_wall_collision(self, game_state):
 
         my_head = game_state["you"]["head"]  
@@ -184,10 +183,10 @@ class Move():
             fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}      
                 
             moves = [first_move, second_move, third_move, fourth_move]      
+
+            positions[snake["id"]]["priority"].extend(moves)
             if opponent_length >= my_length:
                 positions[snake["id"]]["unsafe"].extend(moves)
-            else:
-                positions[snake["id"]]["priority"].extend(moves)
 
             for i , body_part in enumerate(snake["body"]):
 
@@ -209,6 +208,35 @@ class Move():
 
             data["priority"] = 0
     
+    def calculate_food(self, game_state):
+
+        head = game_state["you"]["head"]
+        food_list = game_state["board"]["food"]
+
+        left_move = {"x": head["x"] -1, "y": head["y"]}
+        right_move = {"x": head["x"] + 1, "y": head["y"]}
+        up_move = {"x": head["x"], "y": head["y"] + 1}
+        down_move = {"x": head["x"], "y": head["y"] - 1}
+
+        for food in food_list:
+
+            if left_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+
+                self.is_move_safe["left"]["priority"] += 1
+
+            if right_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+
+                self.is_move_safe["right"]["priority"] += 1
+
+            if up_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+
+                self.is_move_safe["up"]["priority"] += 1
+
+            if down_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+
+                self.is_move_safe["down"]["priority"] += 1
+
+    
     def choose_move(self, game_state):
 
         self.reset_is_move_safe()
@@ -216,6 +244,7 @@ class Move():
         self.not_wall_collision(game_state)
         self.not_itself_collision(game_state)
         self.not_enemy_collision(game_state)
+        self.calculate_food(game_state)
         
         # Are there any safe moves left?
         safe_moves = {}
