@@ -200,6 +200,34 @@ class Move():
 
         return positions
     
+    def calculate_food(self, game_state):
+
+        head = game_state["you"]["head"]
+        food = game_state["board"]["food"]
+
+        left_move = {"x": head["x"] - 1, "y": head["y"]}
+        right_move = {"x": head["x"] + 1, "y": head["y"]}
+        up_move = {"x": head["x"], "y": head["y"] + 1}
+        down_move = {"x": head["x"], "y": head["y"] - 1}
+
+        for item in food:
+        
+            if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
+
+                self.is_move_safe["left"]["priority"] += 1
+
+            if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
+
+                self.is_move_safe["right"]["priority"] += 1
+
+            if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
+
+                self.is_move_safe["up"]["priority"] += 1
+
+            if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
+
+                self.is_move_safe["down"]["priority"] += 1
+    
     def reset_is_move_safe(self):
 
         for data in self.is_move_safe.values():
