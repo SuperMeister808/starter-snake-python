@@ -161,6 +161,17 @@ class TestNoEnemyCollision(unittest.TestCase):
                     self.check_calls()
 
                     self.assertTrue(self.check_none_priority(self.bot.is_move_safe, "None"))
+
+    def test_unsafe_moves(self):
+            
+            game_state = {"you": {"id": "my", "head": {"x": 1, "y": 2} ,"body": [{"x": 1, "y": 2}, {"x": 1, "y": 3}, {"x": 1, "y": 4}],"length": 3}, 
+                      "board": {"snakes": [{"id": "opponent", "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 3, "y": 2}], "length": 2}], "food": []},
+                      "turn": 1
+                      }
+            
+            self.bot.choose_move(self.bot)
+            
+            self.assertFalse(self)
     
 if __name__ == "__main__":
 
