@@ -220,6 +220,23 @@ class TestChooseMove(unittest.TestCase):
                             
                     self.assertIn(result["move"], expected)
 
+    def test_unsafe_with_priority(self):
+           
+        game_state = {"turn": 1}
+
+
+                                
+        with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": False, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 1}}) as is_move_safe:
+                                
+                result = self.bot.choose_move(game_state)
+
+                expected = ["down"]
+                            
+                self.check_calls()
+                            
+                self.assertIn(result["move"], expected)
+
+
 if __name__ == "__main__":
 
     unittest.main()
