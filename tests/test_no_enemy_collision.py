@@ -169,9 +169,55 @@ class TestNoEnemyCollision(unittest.TestCase):
                       "turn": 1
                       }
             
-            self.bot.choose_move(self.bot)
+            self.bot.choose_move(game_state)
             
-            self.assertFalse(self)
+            self.assertFalse(self.bot.is_move_safe["right"]["is_safe"])
+
+            for move, data in self.bot.is_move_safe.items():
+                    
+                    if move != "right":
+                            
+                            self.assertTrue(data["is_safe"])
+
+    def test_unsafe_and_priority(self):
+            
+            game_state = {"you": {"id": "my", "head": {"x": 3, "y": 2} ,"body": [{"x": 3, "y": 2}, {"x": 3, "y": 3}, {"x": 3, "y": 4}],"length": 2}, 
+                      "board": {"snakes": [{"id": "opponent", "head": {"x": 1, "y": 2}, "body": [{"x": 1, "y": 2}, {"x": 1, "y": 3}], "length": 3}], "food": []},
+                      "turn": 1
+                      }
+            
+            self.bot.choose_move(game_state)
+            
+            self.assertEqual(self.bot.is_move_safe["left"]["priority"], 1)
+            self.assertFalse(self.bot.is_move_safe["left"]["is_safe"])
+           
+
+            for move, data in self.bot.is_move_safe.items():
+                    
+                    if move != "left":
+                            
+                            self.assertTrue(data["is_safe"])
+
+    def test_different_unsafe_and_priority(self):
+            
+            game_state = {"you": {"id": "my", "head": {"x": 3, "y": 2} ,"body": [{"x": 3, "y": 2}, {"x": 3, "y": 3}, {"x": 3, "y": 4}, {"x": 3, "y": 5}],"length": 3}, 
+                      "board": {"snakes": [{"id": "opponent", "head": {"x": 1, "y": 2}, "body": [{"x": 1, "y": 2}, {"x": 1, "y": 3}], "length": 2}, {"id": "opponent2", "head": {"x": 4, "y": 2}, "body": [{"x": 4, "y": 2}, {"x": 4, "y": 3}], "length": 2}], "food": []},
+                      "turn": 1
+                      }
+
+            self.bot.choose_move(game_state)
+            
+            self.assertEqual(self.bot.is_move_safe["left"]["priority"], 1)
+            self.assertTrue(self.bot.is_move_safe["left"]["is_safe"])
+
+            self.assertFalse(self.bot.is_move_safe["right"]["is_safe"])
+            self.assertEqual(self.bot.is_move_safe["right"]["priority"], 0)
+            
+            for move, data in self.bot.is_move_safe.items():
+                    
+                    if move != "left" and move != "right":
+                            
+                            self.assertTrue(data["is_safe"])
     
 if __name__ == "__main__":
 
