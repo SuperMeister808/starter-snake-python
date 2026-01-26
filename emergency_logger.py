@@ -3,18 +3,26 @@ import queue
 
 from git import Repo
 
+import time
+
 class EmergencyLogger():
        
     def __init__(self):
 
         self.loger_queue = queue.Queue()  
 
-        self.is_running = False        
+        self.is_running = False
+
+        self.last_push = time.time()
+        
+        self.push_interval = 300
+
+
         
 
     def emergency_log(self, where, exception, game_state):
 
-        turn = game_state["turn"]
+        turn = game_state.get("turn", "unknown")
         self.emergency = True
         
         with open("emergency.log", "a") as f:
@@ -31,11 +39,21 @@ class EmergencyLogger():
 
     def log_worker(self):
 
-        while not self.loger_queue.empty():
+        while self.is_running:
+
+            if time.time() - self.last_push >= self.push_interval:
+
+                try:
+                    self.upload_to_git()
+                except Exception as e:
+                    self.emergency_log("git_push", e, {"turn": "unknown"})
             
-            where, exception, game_state = self.loger_queue.get()
+            try: 
+                where, exception, game_state = self.loger_queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
 
             self.emergency_log(where, exception, game_state)
-            self.upload_to_git()
 
-        self.is_running = False
+
+
