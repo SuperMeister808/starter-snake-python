@@ -5,6 +5,7 @@ from git import Repo
 
 import threading
 
+from main import ServerHandler
 from emergency_logger import EmergencyLogger
 
 class Move():
@@ -16,7 +17,7 @@ class Move():
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
 
-        self.emergency_logger = EmergencyLogger()
+        self.server_handler = ServerHandler()
 
     def not_backward(self, game_state):
 
@@ -283,39 +284,32 @@ class Move():
                                  "right": {"is_safe": True, "priority": 0},
                                  "up": {"is_safe": True, "priority": 0},
                                  "down": {"is_safe": True, "priority": 0}}
-            self.emergency_logger.loger_queue.put(("reset_is_move_safe", e, game_state))
+            EmergencyLogger.loger_queue.put(("reset_is_move_safe", e, game_state))
         try:
             self.not_backward(game_state)
         except Exception as e:
-            self.emergency_logger.loger_queue.put(("not_backward", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_backward", e, game_state))
             pass
         try:
             self.not_wall_collision(game_state)
         except Exception as e:
-            self.emergency_logger.loger_queue.put(("not_wall_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_wall_collision", e, game_state))
             pass
         try:
             self.not_itself_collision(game_state)
         except Exception as e:
-            self.emergency_logger.loger_queue.put(("not_itself_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_itself_collision", e, game_state))
             pass
         try:
             self.not_enemy_collision(game_state)
         except Exception as e:
-            self.emergency_logger.loger_queue.put(("not_enemy_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_enemy_collision", e, game_state))
             pass
         try:
             self.calculate_food(game_state)
         except Exception as e:
-            self.emergency_logger.loger_queue.put(("calculate_food", e, game_state))
+            EmergencyLogger.loger_queue.put(("calculate_food", e, game_state))
             pass
-        
-        if not self.emergency_logger.is_running:
-
-            self.emergency_logger.is_running = True
-            
-            thread = threading.Thread(target=self.emergency_logger.log_worker)
-            thread.start()
         
         # Are there any safe moves left?
         safe_moves = {}

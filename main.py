@@ -12,45 +12,59 @@
 
 import random
 import typing
+import threading
+
 from move import Move
+from emergency_logger import EmergencyLogger
 
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance
 # TIP: If you open your Battlesnake URL in a browser you should see this data
-def info() -> typing.Dict:
-    print("INFO")
+class ServerHandler():
 
-    return {
+    def info() -> typing.Dict:
+        print("INFO")
+
+        return {
         "apiversion": "1",
         "author": "",  # TODO: Your Battlesnake Username
         "color": "#FF0000",  
         "head": "default",  # TODO: Choose head
         "tail": "default",  # TODO: Choose tail
-    }
+        }
 
-def print_game_state(game_state: typing.Dict):
+    def print_game_state(self, game_state: typing.Dict):
+        print(game_state)
 
-    print(game_state)
-
-# start is called when your Battlesnake begins a game
-def start(game_state: typing.Dict):
-    print("GAME START")
-
-
-# end is called when your Battlesnake finishes a game
-def end(game_state: typing.Dict):
-    print("GAME OVER\n")
+    # start is called when your Battlesnake begins a game
+    def start(self, game_state: typing.Dict):
+    
+        EmergencyLogger.is_running = True
+        thread = threading.Thread(target=EmergencyLogger.log_worker)
+        thread.start()
+        EmergencyLogger.worker_thread = thread
+        print("GAME START")
 
 
-# move is called on every turn and returns your next move
-# Valid moves are "up", "down", "left", or "right"
-# See https://docs.battlesnake.com/api/example-move for available data
-def move(game_state: typing.Dict) -> typing.Dict:
+    # end is called when your Battlesnake finishes a game
+    def end(self, game_state: typing.Dict):
+        EmergencyLogger.is_running = False
+        EmergencyLogger.worker_thread.join()
+        try:
+            EmergencyLogger.upload_to_git()
+        except Exception as e:
+            print(f"Git Upload failed: {e}")
+        print("GAME OVER\n")
 
-    next_move = Move()
-    game_move = next_move.choose_move(game_state)
+    # move is called on every turn and returns your next move
+    # Valid moves are "up", "down", "left", or "right"
+    # See https://docs.battlesnake.com/api/example-move for available data
+    def move(self, game_state: typing.Dict) -> typing.Dict:
 
-    return game_move
+        next_move = Move()
+        game_move = next_move.choose_move(game_state)
+
+        return game_move
 
     
 
@@ -58,6 +72,7 @@ def move(game_state: typing.Dict) -> typing.Dict:
 if __name__ == "__main__":
     from server import Server
 
-    app = Server({"info": info, "start": start, "move": move, "end": end}, 8000)
+    server_handler = ServerHandler()
+    app = Server({"info": server_handler.info, "start": server_handler.start, "move": server_handler.move, "end": server_handler.end}, 8000)
 
     app.run_server()

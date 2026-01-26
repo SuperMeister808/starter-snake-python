@@ -7,29 +7,29 @@ import time
 
 class EmergencyLogger():
        
-    def __init__(self):
 
-        self.loger_queue = queue.Queue()  
 
-        self.is_running = False
+    loger_queue = queue.Queue()  
 
-        self.last_push = time.time()
+    is_running = False
+
+    last_push = time.time()
         
-        self.push_interval = 300
+    push_interval = 300
 
-
+    worker_thread = None
         
-
-    def emergency_log(self, where, exception, game_state):
+    @classmethod
+    def emergency_log(cls, where, exception, game_state):
 
         turn = game_state.get("turn", "unknown")
-        self.emergency = True
         
         with open("emergency.log", "a") as f:
 
             f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
 
-    def upload_to_git(self, repo_path=".", message="Emergency Log Updated"):
+    @classmethod
+    def upload_to_git(cls, repo_path=".", message="Game played"):
 
         repo = Repo(repo_path)
         repo.git.add(A=True)
@@ -37,23 +37,19 @@ class EmergencyLogger():
         origin = repo.remote(name="origin")
         origin.push()
 
-    def log_worker(self):
+    @classmethod
+    def log_worker(cls):
 
-        while self.is_running:
-
-            if time.time() - self.last_push >= self.push_interval:
-
-                try:
-                    self.upload_to_git()
-                except Exception as e:
-                    self.emergency_log("git_push", e, {"turn": "unknown"})
+        while cls.is_running:
             
-            try: 
-                where, exception, game_state = self.loger_queue.get(timeout=0.1)
-            except queue.Empty:
-                continue
+            while not cls.loger_queue.empty():
+            
+                try: 
+                    where, exception, game_state = cls.loger_queue.get(timeout=0.1)
+                except queue.Empty:
+                    continue
 
-            self.emergency_log(where, exception, game_state)
+                cls.emergency_log(where, exception, game_state)
 
 
 
