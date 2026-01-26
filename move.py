@@ -246,21 +246,21 @@ class Move():
         up_move = {"x": head["x"], "y": head["y"] + 1}
         down_move = {"x": head["x"], "y": head["y"] - 1}
 
-        for food in food_list:
+        for item in food_list:
 
-            if left_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+            if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
                 self.is_move_safe["left"]["priority"] += 1
 
-            if right_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+            if right_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
                 self.is_move_safe["right"]["priority"] += 1
 
-            if up_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+            if up_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
                 self.is_move_safe["up"]["priority"] += 1
 
-            if down_move["x"] == food["x"] and left_move["y"] == food_list["y"]:
+            if down_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
                 self.is_move_safe["down"]["priority"] += 1
 

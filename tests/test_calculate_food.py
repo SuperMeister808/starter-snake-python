@@ -64,7 +64,8 @@ class TestCalculateFood(unittest.TestCase):
         self.bot.choose_move(game_state)
 
         self.assertFalse(self.bot.is_move_safe["right"]["is_safe"])
-        self.assertEqual(self.bot.is_move_safe["right"]["priority"], 1)
+        #snake area + food area
+        self.assertEqual(self.bot.is_move_safe["right"]["priority"], 2)
 
         for move, data in self.bot.is_move_safe.items():
 
