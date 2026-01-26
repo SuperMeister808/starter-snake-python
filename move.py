@@ -1,6 +1,8 @@
 
 import random
 
+from git import Repo
+
 class Move():
 
     def __init__(self):
@@ -264,15 +266,45 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    
+    def emergency_log(self, where, exception, game_state):
+
+        turn = game_state["turn"]
+        
+        with open("emergency.log", "a") as f:
+
+            f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
+
+
+
     def choose_move(self, game_state):
 
-        self.reset_is_move_safe()
-        self.not_backward(game_state)
-        self.not_wall_collision(game_state)
-        self.not_itself_collision(game_state)
-        self.not_enemy_collision(game_state)
-        self.calculate_food(game_state)
+        try:
+            self.reset_is_move_safe()
+        except Exception as e:
+            self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
+                                 "right": {"is_safe": True, "priority": 0},
+                                 "up": {"is_safe": True, "priority": 0},
+                                 "down": {"is_safe": True, "priority": 0}}
+        try:
+            self.not_backward(game_state)
+        except Exception as e:
+            pass
+        try:
+            self.not_wall_collision(game_state)
+        except Exception as e:
+            pass
+        try:
+            self.not_itself_collision(game_state)
+        except Exception as e:
+            pass
+        try:
+            self.not_enemy_collision(game_state)
+        except Exception as e:
+            pass
+        try:
+            self.calculate_food(game_state)
+        except Exception as e:
+            pass
         
         # Are there any safe moves left?
         safe_moves = {}
