@@ -12,6 +12,8 @@ class Move():
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
 
+        self.emergency = False
+
     def not_backward(self, game_state):
 
         # We've included code to prevent your Battlesnake from moving backwards
@@ -269,12 +271,19 @@ class Move():
     def emergency_log(self, where, exception, game_state):
 
         turn = game_state["turn"]
+        self.emergency = True
         
         with open("emergency.log", "a") as f:
 
             f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
 
+    def upload_to_git(self, repo_path=".", message="Emergency Log Updated"):
 
+        repo = Repo(repo_path)
+        repo.git.add(A=True)
+        repo.index.commit(message)
+        origin = repo.remote(name="origin")
+        origin.push()
 
     def choose_move(self, game_state):
 
@@ -285,26 +294,38 @@ class Move():
                                  "right": {"is_safe": True, "priority": 0},
                                  "up": {"is_safe": True, "priority": 0},
                                  "down": {"is_safe": True, "priority": 0}}
+            self.emergency_log("reset_is_move_safe", e, game_state)
+            self.upload_to_git()
         try:
             self.not_backward(game_state)
         except Exception as e:
             pass
+            self.emergency_log("not_backward", e, game_state)
+            self.upload_to_git()
         try:
             self.not_wall_collision(game_state)
         except Exception as e:
             pass
+            self.emergency_log("not_wall_collision", e, game_state)
+            self.upload_to_git()
         try:
             self.not_itself_collision(game_state)
         except Exception as e:
             pass
+            self.emergency_log("not_itself_collision", e, game_state)
+            self.upload_to_git()
         try:
             self.not_enemy_collision(game_state)
         except Exception as e:
             pass
+            self.emergency_log("not_enemy_collision", e, game_state)
+            self.upload_to_git()
         try:
             self.calculate_food(game_state)
         except Exception as e:
             pass
+            self.emergency_log("calculate_food", e, game_state)
+            self.upload_to_git()
         
         # Are there any safe moves left?
         safe_moves = {}
