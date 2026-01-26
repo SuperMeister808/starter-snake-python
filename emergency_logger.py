@@ -32,8 +32,6 @@ class EmergencyLogger():
     def log_worker(self):
 
         while not self.loger_queue.empty():
-
-            self.is_running = True
             
             where, exception, game_state = self.loger_queue.get()
 

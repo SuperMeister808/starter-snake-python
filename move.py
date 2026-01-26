@@ -285,7 +285,7 @@ class Move():
                                  "down": {"is_safe": True, "priority": 0}}
             self.emergency_logger.loger_queue.put(("reset_is_move_safe", e, game_state))
         try:
-            self.not_backward(self)
+            self.not_backward(game_state)
         except Exception as e:
             self.emergency_logger.loger_queue.put(("not_backward", e, game_state))
             pass
@@ -312,7 +312,9 @@ class Move():
         
         if not self.emergency_logger.is_running:
 
-            thread = threading.Thread(target=self.emergency_logger.log_worker())
+            self.emergency_logger.is_running = True
+            
+            thread = threading.Thread(target=self.emergency_logger.log_worker)
             thread.start()
         
         # Are there any safe moves left?
