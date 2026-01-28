@@ -41,7 +41,7 @@ class EmergencyLogger():
             raise RuntimeError(f"No changes to commit or error: {e}")
         
     @classmethod
-    def push_to_git(cls, repo_path=".", branch="test_runtime_logs"):    
+    def push_to_git(cls, repo_path=".", branch="runtime_logs"):    
         repo = Repo(repo_path)
         if repo.active_branch.name != branch:
             raise RuntimeError(f"Could not write on {repo.active_branch.name}")
