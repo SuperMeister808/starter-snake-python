@@ -34,7 +34,7 @@ class Server():
                     start = self.handlers["start"](game_state)
                 except Exception as e:
                     return f"Error: {e}"
-                return start
+                print(start)
             else:
                 return "Game State Validation Failed!" , 400
 
@@ -54,7 +54,7 @@ class Server():
                     end = self.handlers["end"](game_state)
                 except Exception as e:
                     return f"Error: {e}"
-                return end
+                print(end)
             else:
                 return "Game State Validation Failed!" , 400
             
