@@ -13,10 +13,6 @@ class EmergencyLogger():
 
     is_running = False
 
-    last_push = time.time()
-        
-    push_interval = 300
-
     worker_thread = None
         
     @classmethod
@@ -65,6 +61,17 @@ class EmergencyLogger():
 
 
                 cls.emergency_log(where, exception, game_state)
+
+    @classmethod
+    def clear_emergency_logger(cls):
+
+        while not cls.loger_queue.empty():
+
+            cls.loger_queue.get()
+
+        cls.is_running = False
+
+        cls.worker_thread = None
 
 
 

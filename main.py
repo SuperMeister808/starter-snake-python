@@ -14,6 +14,8 @@ import random
 import typing
 import threading
 
+import time
+
 from move import Move
 from emergency_logger import EmergencyLogger
 
@@ -39,6 +41,7 @@ class ServerHandler():
     # start is called when your Battlesnake begins a game
     def start(self, game_state: typing.Dict):
     
+        EmergencyLogger.clear_emergency_logger()
         try:
             EmergencyLogger.is_running = True
             thread = threading.Thread(target=EmergencyLogger.log_worker)
@@ -51,11 +54,19 @@ class ServerHandler():
 
     # end is called when your Battlesnake finishes a game
     def end(self, game_state: typing.Dict):
-        try:
-            EmergencyLogger.is_running = False
-            EmergencyLogger.worker_thread.join()
-        except Exception as e:
-            print (f"Thread could not join: {e}")
+        join = False
+        
+        while join == False:
+            if EmergencyLogger.loger_queue.empty():    
+                try:            
+                    EmergencyLogger.is_running = False
+                    EmergencyLogger.worker_thread.join()
+                    join = True
+                except Exception as e:
+                    print (f"Thread could not join: {e}")
+                    join = True
+            else:
+                time.sleep(0.1)
         try:
             EmergencyLogger.upload_to_git()
         except Exception as e:
