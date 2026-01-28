@@ -39,11 +39,15 @@ class ServerHandler():
     # start is called when your Battlesnake begins a game
     def start(self, game_state: typing.Dict):
     
-        EmergencyLogger.is_running = True
-        thread = threading.Thread(target=EmergencyLogger.log_worker)
-        thread.start()
-        EmergencyLogger.worker_thread = thread
-        return "GAME START"
+        try:
+            EmergencyLogger.is_running = True
+            thread = threading.Thread(target=EmergencyLogger.log_worker)
+            thread.start()
+            EmergencyLogger.worker_thread = thread
+        except Exception as e:
+            print(f"Threading failed: {e}")
+        print("GAME START")
+        return "ok"
 
 
     # end is called when your Battlesnake finishes a game
@@ -52,7 +56,7 @@ class ServerHandler():
             EmergencyLogger.is_running = False
             EmergencyLogger.worker_thread.join()
         except Exception as e:
-            return f"Error: {e}"
+            print (f"Thread could not join: {e}")
         try:
             EmergencyLogger.upload_to_git()
         except Exception as e:
