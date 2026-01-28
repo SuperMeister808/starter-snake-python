@@ -25,8 +25,11 @@ class Server():
     def setup_routes(self):
 
         @self.app.get("/")
-        def on_info():
-            return self.handlers["info"]()
+        def on_info(): 
+            try:
+                return self.handlers["info"]()
+            except Exception as e:
+                return jsonify({"Error": f"Infos not available: {e}"})
 
         @self.app.post("/start")
         def on_start():
@@ -69,6 +72,16 @@ class Server():
             else:
                 print("Game State Validation Failed!")
                 return jsonify({"Error": "Game State Validation Failed!"}) , 400
+            
+        @self.app.get("/admin/push")
+        def on_push(self):
+
+            try:
+                self.handlers["push"]()
+                return "ok"
+            except Exception as e:
+                print(f"Failed to push on git: {e}")
+                return jsonify({"Error": f"Failed to push on git:{e}"}) , 500
             
         @self.app.after_request
         def identify_server(response):
