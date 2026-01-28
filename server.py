@@ -62,6 +62,7 @@ class Server():
             if validate_game_state(game_state):
                 try:
                     self.handlers["end"](game_state)
+                    return "ok"
                 except Exception as e:
                     print(f"Error: {e}")
                     return jsonify({"Error": f"Error: {e}"}) , 500
