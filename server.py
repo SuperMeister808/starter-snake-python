@@ -100,7 +100,7 @@ class Server():
         def decorated(*args, **kwargs):
             token = os.environ.get("ADMIN_TOKEN")
 
-            if token != request.headers.get("X-ADMIN-TOKEN"):
+            if token != request.headers.get("X-Admin-Token"):
                 abort(403)
             return f(*args, **kwargs)
         
