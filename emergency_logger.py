@@ -24,9 +24,12 @@ class EmergencyLogger():
 
         turn = game_state.get("turn", "unknown")
         
-        with open("emergency.log", "a") as f:
+        try:
+            with open("runtime.log", "a") as f:
 
-            f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
+                f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
+        except Exception as e:
+            raise RuntimeError(f"Could not opne runtime log:{e}")
 
     @classmethod
     def upload_to_git(cls, repo_path=".", message="Game played", branch="test_runtime_logs"):
