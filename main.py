@@ -48,8 +48,11 @@ class ServerHandler():
 
     # end is called when your Battlesnake finishes a game
     def end(self, game_state: typing.Dict):
-        EmergencyLogger.is_running = False
-        EmergencyLogger.worker_thread.join()
+        try:
+            EmergencyLogger.is_running = False
+            EmergencyLogger.worker_thread.join()
+        except Exception as e:
+            return f"Error: {e}"
         try:
             EmergencyLogger.upload_to_git()
         except Exception as e:
