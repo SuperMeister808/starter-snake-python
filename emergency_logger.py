@@ -40,6 +40,12 @@ class EmergencyLogger():
             repo.git.commit("-m", message, "--allow-empty")
         except Exception as e:
             print(f"No changes to commit or error: {e}")
+        
+    def push_to_git(self, repo_path=".", branch="test_runtime_logs"):    
+        repo = Repo(repo_path)
+        if repo.active_branch.name != branch:
+            raise RuntimeError(f"Could not write on {repo.active_branch.name}")
+
         origin = repo.remote(name="origin")
         origin.push(branch)
 
