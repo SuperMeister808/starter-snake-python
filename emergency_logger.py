@@ -36,7 +36,10 @@ class EmergencyLogger():
             raise RuntimeError(f"Refusing to push from branch {repo.active_branch}")
         
         repo.git.add(A=True)
-        repo.index.commit(message, allow_empty=True)
+        try:
+            repo.git.commit("-m", message, "--allow-empty")
+        except Exception as e:
+            print(f"No changes to commit or error: {e}")
         origin = repo.remote(name="origin")
         origin.push(branch)
 
