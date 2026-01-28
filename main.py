@@ -54,7 +54,7 @@ class ServerHandler():
             EmergencyLogger.upload_to_git()
         except Exception as e:
             return f"Git Upload failed: {e}"
-        return "GAME OVER\n"
+        return "GAME OVER"
 
     # move is called on every turn and returns your next move
     # Valid moves are "up", "down", "left", or "right"
