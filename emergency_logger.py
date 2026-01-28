@@ -5,8 +5,6 @@ from git import Repo
 
 import time
 
-from flask import jsonify
-
 class EmergencyLogger():
        
 
@@ -26,7 +24,6 @@ class EmergencyLogger():
             with open("runtime.log", "a") as f:
 
                 f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
-                return jsonify({"status": "ok"})
         except Exception as e:
             raise RuntimeError(f"Could not opne runtime log:{e}")
 
@@ -40,7 +37,6 @@ class EmergencyLogger():
         repo.git.add(A=True)
         try:
             repo.git.commit("-m", message, "--allow-empty")
-            return jsonify({"status": "ok"})
         except Exception as e:
             raise RuntimeError(f"No changes to commit or error: {e}")
         
@@ -52,7 +48,7 @@ class EmergencyLogger():
 
         origin = repo.remote(name="origin")
         origin.push(branch)
-        return jsonify({"status": "ok"})
+        return {"status": "ok"}
 
     @classmethod
     def log_worker(cls):
