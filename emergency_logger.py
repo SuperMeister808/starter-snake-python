@@ -53,10 +53,9 @@ class EmergencyLogger():
             
             while not cls.loger_queue.empty():
             
-                try: 
-                    where, exception, game_state = cls.loger_queue.get(timeout=0.1)
-                except queue.Empty:
-                    continue
+                
+                where, exception, game_state = cls.loger_queue.get(timeout=0.1)
+
 
                 cls.emergency_log(where, exception, game_state)
 
