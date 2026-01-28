@@ -433,3 +433,4 @@
 [113] not_backward: TypeError: Move.not_backward() missing 1 required positional argument: 'game_state'
 [114] not_backward: TypeError: Move.not_backward() missing 1 required positional argument: 'game_state'
 [115] not_backward: TypeError: Move.not_backward() missing 1 required positional argument: 'game_state'
+[0] not_backward: TypeError: Move.not_backward() missing 1 required positional argument: 'game_state'
