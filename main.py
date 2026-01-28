@@ -22,7 +22,7 @@ from emergency_logger import EmergencyLogger
 # TIP: If you open your Battlesnake URL in a browser you should see this data
 class ServerHandler():
 
-    def info() -> typing.Dict:
+    def info(self) -> typing.Dict:
         print("INFO")
 
         return {
@@ -43,7 +43,7 @@ class ServerHandler():
         thread = threading.Thread(target=EmergencyLogger.log_worker)
         thread.start()
         EmergencyLogger.worker_thread = thread
-        print("GAME START")
+        return "GAME START"
 
 
     # end is called when your Battlesnake finishes a game
@@ -53,8 +53,8 @@ class ServerHandler():
         try:
             EmergencyLogger.upload_to_git()
         except Exception as e:
-            print(f"Git Upload failed: {e}")
-        print("GAME OVER\n")
+            return f"Git Upload failed: {e}"
+        return "GAME OVER\n"
 
     # move is called on every turn and returns your next move
     # Valid moves are "up", "down", "left", or "right"

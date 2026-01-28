@@ -5,7 +5,6 @@ from git import Repo
 
 import threading
 
-from main import ServerHandler
 from emergency_logger import EmergencyLogger
 
 class Move():
@@ -17,7 +16,6 @@ class Move():
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
 
-        self.server_handler = ServerHandler()
 
     def not_backward(self, game_state):
 
