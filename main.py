@@ -47,7 +47,6 @@ class ServerHandler():
         except Exception as e:
             print(f"Threading failed: {e}")
         print("GAME START")
-        return "ok"
 
 
     # end is called when your Battlesnake finishes a game
@@ -60,8 +59,10 @@ class ServerHandler():
         try:
             EmergencyLogger.upload_to_git()
         except Exception as e:
-            return f"Git Upload failed: {e}"
-        return "GAME OVER"
+            print (f"Git Upload failed: {e}")
+
+        print("GAME OVER\n")
+
 
     # move is called on every turn and returns your next move
     # Valid moves are "up", "down", "left", or "right"
