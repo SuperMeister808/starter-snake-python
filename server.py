@@ -92,6 +92,6 @@ class Server():
         
     def run_server(self):
 
-        host = "127.0.1"
+        host = "127.0.0.1"
 
         self.app.run(host=host, port=self.port)
