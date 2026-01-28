@@ -284,7 +284,7 @@ class Move():
                                  "down": {"is_safe": True, "priority": 0}}
             EmergencyLogger.loger_queue.put(("reset_is_move_safe", e, game_state))
         try:
-            self.not_backward()
+            self.not_backward(game_state)
         except Exception as e:
             EmergencyLogger.loger_queue.put(("not_backward", e, game_state))
             pass
