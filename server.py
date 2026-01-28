@@ -85,7 +85,6 @@ class Server():
                 self.handlers["push"]()
                 return jsonify({"status": "ok"})
             except Exception as e:
-                print(f"Failed to push on git: {e}")
                 return jsonify({"Error": f"Failed to push on git:{e}"}) , 500
             
         @self.app.after_request
