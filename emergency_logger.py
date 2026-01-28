@@ -29,13 +29,16 @@ class EmergencyLogger():
             f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
 
     @classmethod
-    def upload_to_git(cls, repo_path=".", message="Game played"):
-
+    def upload_to_git(cls, repo_path=".", message="Game played", branch="test_runtime_log"):
+        
         repo = Repo(repo_path)
+        if repo.active_branch.name != branch:
+            raise RuntimeError(f"Refusing to push from branch {repo.active_branch}")
+        
         repo.git.add(A=True)
-        repo.index.commit(message)
+        repo.index.commit(message, allow_empty=True)
         origin = repo.remote(name="origin")
-        origin.push()
+        origin.push(branch)
 
     @classmethod
     def log_worker(cls):
