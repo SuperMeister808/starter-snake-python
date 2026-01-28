@@ -33,7 +33,7 @@ class EmergencyLogger():
         
         repo = Repo(repo_path)
         if repo.active_branch.name != branch:
-            raise RuntimeError(f"Refusing to push from branch {repo.active_branch}")
+            raise RuntimeError(f"Refusing to write on branch {repo.active_branch}")
         
         repo.git.add(A=True)
         try:
@@ -41,7 +41,8 @@ class EmergencyLogger():
         except Exception as e:
             print(f"No changes to commit or error: {e}")
         
-    def push_to_git(self, repo_path=".", branch="test_runtime_logs"):    
+    @classmethod
+    def push_to_git(cls, repo_path=".", branch="test_runtime_logs"):    
         repo = Repo(repo_path)
         if repo.active_branch.name != branch:
             raise RuntimeError(f"Could not write on {repo.active_branch.name}")
