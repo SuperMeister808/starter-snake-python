@@ -29,7 +29,7 @@ class EmergencyLogger():
             f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
 
     @classmethod
-    def upload_to_git(cls, repo_path=".", message="Game played", branch="test_runtime_log"):
+    def upload_to_git(cls, repo_path=".", message="Game played", branch="test_runtime_logs"):
         
         repo = Repo(repo_path)
         if repo.active_branch.name != branch:
