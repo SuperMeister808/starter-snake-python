@@ -30,8 +30,11 @@ class Server():
         def on_start():
             game_state = request.get_json()
             if validate_game_state(game_state):
-                self.handlers["start"](game_state)
-                return "ok"
+                try:
+                    start = self.handlers["start"](game_state)
+                except Exception as e:
+                    return f"Error: {e}"
+                return start
             else:
                 return "Game State Validation Failed!" , 400
 
@@ -47,8 +50,11 @@ class Server():
         def on_end():
             game_state = request.get_json()
             if validate_game_state(game_state):
-                self.handlers["end"](game_state)
-                return "ok"
+                try:
+                    end = self.handlers["end"](game_state)
+                except Exception as e:
+                    return f"Error: {e}"
+                return end
             else:
                 return "Game State Validation Failed!" , 400
             
