@@ -74,7 +74,7 @@ class Server():
                 return jsonify({"Error": "Game State Validation Failed!"}) , 400
             
         @self.app.get("/admin/push")
-        def on_push(self):
+        def on_push():
 
             try:
                 self.handlers["push"]()
@@ -94,7 +94,4 @@ class Server():
 
         host = "0.0.0.0"
 
-        logging.getLogger("werkzeug").setLevel(logging.ERROR)
-
-        print(f"\nRunning Battlesnake at http://{host}:{self.port}")
         self.app.run(host=host, port=self.port)
