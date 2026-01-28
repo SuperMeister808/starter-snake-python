@@ -31,12 +31,11 @@ class Server():
             game_state = request.get_json()
             if validate_game_state(game_state):
                 try:
-                    start = self.handlers["start"](game_state)
+                    self.handlers["start"](game_state)
                 except Exception as e:
-                    return f"Error: {e}"
-                print(start)
+                    print(f"Error: {e}")
             else:
-                return "Game State Validation Failed!" , 400
+                print("Game State Validation Failed!") , 400
 
         @self.app.post("/move")
         def on_move():
@@ -44,19 +43,18 @@ class Server():
             if validate_game_state(game_state):
                 return self.handlers["move"](game_state)
             else:
-                return {"Error": "Game State Validation Failed!"} , 400
+                print("Game State Validation Failed!")  , 400
 
         @self.app.post("/end")
         def on_end():
             game_state = request.get_json()
             if validate_game_state(game_state):
                 try:
-                    end = self.handlers["end"](game_state)
+                    self.handlers["end"](game_state)
                 except Exception as e:
-                    return f"Error: {e}"
-                print(end)
+                    print(f"Error: {e}")
             else:
-                return "Game State Validation Failed!" , 400
+                print("Game State Validation Failed!") , 400
             
         @self.app.after_request
         def identify_server(response):
