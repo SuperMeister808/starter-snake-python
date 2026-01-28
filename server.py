@@ -3,7 +3,7 @@ import os
 import typing
 
 from flask import Flask
-from flask import request
+from flask import request , jsonify
 
 from validate_game_state import validate_game_state
 
@@ -20,6 +20,8 @@ class Server():
 
         self.setup_routes()
 
+
+
     def setup_routes(self):
 
         @self.app.get("/")
@@ -32,18 +34,27 @@ class Server():
             if validate_game_state(game_state):
                 try:
                     self.handlers["start"](game_state)
+                    return "ok"
                 except Exception as e:
                     print(f"Error: {e}")
+                    return jsonify({"Error": f"{e}"})
             else:
-                print("Game State Validation Failed!") , 400
+                print("Game State Validation Failed!")
+                return jsonify({"Error": "Game State Validation Failed!"}) , 400
 
         @self.app.post("/move")
         def on_move():
             game_state = request.get_json()
             if validate_game_state(game_state):
-                return self.handlers["move"](game_state)
+                try:
+                    return self.handlers["move"](game_state)
+                except Exception as e:
+                    print(f"Error: {e}")
+                    return jsonify({"Error": f"{e}"}) , 500
             else:
-                print("Game State Validation Failed!")  , 400
+                print("Game State Validation Failed!")
+                return jsonify({"Error": "Game State Validation Failed"}) , 400
+
 
         @self.app.post("/end")
         def on_end():
@@ -53,8 +64,10 @@ class Server():
                     self.handlers["end"](game_state)
                 except Exception as e:
                     print(f"Error: {e}")
+                    return jsonify({"Error": f"Error: {e}"}) , 500
             else:
-                print("Game State Validation Failed!") , 400
+                print("Game State Validation Failed!")
+                return jsonify({"Error": "Game State Validation Failed!"}) , 400
             
         @self.app.after_request
         def identify_server(response):
