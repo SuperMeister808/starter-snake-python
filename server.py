@@ -41,7 +41,7 @@ class Server():
             if validate_game_state(game_state):
                 try:
                     self.handlers["start"](game_state)
-                    return "ok"
+                    return jsonify({"status": "ok"})
                 except Exception as e:
                     print(f"Error: {e}")
                     return jsonify({"Error": f"{e}"})
@@ -69,7 +69,7 @@ class Server():
             if validate_game_state(game_state):
                 try:
                     self.handlers["end"](game_state)
-                    return "ok"
+                    return jsonify({"status": "ok"})
                 except Exception as e:
                     print(f"Error: {e}")
                     return jsonify({"Error": f"Error: {e}"}) , 500
@@ -82,7 +82,7 @@ class Server():
             
             try:
                 self.handlers["push"]()
-                return "ok"
+                return jsonify({"status": "ok"})
             except Exception as e:
                 print(f"Failed to push on git: {e}")
                 return jsonify({"Error": f"Failed to push on git:{e}"}) , 500
