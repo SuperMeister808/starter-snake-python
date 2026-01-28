@@ -3,9 +3,13 @@ import os
 import typing
 
 from flask import Flask
-from flask import request , jsonify
+from flask import request , jsonify , abort
+
+from functools import wraps
 
 from validate_game_state import validate_game_state
+
+import os
 
 
 class Server():
@@ -75,7 +79,7 @@ class Server():
             
         @self.app.get("/admin/push")
         def on_push():
-
+            
             try:
                 self.handlers["push"]()
                 return "ok"
@@ -90,8 +94,20 @@ class Server():
             )
             return response
         
+    def admin_required(self, f):
+
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            token = os.environ.get("ADMIN_TOKEN")
+
+            if token != request.headers.get("X-ADMIN-TOKEN"):
+                abort(403)
+            return f(*args, **kwargs)
+        
+        return decorated
+        
     def run_server(self):
 
-        host = "127.0.0.1"
+        host = "0.0.0.0"
 
         self.app.run(host=host, port=self.port)
