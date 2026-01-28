@@ -78,6 +78,7 @@ class Server():
                 return jsonify({"Error": "Game State Validation Failed!"}) , 400
             
         @self.app.get("/admin/push")
+        @self.admin_required
         def on_push():
             
             try:
