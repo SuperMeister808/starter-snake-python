@@ -56,8 +56,6 @@ class EmergencyLogger():
 
     @classmethod
     def log_worker(cls):
-
-        while cls.is_running:
             
             while not cls.loger_queue.empty():
             
@@ -67,7 +65,6 @@ class EmergencyLogger():
                     item = cls.loger_queue.get(timeout=0.1)
                     where, exception, game_state = item
                 except ValueError as e:
-                    item = cls.loger_queue.get(timeout=0.1)
                     print(f"ValueError: {e}")
                     if not isinstance(item, tuple):
                         print("Item is not a tuple!")
@@ -82,6 +79,14 @@ class EmergencyLogger():
 
                 cls.emergency_log(where, exception, game_state)
 
+    @classmethod
+    def start_log_worker(cls):
+
+        while cls.is_running:
+
+            cls.log_worker()
+            time.sleep(0.1)
+    
     @classmethod
     def clear_emergency_logger(cls):
 
