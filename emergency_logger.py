@@ -11,9 +11,7 @@ class EmergencyLogger():
 
     loger_queue = queue.Queue()  
 
-    is_running = False
-
-    worker_thread = None
+    flags = {"is_running": False, "worker_thread": None}
         
     @classmethod
     def emergency_log(cls, where, exception, game_state):
@@ -82,7 +80,7 @@ class EmergencyLogger():
     @classmethod
     def start_log_worker(cls):
 
-        while cls.is_running:
+        while cls.flags["is_running"]:
 
             cls.log_worker()
             time.sleep(0.1)
@@ -94,9 +92,9 @@ class EmergencyLogger():
 
             cls.loger_queue.get()
 
-        cls.is_running = False
+        cls.flags = {"is_running": False, "worker_thread": None}
 
-        cls.worker_thread = None
+
 
 
 

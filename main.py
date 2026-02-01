@@ -43,10 +43,10 @@ class ServerHandler():
     
         EmergencyLogger.clear_emergency_logger()
         try:
-            EmergencyLogger.is_running = True
-            thread = threading.Thread(target=EmergencyLogger.log_worker)
+            EmergencyLogger.flags["is_running"] = True
+            thread = threading.Thread(target=EmergencyLogger.start_log_worker)
             thread.start()
-            EmergencyLogger.worker_thread = thread
+            EmergencyLogger.flags["worker_thread"] = thread
         except Exception as e:
             print(f"Threading failed: {e}")
         print("GAME START")
@@ -59,8 +59,9 @@ class ServerHandler():
         while join == False:
             if EmergencyLogger.loger_queue.empty():    
                 try:            
-                    EmergencyLogger.is_running = False
-                    EmergencyLogger.worker_thread.join()
+                    EmergencyLogger.flags["is_running"] = False
+                    worker_thread = EmergencyLogger.flags["worker_thread"]
+                    worker_thread.join()
                     join = True
                 except Exception as e:
                     print (f"Thread could not join: {e}")

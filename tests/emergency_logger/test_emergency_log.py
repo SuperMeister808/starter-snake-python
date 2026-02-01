@@ -50,9 +50,9 @@ class TestEmergencyLog(unittest.TestCase):
 
         calls = [call.args[0] for call in self.m().write.call_args_list]
 
-        list = [f"[{game_state["turn"]}]", exception, where]
+        logs = [f"[{game_state["turn"]}]", exception, where]
         
-        for e in list:
+        for e in logs:
 
             assert any(e in call for call in calls)
 
@@ -70,9 +70,9 @@ class TestEmergencyLog(unittest.TestCase):
 
         calls = [call.args[0] for call in self.m().write.call_args_list]
 
-        list = [f"[unknown]", exception, where]
+        logs = [f"[unknown]", exception, where]
         
-        for e in list:
+        for e in logs:
 
             assert any(e in call for call in calls)
 
@@ -90,9 +90,9 @@ class TestEmergencyLog(unittest.TestCase):
 
         calls = [call.args[0] for call in self.m().write.call_args_list]
 
-        list = [f"[unknown]", exception, where]
+        logs = [f"[unknown]", exception, where]
         
-        for e in list:
+        for e in logs:
 
             assert any(e in call for call in calls)
 
