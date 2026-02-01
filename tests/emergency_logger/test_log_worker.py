@@ -73,9 +73,20 @@ class TestLogWorker(unittest.TestCase):
             for e in keys:
                 assert any(any(e in str(value) for value in  (where, exception, game_state)) for where, exception, game_state in self.result)
 
-    def test_correct_queuemultiple_elements(self):
+    def test_correct_queue_multiple_elements(self):
 
-        pass
+        q = queue.Queue()
+        q.put(("where", "exception", "game_state"))
+        q.put(("test_correct_queue_multiple_elements", "Testing...", "turn: 1"))
+        
+        with patch.object(EmergencyLogger, "loger_queue", new=q):
+
+            self.start_threading()
+            self.join_threads()
+
+            keys = ["where", "exception", "game_state", "test_correct_queue_multiple_elements", "Testing...", "turn: 1"]
+            for e in keys:
+                assert any(any(e in str(value) for value in  (where, exception, game_state)) for where, exception, game_state in self.result)
 
     def test_less_values(self):
 
