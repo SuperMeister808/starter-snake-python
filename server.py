@@ -60,7 +60,7 @@ class Server():
                     return jsonify({"Error": f"{e}"}) , 500
             else:
                 print("Game State Validation Failed!")
-                return jsonify({"Error": "Game State Validation Failed"}) , 400
+                return jsonify({"Error": "Game State Validation Failed!"}) , 400
 
 
         @self.app.post("/end")
@@ -82,8 +82,7 @@ class Server():
         def on_push():
             
             try:
-                self.handlers["push"]()
-                return jsonify({"status": "ok"})
+                return self.handlers["push"]()
             except Exception as e:
                 return jsonify({"Error": f"Failed to push on git:{e}"}) , 500
             
