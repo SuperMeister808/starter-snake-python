@@ -286,27 +286,27 @@ class Move():
         try:
             self.not_backward()
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_backward", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_backward", f"{e}", game_state))
             pass
         try:
             self.not_wall_collision(game_state)
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_wall_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_wall_collision", f"{e}", game_state))
             pass
         try:
             self.not_itself_collision(game_state)
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_itself_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_itself_collision", f"{e}", game_state))
             pass
         try:
             self.not_enemy_collision(game_state)
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_enemy_collision", e, game_state))
+            EmergencyLogger.loger_queue.put(("not_enemy_collision", f"{e}", game_state))
             pass
         try:
             self.calculate_food(game_state)
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("calculate_food", e, game_state))
+            EmergencyLogger.loger_queue.put(("calculate_food", f"{e}", game_state))
             pass
         
         # Are there any safe moves left?
@@ -318,7 +318,7 @@ class Move():
 
                     safe_moves[move] = data["priority"]
         except Exception as e:
-            EmergencyLogger.loger_queue.put("safe_moves", e, game_state)  
+            EmergencyLogger.loger_queue.put("safe_moves", f"{e}", game_state)  
 
         if safe_moves == {}:
             turn = game_state.get("turn", "?")
@@ -351,14 +351,14 @@ class Move():
 
                         memory_moves.append(move)
         except Exception as e:
-            EmergencyLogger.loger_queue.put("prioritiy", e, game_state)
+            EmergencyLogger.loger_queue.put("prioritiy", f"{e}", game_state)
         
         if memory_moves != []:
 
             try:
                 next_move = random.choice(memory_moves)
             except Exception as e:
-                EmergencyLogger.loger_queue.put("random_choice", e, game_state)
+                EmergencyLogger.loger_queue.put("random_choice", f"{e}", game_state)
             
             EmergencyLogger.loger_queue.put("move", "success", game_state)
             return {"move": next_move}
@@ -366,7 +366,7 @@ class Move():
             try:
                 next_move = random.choice(list(safe_moves.keys()))
             except Exception as e:
-                EmergencyLogger.loger_queue.put("random_choice", e, game_state)
+                EmergencyLogger.loger_queue.put("random_choice", f"{e}", game_state)
             
             EmergencyLogger.loger_queue.put("move", "success", game_state)
             return {"move": next_move}
