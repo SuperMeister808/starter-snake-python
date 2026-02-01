@@ -5,6 +5,8 @@ from git import Repo
 
 import time
 
+from print_collector import PrintCollector
+
 class EmergencyLogger():
        
 
@@ -12,6 +14,8 @@ class EmergencyLogger():
     loger_queue = queue.Queue()  
 
     flags = {"is_running": False, "worker_thread": None}
+
+    print_collector = PrintCollector()
         
     @classmethod
     def emergency_log(cls, where, exception, game_state):
@@ -62,20 +66,24 @@ class EmergencyLogger():
                 try:
                     item = cls.loger_queue.get(timeout=0.1)
                     where, exception, game_state = item
+                    cls.emergency_log(where, exception, game_state)
                 except ValueError as e:
                     print(f"ValueError: {e}")
+                    cls.print_collector.collect_message(f"ValueError: {e}")
                     if not isinstance(item, tuple):
                         print("Item is not a tuple!")
+                        cls.print_collector.collect_message("Item is not a tuple!")
                     else:
                         if len(item) > 3:
                             print(f"Too many values {item[3:]}")
+                            cls.print_collector.collect_message(f"Too many values {item[3:]}")
                         if len(item) < 3:
                             print(f"Not enough values: {item}")
-                    print("RAW ITEM:", item, type(item))
+                            cls.print_collector.collect_message(f"Not enough values: {item}")
+                    print(f"RAW ITEM:, {item}, {type(item)}")
+                    cls.print_collector.collect_message(f"RAW ITEM:, {item}, {type(item)}")
                 
-
-
-                cls.emergency_log(where, exception, game_state)
+                
 
     @classmethod
     def start_log_worker(cls):

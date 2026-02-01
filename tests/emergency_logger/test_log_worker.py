@@ -90,7 +90,20 @@ class TestLogWorker(unittest.TestCase):
 
     def test_less_values(self):
 
-        pass
+        EmergencyLogger.print_collector.clear_messages()
+        
+        q = queue.Queue()
+        q.put(("where", "exception"))
+        
+        with patch.object(EmergencyLogger, "loger_queue", new=q):
+
+            self.start_threading()
+            self.join_threads()
+
+            expected = "Not enough values:"
+            
+            assert any(expected in message for message in EmergencyLogger.print_collector.messages)
+
 
     def test_less_values_multiple_elements(self):
 
