@@ -58,7 +58,12 @@ class EmergencyLogger():
             while not cls.loger_queue.empty():
             
                 
-                where, exception, game_state = cls.loger_queue.get(timeout=0.1)
+                try:
+                    where, exception, game_state , *extra = cls.loger_queue.get(timeout=0.1)
+                except ValueError as e:
+                    print(f"Not enough Values or ValueError: {e}")
+                if extra:
+                    print(f"Too many Values: {extra}")
 
 
                 cls.emergency_log(where, exception, game_state)
