@@ -132,15 +132,63 @@ class TestLogWorker(unittest.TestCase):
 
     def test_too_many_values(self):
 
-        pass
+        EmergencyLogger.print_collector.clear_messages()
+        
+        q = queue.Queue()
+        q.put(("where", "exception", "game_state", "extra"))
+        
+        with patch.object(EmergencyLogger, "loger_queue", new=q):
+
+            self.start_threading()
+            self.join_threads()
+
+            expected = f"Too many values"
+            
+            assert any(expected in message for message in EmergencyLogger.print_collector.messages)
+            
+            EmergencyLogger.print_collector.clear_messages()
 
     def test_too_many_values_multiple_elements(self):
 
-        pass
+        EmergencyLogger.print_collector.clear_messages()
+        
+        q = queue.Queue()
+        q.put(("where", "exception", "game_state"))
+        q.put(("where", "exception", "game_state", "extra"))
+        
+        with patch.object(EmergencyLogger, "loger_queue", new=q):
+
+            self.start_threading()
+            self.join_threads()
+
+            expected = f"Too many values"
+            
+            assert any(expected in message for message in EmergencyLogger.print_collector.messages)
+            
+            keys = ["where", "exception", "game_state"]
+            for e in keys:
+                assert any(any(e in str(value) for value in  (where, exception, game_state)) for where, exception, game_state in self.result)
+            
+            EmergencyLogger.print_collector.clear_messages()
+
 
     def test_wrong_data_type(self):
 
-        pass
+        EmergencyLogger.print_collector.clear_messages()
+        
+        q = queue.Queue()
+        q.put("where, exception, game_state")
+        
+        with patch.object(EmergencyLogger, "loger_queue", new=q):
+
+            self.start_threading()
+            self.join_threads()
+
+            expected = "Item is not a tuple!"
+            
+            assert any(expected in message for message in EmergencyLogger.print_collector.messages)
+            
+            EmergencyLogger.print_collector.clear_messages()
 
     def test_wrong_data_type_multiple_values(self):
 
