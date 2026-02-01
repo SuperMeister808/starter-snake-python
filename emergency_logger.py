@@ -28,7 +28,7 @@ class EmergencyLogger():
             raise RuntimeError(f"Could not opne runtime log:{e}")
 
     @classmethod
-    def upload_to_git(cls, repo_path=".", message="Test commit", branch="runtime_logs"):
+    def upload_to_git(cls, repo_path=".", message="Game played", branch="runtime_logs"):
         
         repo = Repo(repo_path)
         if repo.active_branch.name != branch:
