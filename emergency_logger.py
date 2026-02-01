@@ -98,9 +98,11 @@ class EmergencyLogger():
 
         while not cls.loger_queue.empty():
 
-            cls.loger_queue.get()
+            cls.loger_queue.get(timeout=0.1)
 
         cls.flags = {"is_running": False, "worker_thread": None}
+
+        cls.print_collector.clear_messages()
 
 
 
