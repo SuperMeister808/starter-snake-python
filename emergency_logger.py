@@ -72,7 +72,7 @@ class EmergencyLogger():
                     cls.print_collector.collect_message(f"ValueError: {e}")
                     if not isinstance(item, (tuple, list)):
                         print("Item is not a tuple or a list!")
-                        cls.print_collector.collect_message("Item is not a tuple!")
+                        cls.print_collector.collect_message("Item is not a tuple or a list!")
                     else:
                         if len(item) > 3:
                             print(f"Too many values: {item[3:]}")
@@ -82,6 +82,8 @@ class EmergencyLogger():
                             cls.print_collector.collect_message(f"Not enough values: {item}")
                     print(f"RAW ITEM:, {item}, {type(item)}")
                     cls.print_collector.collect_message(f"RAW ITEM:, {item}, {type(item)}")
+
+            cls.print_collector.collect_message("logger queue is empty")
                 
                 
 
