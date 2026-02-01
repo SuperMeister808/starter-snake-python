@@ -18,8 +18,12 @@ class EmergencyLogger():
     @classmethod
     def emergency_log(cls, where, exception, game_state):
 
-        turn = game_state.get("turn", "unknown")
-        
+        try:
+            turn = game_state.get("turn", "unknown")
+        except AttributeError as e:
+            turn = "unknown"
+            print("Game_state must be a dict!")
+
         try:
             with open("runtime.log", "a") as f:
 
