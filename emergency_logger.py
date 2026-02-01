@@ -23,7 +23,7 @@ class EmergencyLogger():
         try:
             with open("runtime.log", "a") as f:
 
-                f.write(f"[{turn}] {where}: {type(exception).__name__}: {exception}\n")
+                f.write(f"[{turn}] {where}: {exception}\n")
         except Exception as e:
             raise RuntimeError(f"Could not opne runtime log:{e}")
 
