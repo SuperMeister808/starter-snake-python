@@ -318,7 +318,7 @@ class Move():
 
                     safe_moves[move] = data["priority"]
         except Exception as e:
-            EmergencyLogger.loger_queue.put("safe_moves", f"{e}", game_state)  
+            EmergencyLogger.loger_queue.put(("safe_moves", f"{e}", game_state))  
 
         if safe_moves == {}:
             turn = game_state.get("turn", "?")
@@ -351,24 +351,24 @@ class Move():
 
                         memory_moves.append(move)
         except Exception as e:
-            EmergencyLogger.loger_queue.put("prioritiy", f"{e}", game_state)
+            EmergencyLogger.loger_queue.put(("prioritiy", f"{e}", game_state))
         
         if memory_moves != []:
 
             try:
                 next_move = random.choice(memory_moves)
             except Exception as e:
-                EmergencyLogger.loger_queue.put("random_choice", f"{e}", game_state)
+                EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
             
-            EmergencyLogger.loger_queue.put("move", "success", game_state)
+            EmergencyLogger.loger_queue.put(("move", "success", game_state))
             return {"move": next_move}
         else:
             try:
                 next_move = random.choice(list(safe_moves.keys()))
             except Exception as e:
-                EmergencyLogger.loger_queue.put("random_choice", f"{e}", game_state)
+                EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
             
-            EmergencyLogger.loger_queue.put("move", "success", game_state)
+            EmergencyLogger.loger_queue.put(("move", "success", game_state))
             return {"move": next_move}
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds

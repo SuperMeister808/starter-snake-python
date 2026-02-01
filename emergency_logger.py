@@ -58,12 +58,22 @@ class EmergencyLogger():
             while not cls.loger_queue.empty():
             
                 
+
                 try:
-                    where, exception, game_state , *extra = cls.loger_queue.get(timeout=0.1)
+                    item = cls.loger_queue.get(timeout=0.1)
+                    where, exception, game_state = item
                 except ValueError as e:
-                    print(f"Not enough Values or ValueError: {e}")
-                if extra:
-                    print(f"Too many Values: {extra}")
+                    item = cls.loger_queue.get(timeout=0.1)
+                    print(f"ValueError: {e}")
+                    if not isinstance(item, tuple):
+                        print("Item is not a tuple!")
+                    else:
+                        if len(item) > 3:
+                            print(f"Too many values {item[3:]}")
+                        if len(item) < 3:
+                            print(f"Not enough values: {item}")
+                    print("RAW ITEM:", item, type(item))
+                
 
 
                 cls.emergency_log(where, exception, game_state)
