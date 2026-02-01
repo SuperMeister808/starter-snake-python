@@ -284,7 +284,7 @@ class Move():
                                  "down": {"is_safe": True, "priority": 0}}
             EmergencyLogger.loger_queue.put(("reset_is_move_safe", e, game_state))
         try:
-            self.not_backward(game_state)
+            self.not_backward()
         except Exception as e:
             EmergencyLogger.loger_queue.put(("not_backward", e, game_state))
             pass
@@ -374,6 +374,7 @@ class Move():
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
 # board_width = game_state['board']['width']
 # board_height = game_state['board']['height']
+
 
 #x von 0 bis board_width -1
 #y von 0 bis board_height -1
