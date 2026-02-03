@@ -50,7 +50,13 @@ class TestUploadToGit(unittest.TestCase):
 
     def test_wrong_branch(self):
 
-        pass
+        self.mock_repo_instance.active_branch.name = "main_branch"
+
+        with self.assertRaises(RuntimeError):
+            EmergencyLogger.upload_to_git("/testing...", "testing...", "test_branch")
+
+        self.mock_repo_instance.git.add.assert_not_called()
+        self.mock_repo_instance.git.commit.assert_not_called()
 
 if __name__ == "__main__":
 
