@@ -48,7 +48,20 @@ class TestGetSafeMoves(unittest.TestCase):
 
     def test_exception_is_move_safe(self):
 
-        pass
+        bot = Move()
+
+        with patch.object(bot, "is_move_safe") as mock_is_move_safe:
+            
+            mock_is_move_safe.items = MagicMock()
+            exc = RuntimeError("side effect")
+            mock_is_move_safe.items.side_effect = exc
+
+            game_state = {"testing...": "testing..."}
+            result = bot.get_safe_moves(game_state)
+
+            self.mock_loger_queue.put.assert_called_once_with(("safe_moves", "side effect", game_state))
+            expection = {"left": 0, "right": 0, "up": 0, "down": 0}
+            self.assertEqual(result, expection)
 
 if __name__ == "__main__":
 
