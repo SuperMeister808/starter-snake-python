@@ -40,7 +40,7 @@ class TestRandomChoice(unittest.TestCase):
         memory_moves = ["left", "up"]
         safe_moves = ["left", "right", "up"]
 
-        result = self.bot.random_choice(game_state, memory_moves, safe_moves)
+        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
         self.mock_loger_queue.put.assert_not_called()
 
         expected = ["left", "up"]
@@ -51,7 +51,23 @@ class TestRandomChoice(unittest.TestCase):
 
     def test_random_choice_safe_moves(self):
 
-        pass
+        game_state = {"testing...": "testing..."}
+
+        memory_moves = MagicMock()
+        exc = RuntimeError("side effect")
+        memory_moves.side_effect = exc
+        
+        safe_moves = ["left", "right", "up"]
+
+        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
+
+        self.mock_loger_queue.put.assert_called_once_with("random choice", "side effect", game_state)
+
+        next_move = result ["move"]
+        expected = ["left", "right", "up"]
+
+        self.assertEqual({"move": next_move})
+        self.assertIn(next_move, expected)
 
     def test_random_choice_emergency_moves(self):
 
