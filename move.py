@@ -323,6 +323,7 @@ class Move():
                 
                         memory_moves.append(move)
                         memory_priority = priority
+                        continue
 
                 if memory_priority != 0:
             
