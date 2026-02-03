@@ -354,8 +354,10 @@ class Move():
         except Exception as e:
             EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
             try:
-                keys = safe_moves.keys()
-                next_move = random.choice(list(keys))
+                keys = []
+                for key , value in safe_moves.items():
+                    keys.append(key)
+                next_move = random.choice(keys)
                 return {"move": next_move}
             except Exception as e:
                 EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
