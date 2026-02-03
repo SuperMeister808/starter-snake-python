@@ -271,51 +271,30 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    
-
-    def choose_move(self, game_state):
+    def emergency_system(self, game_state, func, *args, **kwargs):
 
         emergency_moves = ["left", "right", "up", "down"]
         
-        try:
-            self.reset_is_move_safe()
+        try: 
+            func(*args, **kwargs)
         except Exception as e:
-            self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
+            EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
+            if func.__name__ == "reset_is_move_safe":
+                self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
                                  "right": {"is_safe": True, "priority": 0},
                                  "up": {"is_safe": True, "priority": 0},
                                  "down": {"is_safe": True, "priority": 0}}
-            EmergencyLogger.loger_queue.put(("reset_is_move_safe", e, game_state))
-        try:
-            self.not_backward(game_state)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_backward", f"{e}", game_state))
-            next_move = random.choice(emergency_moves)
-            return {"move": next_move}
-        try:
-            self.not_wall_collision(game_state)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_wall_collision", f"{e}", game_state))
-            next_move = random.choice(emergency_moves)
-            return {"move": next_move}
-        try:
-            self.not_itself_collision(game_state)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_itself_collision", f"{e}", game_state))
-            next_move = random.choice(emergency_moves)
-            return {"move": next_move}
-        try:
-            self.not_enemy_collision(game_state)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("not_enemy_collision", f"{e}", game_state))
-            next_move = random.choice(emergency_moves)
-            return {"move": next_move}
-        try:
-            self.calculate_food(game_state)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("calculate_food", f"{e}", game_state))
-            next_move = random.choice(emergency_moves)
-            return {"move": next_move}
-        
+                return None
+            else:
+                try:
+                    next_move = random.choice(emergency_moves)
+                    return {"move": next_move}
+                except Exception as e:
+                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", game_state))
+                    return {"move": "down"}
+
+    def get_safe_moves(self, game_state):
+
         # Are there any safe moves left?
         safe_moves = {}
         try:
@@ -324,19 +303,17 @@ class Move():
                 if data["is_safe"] == True:
 
                     safe_moves[move] = data["priority"]
+            return safe_moves
         except Exception as e:
             EmergencyLogger.loger_queue.put(("safe_moves", f"{e}", game_state)) 
             safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
-
-        if safe_moves == {}:
-            turn = game_state.get("turn", "?")
-            print(f"MOVE {turn}: No safe moves detected! Moving down")
-            return {"move": "down"}
+            return safe_moves
         
+    def get_priority_moves(self, game_state, safe_moves):
+
         # Choose a random move from the safe ones 
         memory_moves = []
         memory_priority = 0
-        
         try:
             for move , priority in safe_moves.items():
 
@@ -358,37 +335,62 @@ class Move():
                     if priority == memory_priority:
 
                         memory_moves.append(move)
+            return memory_moves
         except Exception as e:
             EmergencyLogger.loger_queue.put(("prioritiy", f"{e}", game_state))
             memory_moves = []
+            return memory_moves
         
-        if memory_moves != []:
+    def random_choice(self, game_state, safe_moves, memory_moves):
 
+        emergency_moves = ["left", "right", "up", "down"]
+        
+        try:
+            next_move = random.choice(memory_moves)
+            return {"move": next_move}
+        except Exception as e:
+            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
             try:
-                next_move = random.choice(memory_moves)
+                next_move = random.choice(list(safe_moves.keys()))
+                return {"move": next_move}
             except Exception as e:
                 EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
                 try:
-                    next_move = random.choice(list(safe_moves.keys()))
-                    return {"move": next_move}
-                except Exception as e:
-                    EmergencyLogger.loger_queue.put("emergency_choose_from_safe_moves", f"{e}", game_state)
                     next_move = random.choice(emergency_moves)
                     return {"move": next_move}
-            
-            EmergencyLogger.loger_queue.put(("move", "success", game_state))
-            return {"move": next_move}
-        else:
-            try:
-                next_move = random.choice(list(safe_moves.keys()))
-            except Exception as e:
-                EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
-                next_move = random.choice(emergency_moves)
-                return {"move": next_move}
+                except Exception as e:
+                    EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
+                    return {"move": "down"}
 
-            
-            EmergencyLogger.loger_queue.put(("move", "success", game_state))
-            return {"move": next_move}
+    def choose_move(self, game_state):
+        
+        next_move = self.emergency_system(game_state, self.reset_is_move_safe)
+        if next_move is not None:
+            return next_move
+        
+        checks = [self.not_backward, 
+                  self.not_wall_collision, 
+                  self.not_itself_collision, 
+                  self.not_enemy_collision, 
+                  self.calculate_food]
+
+        for check in checks:
+
+            next_move = self.emergency_system(game_state, check, game_state)
+            if next_move is not None:
+                return next_move
+        
+        safe_moves = self.get_safe_moves(game_state)
+
+        if safe_moves == {}:
+            turn = game_state.get("turn", "?")
+            print(f"MOVE {turn}: No safe moves detected! Moving down")
+            return {"move": "down"}
+        
+        memory_moves = self.get_priority_moves(game_state, safe_moves)
+        
+        next_move = self.random_choice(game_state, safe_moves, memory_moves)
+        return next_move
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
 # board_width = game_state['board']['width']
