@@ -2,8 +2,10 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-class TestGetPriorityMoves():
+class TestGetPriorityMoves(unittest.TestCase):
 
+    
+    
     def test_one_priority_move(self):
 
         pass
@@ -15,3 +17,7 @@ class TestGetPriorityMoves():
     def test_exception(self):
 
         pass
+
+if __name__ == "__main__":
+
+    unittest.main()
