@@ -10,21 +10,7 @@ class TestRandomChoice(unittest.TestCase):
         
         self.bot = Move()
 
-        self.patchers = [
-            patch("move.random.choice")
-        ]
 
-        mocks = {}
-
-        for patcher in self.patchers:
-
-            mock = patcher.start()
-            mocks ["mock_random"] = mock
-
-        self.mock_random = mocks ["mock_random"]
-        self.mock_random.return_value = "left"
-
-        self.addCleanup(self.stop_patchers)
 
     def stop_patchers(self):
 
