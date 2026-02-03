@@ -44,7 +44,13 @@ class TestPushToGit(unittest.TestCase):
 
     def test_push_on_wrong_branch(self):
 
-        pass
+        self.repo_instance.active_branch.name = "main_branch"
+
+        with self.assertRaises(RuntimeError):
+            EmergencyLogger.push_to_git("/testing...", "test_branch")
+
+        self.repo_instance.remote.assert_not_called()
+        self.origin.push.assert_not_called()
 
 if __name__ == "__main__":
 
