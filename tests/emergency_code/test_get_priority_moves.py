@@ -59,7 +59,21 @@ class TestGetPriorityMoves(unittest.TestCase):
 
     def test_exception(self):
 
-        pass
+        game_state = {"testing...": "testing..."}
+        
+        safe_moves = MagicMock()
+        safe_moves.items = MagicMock()
+        exc = RuntimeError("side effect")
+        safe_moves.items.side_effect = exc
+
+        result = self.bot.get_priority_moves(game_state, safe_moves)
+
+        safe_moves.items.assert_called_once()
+        self.mock_loger_queue.put.assert_called_once_with(("priority", "side effect", game_state))
+
+        expected = []
+        self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
 

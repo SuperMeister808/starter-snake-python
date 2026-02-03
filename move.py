@@ -340,7 +340,7 @@ class Move():
                         continue
             return memory_moves
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("prioritiy", f"{e}", game_state))
+            EmergencyLogger.loger_queue.put(("priority", f"{e}", game_state))
             memory_moves = []
             return memory_moves
         
