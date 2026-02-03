@@ -60,6 +60,7 @@ class TestGetSafeMoves(unittest.TestCase):
             result = bot.get_safe_moves(game_state)
 
             self.mock_loger_queue.put.assert_called_once_with(("safe_moves", "side effect", game_state))
+            mock_is_move_safe.items.assert_called_once()
             expection = {"left": 0, "right": 0, "up": 0, "down": 0}
             self.assertEqual(result, expection)
 

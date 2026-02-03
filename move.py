@@ -331,10 +331,12 @@ class Move():
                         memory_moves.clear()
                         memory_moves.append(move)
                         memory_priority = priority
+                        continue
 
                     if priority == memory_priority:
 
                         memory_moves.append(move)
+                        continue
             return memory_moves
         except Exception as e:
             EmergencyLogger.loger_queue.put(("prioritiy", f"{e}", game_state))
