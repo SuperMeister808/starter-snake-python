@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch , MagicMock
+from unittest.mock import patch , MagicMock , call
 
 from move import Move
 from emergency_logger import EmergencyLogger
@@ -69,7 +69,28 @@ class TestRandomChoice(unittest.TestCase):
 
     def test_random_choice_emergency_moves(self):
 
-        pass
+        game_state = {"testing...": "testing..."}
+
+        memory_moves = []
+
+        safe_moves = MagicMock()
+        safe_moves.items = MagicMock()
+        safe_moves.items.side_effect = RuntimeError("side effect")
+
+        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
+
+        expected_calls = [
+            call(())
+        ]
+        
+        self.mock_loger_queue.put.assert_called_with(("random_choice", "Cannot choose from an empty sequence", game_state))
+        self.mock_loger_queue.put.assert_called_with(("random_choice", "side effect", game_state))
+
+        next_move = result ["move"]
+        expected = ["left", "right", "up", "down"]
+
+        self.assertEqual(result, {"move": next_move})
+        self.assertIn(next_move, expected)
 
     def test_move_down(self):
 
