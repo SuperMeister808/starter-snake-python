@@ -350,9 +350,10 @@ class Move():
         
         try:
             next_move = random.choice(memory_moves)
+            EmergencyLogger.loger_queue.put(("random_choice", "Success: Priority Move choosed", game_state))
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
+            EmergencyLogger.loger_queue.put(("random_choice", f"No priorities set: {e}", game_state))
             try:
                 keys = []
                 for key , value in safe_moves.items():
@@ -360,7 +361,7 @@ class Move():
                 next_move = random.choice(keys)
                 return {"move": next_move}
             except Exception as e:
-                EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
+                EmergencyLogger.loger_queue.put(("random_choice", f"No safe moves left: {e}", game_state))
                 try:
                     next_move = random.choice(emergency_moves)
                     return {"move": next_move}
