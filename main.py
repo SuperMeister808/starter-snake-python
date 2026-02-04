@@ -79,7 +79,7 @@ class ServerHandler():
 
     def push(self):
 
-        EmergencyLogger.push_to_git()
+        return EmergencyLogger.push_to_git()
 
 
     # move is called on every turn and returns your next move
