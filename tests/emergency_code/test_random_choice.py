@@ -80,11 +80,12 @@ class TestRandomChoice(unittest.TestCase):
         result = self.bot.random_choice(game_state, safe_moves, memory_moves)
 
         expected_calls = [
-            call(())
+            call(("random_choice", "Cannot choose from an empty sequence", game_state)),
+            call(("random_choice", "side effect", game_state))
         ]
         
-        self.mock_loger_queue.put.assert_called_with(("random_choice", "Cannot choose from an empty sequence", game_state))
-        self.mock_loger_queue.put.assert_called_with(("random_choice", "side effect", game_state))
+        self.mock_loger_queue.put.assert_has_calls(expected_calls)
+        safe_moves.items.assert_called_once()
 
         next_move = result ["move"]
         expected = ["left", "right", "up", "down"]
@@ -92,9 +93,44 @@ class TestRandomChoice(unittest.TestCase):
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
-    def test_move_down(self):
+    @patch("move.random.choice")
+    def test_move_down(self, mock_random):
 
-        pass
+        exc = RuntimeError("side effect")
+        mock_random.side_effect = exc
+
+        game_state = {"testing...": "testing..."}
+        safe_moves = {"test0": "testing...", "test1": "testing..."}
+        memory_moves = []
+        
+        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
+        next_move = result ["move"]
+        expected = ["down"]
+
+        self.assertEqual(result, {"move": "down"})
+        self.assertIn(next_move, expected)
+
+        keys = []
+        for key , value in safe_moves.items():
+            keys.append(key)
+
+        expected_calls_random = [call(memory_moves),
+                          call(keys),
+                          call(["left", "right", "up", "down"])]
+        
+        mock_random.assert_has_calls(expected_calls_random)
+
+        expected_calls_put = [
+            call(("random_choice", "side effect", game_state)),
+            call(("random_choice", "side effect", game_state)),
+            call(("random_choice", "side effect", game_state))
+        ]
+
+        self.mock_loger_queue.put.assert_has_calls(expected_calls_put)
+
+
+
+        
 
 if __name__ == "__main__":
 
