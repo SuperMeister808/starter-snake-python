@@ -15,13 +15,18 @@ class Move():
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
+        
+        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
 
 
-    def not_backward(self, game_state):
+    def not_backward(self, head, neck):
 
         # We've included code to prevent your Battlesnake from moving backwards
-        my_head = game_state["you"]["body"][0]  # Coordinates of your head
-        my_neck = game_state["you"]["body"][1]  # Coordinates of your "neck"
+        my_head = head  # Coordinates of your head
+        my_neck = neck  # Coordinates of your "neck"
 
         if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
             self.is_move_safe["left"]["is_safe"] = False
@@ -36,9 +41,9 @@ class Move():
             self.is_move_safe["up"]["is_safe"] = False         
 
        
-    def not_wall_collision(self, game_state):
+    def not_wall_collision(self, head, game_state):
 
-        my_head = game_state["you"]["head"]  
+        my_head = head
         
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
@@ -59,11 +64,11 @@ class Move():
 
             self.is_move_safe["down"]["is_safe"] = False
 
-    def not_itself_collision(self, game_state):
+    def not_itself_collision(self, head, body):
 
-        my_body = game_state["you"]["body"]
+        my_body = body
 
-        position = game_state["you"]["head"]
+        position = head
 
         position_x = position["x"]
 
@@ -90,9 +95,9 @@ class Move():
 
                 self.is_move_safe["down"]["is_safe"] = False
 
-    def not_enemy_collision(self, game_state):
+    def not_enemy_collision(self, head, game_state):
         
-        my_position = game_state["you"]["head"]
+        my_position = head
 
         first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
 
@@ -207,9 +212,8 @@ class Move():
 
         return positions
     
-    def calculate_food(self, game_state):
+    def calculate_food(self, head, game_state):
 
-        head = game_state["you"]["head"]
         food = game_state["board"]["food"]
 
         left_move = {"x": head["x"] - 1, "y": head["y"]}
@@ -242,10 +246,14 @@ class Move():
             data["is_safe"] = True
 
             data["priority"] = 0
-    
-    def calculate_food(self, game_state):
 
-        head = game_state["you"]["head"]
+        for data in self.is_move_safe_memory.values():
+
+            data["is_safe"] = True
+            data["priority"] = 0
+    
+    def calculate_food(self, head,  game_state):
+        
         food_list = game_state["board"]["food"]
 
         left_move = {"x": head["x"] -1, "y": head["y"]}
@@ -271,6 +279,31 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
+    def future_safety(self, game_state):
+
+        opponent_positions = self.calculate_opponents_positions()
+        safe_moves = []
+
+        for move , data in self.is_move_safe.items():
+            if data["is_safe"] == True:
+                safe_moves.append(move)
+
+        for move in safe_moves:
+
+            current_position = game_state["you"]["head"]
+            if move == "left":
+                relevant_position = {"x": current_position["x"] -1, "y": current_position["y"]}
+            if move == "right":
+                relevant_position = {"x": current_position["x"] + 1, "y": current_position["y"]}
+            if move == "up":
+                relevant_position = {"x": current_position["x"], "y": current_position["y"] + 1}
+            if move == "down":
+                relevant_position = {"x": current_position["x"], "y": current_position["y"] - 1}
+
+            
+
+
+    
     def emergency_system(self, game_state, func, *args, **kwargs):
 
         emergency_moves = ["left", "right", "up", "down"]
