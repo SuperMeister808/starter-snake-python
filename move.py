@@ -362,19 +362,26 @@ class Move():
 
         self.reset_is_move_safe()
 
-    def get_body(self, new_head, snake):
+    def get_body(self, new_head, new_snake=None):
+        
+        if new_snake is None:
+            new_snake = []
 
-        new_position = new_head
+        new_snake.append(new_head)
+
+        return new_snake
+        
+    def call_get_body(self, head, snake):
+        
+        new_snake = []
         
         for body_part in snake:
-
-            old_body_part = body_part
             
-            body_part = new_position
+            new_snake = self.get_body(head, new_snake)
 
-            new_position = old_body_part
+            head = body_part
 
-        return snake
+        return new_snake
 
 
 
