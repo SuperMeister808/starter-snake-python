@@ -336,7 +336,10 @@ class Move():
                 relevant_position = {"x": current_position["x"], "y": current_position["y"] - 1}
                 neck = current_position
         
-            self.check_moves(relevant_position, game_state, neck)
+            old_body = game_state["you"]["body"]
+            new_body = self.call_get_body(relevant_position, old_body)
+            
+            self.check_moves(relevant_position, game_state, new_body, neck)
 
     def check_moves(self, head, game_state, body, neck):
 
@@ -375,11 +378,22 @@ class Move():
         
         new_snake = []
         
+        calls = 0
+        
         for body_part in snake:
+            
+            if calls == len(snake):
+
+                return new_snake
+            
+            if "id" in body_part:
+                continue
             
             new_snake = self.get_body(head, new_snake)
 
             head = body_part
+
+            calls += 1
 
         return new_snake
 
