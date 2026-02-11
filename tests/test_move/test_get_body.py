@@ -41,6 +41,14 @@ class TestGetBody(unittest.TestCase):
 
         self.assertEqual(result, expected)
 
+    def test_id_in_body(self):
+
+        snake = [{"id": "Testing..."}, {"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}]
+        new_head = {"x": 0, "y": 1}
+
+        result = self.bot.call_get_body(new_head, snake)
+        expected = [{"x": 0, "y": 1}, {"x": 1, "y": 1}]
+
 
 if __name__ == "__main__":
 

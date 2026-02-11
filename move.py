@@ -379,14 +379,17 @@ class Move():
         new_snake = []
         
         calls = 0
+
+        required_calls = len(snake)
         
         for body_part in snake:
             
-            if calls == len(snake):
+            if calls == required_calls:
 
                 return new_snake
             
             if "id" in body_part:
+                required_calls = required_calls - 1
                 continue
             
             new_snake = self.get_body(head, new_snake)
