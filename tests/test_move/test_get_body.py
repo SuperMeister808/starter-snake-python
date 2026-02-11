@@ -47,7 +47,9 @@ class TestGetBody(unittest.TestCase):
         new_head = {"x": 0, "y": 1}
 
         result = self.bot.call_get_body(new_head, snake)
-        expected = [{"x": 0, "y": 1}, {"x": 1, "y": 1}]
+        expected = [{"x": 0, "y": 1}, {"x": 1, "y": 1}, {"x": 2, "y": 1}]
+
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
