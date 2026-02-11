@@ -33,7 +33,14 @@ class TestGetBody(unittest.TestCase):
 
     def test_irregular_move(self):
 
-        pass
+        snake = [{"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}]
+        new_head = {"x": 0, "y": 0}
+
+        result = self.bot.call_get_body(new_head, snake)
+        expected = [{"x": 0, "y": 0}, {"x": 1, "y": 1}, {"x": 2, "y": 1}]
+
+        self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
 
