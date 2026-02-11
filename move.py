@@ -325,12 +325,20 @@ class Move():
             current_position = game_state["you"]["head"]
             if move == "left":
                 relevant_position = {"x": current_position["x"] -1, "y": current_position["y"]}
+                neck = current_position
             if move == "right":
                 relevant_position = {"x": current_position["x"] + 1, "y": current_position["y"]}
+                neck = current_position
             if move == "up":
                 relevant_position = {"x": current_position["x"], "y": current_position["y"] + 1}
+                neck = current_position
             if move == "down":
                 relevant_position = {"x": current_position["x"], "y": current_position["y"] - 1}
+                neck = current_position
+        
+            self.check_moves(relevant_position, game_state, neck)
+
+    def check_moves(self, head, game_state, body, neck):
 
         next_move = self.emergency_system(game_state, self.reset_is_move_safe)
         if next_move is not None:
@@ -344,7 +352,7 @@ class Move():
 
         for check in checks:
 
-            next_move = self.emergency_system(game_state, check, game_state)
+            next_move = self.emergency_system(game_state, check, head=head,game_state=game_state, body=body, neck=neck)
             if next_move is not None:
                 return next_move
 
@@ -353,6 +361,21 @@ class Move():
         self.is_move_safe_memory = self.is_move_safe
 
         self.reset_is_move_safe()
+
+    def get_body(self, new_head, snake):
+
+        new_position = new_head
+        
+        for body_part in snake:
+
+            old_body_part = body_part
+            
+            body_part = new_position
+
+            new_position = old_body_part
+
+        return snake
+
 
 
     
@@ -454,23 +477,7 @@ class Move():
                     EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
                     return {"move": "down"}
 
-    def check_moves(self, head, game_state, body, neck):
-
-        next_move = self.emergency_system(game_state, self.reset_is_move_safe)
-        if next_move is not None:
-            return next_move
-        
-        checks = [self.not_backward, 
-                  self.not_wall_collision, 
-                  self.not_itself_collision, 
-                  self.not_enemy_collision, 
-                  self.calculate_food]
-
-        for check in checks:
-
-            next_move = self.emergency_system(game_state, check, head=head,game_state=game_state, body=body, neck=neck)
-            if next_move is not None:
-                return next_move
+    
     
     def choose_move(self, game_state):
         
