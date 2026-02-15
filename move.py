@@ -44,6 +44,8 @@ class Move():
         elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
             self.is_move_safe["up"]["is_safe"] = False         
 
+
+
        
     def not_wall_collision(self, **kwargs):
 
@@ -311,35 +313,49 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, game_state):
-
-        opponent_positions = self.calculate_opponents_positions()
-        safe_moves = []
-
-        for move , data in self.is_move_safe.items():
-            if data["is_safe"] == True:
-                safe_moves.append(move)
-
-        for move in safe_moves:
-
-            current_position = game_state["you"]["head"]
-            if move == "left":
-                relevant_position = {"x": current_position["x"] -1, "y": current_position["y"]}
-                neck = current_position
-            if move == "right":
-                relevant_position = {"x": current_position["x"] + 1, "y": current_position["y"]}
-                neck = current_position
-            if move == "up":
-                relevant_position = {"x": current_position["x"], "y": current_position["y"] + 1}
-                neck = current_position
-            if move == "down":
-                relevant_position = {"x": current_position["x"], "y": current_position["y"] - 1}
-                neck = current_position
-        
-            old_body = game_state["you"]["body"]
-            new_body = self.call_get_body(relevant_position, old_body)
+    def future_safety(self, relevant_position, neck, body, game_state):
             
-            self.check_moves(relevant_position, game_state, new_body, neck)
+            check = self.check_moves(relevant_position, game_state, body, neck)
+            if check is not None:
+                return False
+
+            for move , data in self.is_move_safe.items():
+                if data["is_safe"] == True:
+                    return True
+                
+            return False
+    
+    def call_future_safety(self, move, game_state, calls=2):
+
+            relevant_position = game_state["you"]["head"]
+            body = game_state["you"]["body"]
+            
+            for i in range(calls):
+            
+                self.reset_is_move_safe()
+                
+                if move == "left":
+                    neck = relevant_position
+                    relevant_position = {"x": relevant_position["x"] -1, "y": relevant_position["y"]}
+                if move == "right":
+                    neck = relevant_position
+                    relevant_position = {"x": relevant_position["x"] + 1, "y": relevant_position["y"]}
+                if move == "up":
+                    neck = relevant_position
+    
+                    relevant_position = {"x": relevant_position["x"], "y": relevant_position["y"] + 1}
+                if move == "down":
+                    neck = relevant_position
+                    relevant_position = {"x": relevant_position["x"], "y": relevant_position["y"] - 1}
+
+                body = self.call_get_body(relevant_position, body)
+
+                if self.future_safety(relevant_position, game_state, body, neck) == False:
+                    return False
+                
+            return True
+    
+    
 
     def check_moves(self, head, game_state, body, neck):
 
@@ -364,6 +380,11 @@ class Move():
         self.is_move_safe_memory = self.is_move_safe
 
         self.reset_is_move_safe()
+
+    def load_is_move_safe(self):
+
+        self.is_move_safe = self.is_move_safe_memory
+        self.reset_is_move_safe_memory()
 
     def get_body(self, new_head, new_snake=None):
         
@@ -433,7 +454,6 @@ class Move():
             for move , data in self.is_move_safe.items():
 
                 if data["is_safe"] == True:
-
                     safe_moves[move] = data["priority"]
             return safe_moves
         except Exception as e:
@@ -510,8 +530,13 @@ class Move():
             return {"move": next_move}
         
         self.safe_is_move_safe()
-        
         safe_moves = self.get_safe_moves(game_state)
+        
+        for move , data in safe_moves.items():
+            if self.call_future_safety(move, game_state) == False:
+                del safe_moves[move]
+
+        self.load_is_move_safe()
 
         if safe_moves == {}:
             turn = game_state.get("turn", "?")
