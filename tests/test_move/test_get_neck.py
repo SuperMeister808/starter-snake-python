@@ -12,8 +12,20 @@ class TestGetNeck(unittest.TestCase):
 
     def test_get_neck_game_elements(self):
 
-        body = [{}]
+        body = [{"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}]
+        result = self.bot.get_neck(body)
+        expected = {"x": 2, "y": 1}
+
+        self.assertEqual(result, expected)
 
     def test_get_neck_other_elements(self):
 
-        pass
+        body = [0, 1, 2]
+        result = self.bot.get_neck(body)
+        expected = 1
+
+        self.assertEqual(result, expected)
+
+if __name__ == "__main__":
+
+    unittest.main()
