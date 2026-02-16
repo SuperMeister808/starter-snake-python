@@ -17,7 +17,7 @@ class TestLoadIsMoveSafe(unittest.TestCase):
         patcher_is_move_safe = self.create_patcher_is_move_safe(patcher_is_move_safe)
         self.patchers.append(patcher_is_move_safe)
 
-        patcher_is_move_safe_memory = self.create_patcher_is_move_safe(patcher_is_move_safe_memory)
+        patcher_is_move_safe_memory = self.create_patcher_is_move_safe_memory(patcher_is_move_safe_memory)
         self.patchers.append(patcher_is_move_safe_memory)
 
     def start_patchers(self):
