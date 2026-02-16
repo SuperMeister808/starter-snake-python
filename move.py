@@ -237,43 +237,6 @@ class Move():
 
         return positions
     
-    def calculate_food(self, *args, **kwargs):
-
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        head = kwargs["head"]
-        game_state = None
-        for arg in args:
-            if isinstance(arg, dict):
-                game_state = arg
-        if game_state is None:
-            raise RuntimeError("Arg fehlt!")
-        
-        food = game_state["board"]["food"]
-
-        left_move = {"x": head["x"] - 1, "y": head["y"]}
-        right_move = {"x": head["x"] + 1, "y": head["y"]}
-        up_move = {"x": head["x"], "y": head["y"] + 1}
-        down_move = {"x": head["x"], "y": head["y"] - 1}
-
-        for item in food:
-        
-            if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
-
-                self.is_move_safe["left"]["priority"] += 1
-
-            if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
-
-                self.is_move_safe["right"]["priority"] += 1
-
-            if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
-
-                self.is_move_safe["up"]["priority"] += 1
-
-            if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
-
-                self.is_move_safe["down"]["priority"] += 1
-    
     def reset_is_move_safe(self):
 
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
@@ -314,15 +277,15 @@ class Move():
 
                 self.is_move_safe["left"]["priority"] += 1
 
-            if right_move["x"] == item["x"] and left_move["y"] == item["y"]:
+            if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
 
                 self.is_move_safe["right"]["priority"] += 1
 
-            if up_move["x"] == item["x"] and left_move["y"] == item["y"]:
+            if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
 
                 self.is_move_safe["up"]["priority"] += 1
 
-            if down_move["x"] == item["x"] and left_move["y"] == item["y"]:
+            if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
 
                 self.is_move_safe["down"]["priority"] += 1
 

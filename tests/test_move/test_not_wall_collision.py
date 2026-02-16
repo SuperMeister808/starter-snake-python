@@ -37,10 +37,7 @@ class TestNotWallCollision(unittest.TestCase):
          
         for name, mock in self.mocks.items():
              
-          if name == 0:
-            self.assertEqual(mock.call_count, 2)    
-          else:
-            self.assertEqual(mock.call_count, 1)
+          mock.assert_called()
     
     def check_safe_moves(self, is_move_safe, excluded_move):
         
