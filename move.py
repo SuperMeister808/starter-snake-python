@@ -426,6 +426,7 @@ class Move():
 
     def get_neck(self, body):
 
+        
         neck_slice = body[1:2]
         neck = neck_slice[0]
         return neck
