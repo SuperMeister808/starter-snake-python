@@ -54,7 +54,8 @@ class TestCheckMoves(unittest.TestCase):
 
     def check_calls(self, call_count):
 
-        calls = [((self.game_state, self.bot.not_backward), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
+        calls = [((self.game_state, self.bot.reset_is_move_safe), dict()),
+                 ((self.game_state, self.bot.not_backward), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
                  ((self.game_state, self.bot.not_wall_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
                  ((self.game_state, self.bot.not_itself_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
                  ((self.game_state, self.bot.not_enemy_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
@@ -70,23 +71,17 @@ class TestCheckMoves(unittest.TestCase):
 
         patcher_emergency_system_return_value = None
         self.setup_patchers(patcher_emergency_system_return_value)
-
-        
         
         self.bot.check_moves(self.head, self.game_state, self.body, self.neck)
         self.check_calls(6)
 
-        
-
-
-
     def test_call_emergency_system_return_value(self):
 
-        pass
+        patcher_emergency_system_return_value = "Testing..."
+        self.setup_patchers(patcher_emergency_system_return_value)
 
-    def test_call_emergency_system_return_value_during_iteration(self):
-
-        pass
+        self.bot.check_moves(self.head, self.game_state, self.body, self.neck)
+        self.check_calls(1)
 
 if __name__ == "__main__":
     unittest.main()
