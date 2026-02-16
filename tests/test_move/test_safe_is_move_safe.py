@@ -73,7 +73,26 @@ class TestSafeIsMoveSafe(unittest.TestCase):
 
     def test_irregular_datatype(self):
 
-        pass
+        patcher_is_move_safe = ["left", "right", "up", "down"]
+        patcher_is_move_safe_memory = []
+        self.setup_patchers(patcher_is_move_safe, patcher_is_move_safe_memory)
+
+        self.start_patchers()
+
+        self.bot.safe_is_move_safe()
+        expected_is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+        expected_is_move_safe_memory = ["left", "right", "up", "down"]
+
+        for i, patcher in enumerate(self.patchers):
+            if i == 0:
+                self.assertEqual(self.bot.is_move_safe, expected_is_move_safe)
+            if i == 1:
+                self.assertEqual(self.bot.is_move_safe_memory, expected_is_move_safe_memory)
+
+        self.stop_patchers()
 
 if __name__ == "__main__":
     unittest.main()
