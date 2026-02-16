@@ -424,6 +424,11 @@ class Move():
 
         return new_snake
 
+    def get_neck(self, body):
+
+        neck_slice = body[1:2]
+        neck = neck_slice[0]
+        return neck
 
 
     
@@ -528,7 +533,11 @@ class Move():
     
     def choose_move(self, game_state):
         
-        next_move = self.check_moves(game_state)
+        head = game_state["you"]["head"]
+        body = game_state["you"]["body"]
+        neck = self.get_neck(body)
+        
+        next_move = self.check_moves(head, game_state, body, neck)
         if next_move is not None:
             return {"move": next_move}
         

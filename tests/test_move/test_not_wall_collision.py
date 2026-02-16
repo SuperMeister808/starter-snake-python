@@ -14,7 +14,8 @@ class TestNotWallCollision(unittest.TestCase):
              patch.object(self.bot, "not_enemy_collision"),
              patch.object(self.bot, "not_backward"),
              patch.object(self.bot, "not_itself_collision"),
-             patch.object(self.bot, "calculate_food")      
+             patch.object(self.bot, "calculate_food"),      
+             patch.object(self.bot, "call_future_safety")
         ]
 
         self.mocks = {}
