@@ -266,11 +266,10 @@ class Move():
     
     def reset_is_move_safe(self):
 
-        for data in self.is_move_safe.values():
-
-            data["is_safe"] = True
-
-            data["priority"] = 0
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
 
     def reset_is_move_safe_memory(self):
 
@@ -380,6 +379,9 @@ class Move():
         self.is_move_safe_memory = self.is_move_safe
 
         self.reset_is_move_safe()
+
+
+        
 
     def load_is_move_safe(self):
 
