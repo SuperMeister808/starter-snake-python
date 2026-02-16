@@ -48,11 +48,26 @@ class TestLoadIsMoveSafe(unittest.TestCase):
         self.setup_patchers(patcher_is_move_safe, patcher_is_move_safe_memory)
         
         self.start_patchers()
-        
 
+        self.bot.load_is_move_safe()
+
+        expected_is_move_safe = {}
+        expected_is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+        
+        self.assertEqual(self.bot.is_move_safe, expected_is_move_safe)
+        self.assertEqual(self.bot.is_move_safe_memory, expected_is_move_safe_memory)
+
+        self.stop_patchers()
 
 
 
     def test_irreglular_datatype(self):
 
         pass
+
+if __name__ == "__main__":
+
+    unittest.main()

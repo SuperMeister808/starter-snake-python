@@ -273,10 +273,11 @@ class Move():
 
     def reset_is_move_safe_memory(self):
 
-        for data in self.is_move_safe_memory.values():
+        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
 
-            data["is_safe"] = True
-            data["priority"] = 0
     
     def calculate_food(self, **kwargs):
         
