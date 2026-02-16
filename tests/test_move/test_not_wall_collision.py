@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch , ANY
 from move import Move
 
 class TestNotWallCollision(unittest.TestCase):
@@ -20,10 +20,10 @@ class TestNotWallCollision(unittest.TestCase):
 
         self.mocks = {}
 
-        for patcher in self.patchers:
+        for i, patcher in enumerate(self.patchers):
              
             mock = patcher.start()
-            self.mocks[mock._mock_name] = mock
+            self.mocks[i] = mock
 
         self.addCleanup(self.stop_patches)
 
@@ -37,7 +37,10 @@ class TestNotWallCollision(unittest.TestCase):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+          if name == 0:
+            self.assertEqual(mock.call_count, 2)    
+          else:
+            self.assertEqual(mock.call_count, 1)
     
     def check_safe_moves(self, is_move_safe, excluded_move):
         
