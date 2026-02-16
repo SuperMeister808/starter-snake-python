@@ -22,7 +22,7 @@ class Move():
                              "right": {"is_safe": True, "priority": 0}}
 
 
-    def not_backward(self, **kwargs):
+    def not_backward(self, *args, **kwargs):
 
         # We've included code to prevent your Battlesnake from moving backwards
         if "head" not in kwargs:
@@ -47,15 +47,19 @@ class Move():
 
 
        
-    def not_wall_collision(self, **kwargs):
+    def not_wall_collision(self, *args, **kwargs):
 
         if "head" not in kwargs:
             raise RuntimeError("Key Word Arg fehlt!")
         my_head = kwargs["head"]
-        if "game_state" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        board_width = kwargs["game_state"]["board"]["width"]
-        board_hight = kwargs["game_state"]["board"]["height"]
+        game_state = None
+        for arg in args:
+            if isinstance(arg, dict):
+                game_state = arg
+        if game_state is None:
+            raise RuntimeError("Arg fehlt!")
+        board_width = game_state["board"]["width"]
+        board_hight = game_state["board"]["height"]
     
         if my_head["x"] == board_width -1:
 
@@ -73,7 +77,7 @@ class Move():
 
             self.is_move_safe["down"]["is_safe"] = False
 
-    def not_itself_collision(self, **kwargs):
+    def not_itself_collision(self, *args, **kwargs):
 
         if "body" not in kwargs:
             raise RuntimeError("Key Word Arg fehlt!")
@@ -108,14 +112,17 @@ class Move():
 
                 self.is_move_safe["down"]["is_safe"] = False
 
-    def not_enemy_collision(self, **kwargs):
+    def not_enemy_collision(self, *args, **kwargs):
         
         if "head" not in kwargs:
             raise RuntimeError("Key Word Arg fehlt!")
         my_position = kwargs["head"]
-        if "game_state" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        game_state = kwargs["game_state"]
+        game_state = None
+        for arg in args:
+            if isinstance(arg, dict):
+                game_state = arg
+        if game_state is None:
+            raise RuntimeError("Arg fehlt!")
 
         first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
 
@@ -230,14 +237,17 @@ class Move():
 
         return positions
     
-    def calculate_food(self, **kwargs):
+    def calculate_food(self, *args, **kwargs):
 
         if "head" not in kwargs:
             raise RuntimeError("Key Word Arg fehlt!")
         head = kwargs["head"]
-        if "game_state" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        game_state = kwargs["game_state"]
+        game_state = None
+        for arg in args:
+            if isinstance(arg, dict):
+                game_state = arg
+        if game_state is None:
+            raise RuntimeError("Arg fehlt!")
         
         food = game_state["board"]["food"]
 
@@ -279,14 +289,17 @@ class Move():
                              "right": {"is_safe": True, "priority": 0}}
 
     
-    def calculate_food(self, **kwargs):
+    def calculate_food(self, *args, **kwargs):
         
         if "head" not in kwargs:
             raise RuntimeError("Key Word Arg fehlt!")
         head = kwargs["head"]
-        if "game_state" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        game_state = kwargs["game_state"]
+        game_state = None
+        for arg in args:
+            if isinstance(arg, dict):
+                game_state = arg
+        if game_state is None:
+            raise RuntimeError("Arg fehlt!")
         
         food_list = game_state["board"]["food"]
 
@@ -371,7 +384,7 @@ class Move():
 
         for check in checks:
 
-            next_move = self.emergency_system(game_state, check, head=head,game_state=game_state, body=body, neck=neck)
+            next_move = self.emergency_system(game_state, check, head=head, body=body, neck=neck)
             if next_move is not None:
                 return next_move
 
@@ -433,12 +446,12 @@ class Move():
 
 
     
-    def emergency_system(self, game_state, func, *args, **kwargs):
+    def emergency_system(self, game_state, func, **kwargs):
 
         emergency_moves = ["left", "right", "up", "down"]
         
         try: 
-            func(*args, **kwargs)
+            func(game_state, **kwargs)
         except Exception as e:
             EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
             if func.__name__ == "reset_is_move_safe":
