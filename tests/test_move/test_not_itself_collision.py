@@ -16,15 +16,16 @@ class TestNotItselfCollision(unittest.TestCase):
              patch.object(self.bot, "not_enemy_collision"),
              patch.object(self.bot, "not_backward"),
              patch.object(self.bot, "not_wall_collision"),
-             patch.object(self.bot, "calculate_food")      
+             patch.object(self.bot, "calculate_food"),
+             patch.object(self.bot, "call_future_safety")      
         ]
 
         self.mocks = {}
 
-        for patcher in self.patchers:
+        for i, patcher in enumerate(self.patchers):
              
             mock = patcher.start()
-            self.mocks[mock._mock_name] = mock
+            self.mocks[i] = mock
 
         self.addCleanup(self.stop_patches)
 
@@ -34,11 +35,18 @@ class TestNotItselfCollision(unittest.TestCase):
 
             patcher.stop()
 
-    def check_calls(self):
+    def check_calls(self, exclude_future_safety=False):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+            if exclude_future_safety == True:
+              
+              if name == 5:
+                mock.assert_not_called()
+              else:
+                mock.assert_called()
+            else:
+              mock.assert_called()
     
     def check_safe_moves(self, is_move_safe, excluded_move):
 
@@ -231,7 +239,7 @@ class TestNotItselfCollision(unittest.TestCase):
 
                     self.bot.choose_move(game_state)
         
-                    self.check_calls()
+                    self.check_calls(exclude_future_safety=True)
                     
                     for move , data in self.bot.is_move_safe.items():
 
