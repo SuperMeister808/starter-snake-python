@@ -10,6 +10,14 @@ class TestCheckMoves(unittest.TestCase):
         
         self.bot = Move()
 
+        self.patchers = []
+        self.mocks = {}
+
+        self.head = "Testing..."
+        self.game_state = "Testing..."
+        self.body = "Testing..."
+        self.neck = "Testing..."
+
         self.addCleanup(self.stop_patchers)
 
 
@@ -44,9 +52,33 @@ class TestCheckMoves(unittest.TestCase):
         
         return patcher
 
+    def check_calls(self, call_count):
+
+        calls = [((self.game_state, self.bot.not_backward), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
+                 ((self.game_state, self.bot.not_wall_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
+                 ((self.game_state, self.bot.not_itself_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
+                 ((self.game_state, self.bot.not_enemy_collision), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)),
+                 ((self.game_state, self.bot.calculate_food), dict(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck))]
+        
+        mock = self.mocks[0]
+        
+        assert any(c in calls for c in mock.call_args_list)
+
+        self.assertEqual(mock.call_count, call_count)
+    
     def test_call_emergency_system_no_return_value(self):
 
-        pass
+        patcher_emergency_system_return_value = None
+        self.setup_patchers(patcher_emergency_system_return_value)
+
+        
+        
+        self.bot.check_moves(self.head, self.game_state, self.body, self.neck)
+        self.check_calls(6)
+
+        
+
+
 
     def test_call_emergency_system_return_value(self):
 
@@ -55,3 +87,6 @@ class TestCheckMoves(unittest.TestCase):
     def test_call_emergency_system_return_value_during_iteration(self):
 
         pass
+
+if __name__ == "__main__":
+    unittest.main()
