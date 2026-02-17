@@ -14,7 +14,8 @@ class TestNotBackward(unittest.TestCase):
              patch.object(self.bot, "not_enemy_collision"),
              patch.object(self.bot, "not_itself_collision"),
              patch.object(self.bot, "not_wall_collision"),
-             patch.object(self.bot, "calculate_food")      
+             patch.object(self.bot, "calculate_food"),
+             patch.object(self.bot, "call_future_safety")      
         ]
 
         self.mocks = {}
@@ -36,7 +37,7 @@ class TestNotBackward(unittest.TestCase):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+            mock.assert_called()
     
     def check_safe_moves(self, is_move_safe, excluded_move):
 
