@@ -14,7 +14,9 @@ class TestCalculateFood(unittest.TestCase):
              patch.object(self.bot, "reset_is_move_safe"),
              patch.object(self.bot, "not_backward"),
              patch.object(self.bot, "not_itself_collision"),
-             patch.object(self.bot, "not_wall_collision")    
+             patch.object(self.bot, "not_wall_collision"),
+             patch.object(self.bot, "call_future_safety"),
+             patch.object(self.bot, "get_neck")    
         ]
 
         self.mocks = {}
@@ -36,13 +38,13 @@ class TestCalculateFood(unittest.TestCase):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+            mock.assert_called()
 
     
     def test_safe_food(self):
 
         game_state = {
-            "you": {"head": {"x": 2, "y": 2}},
+            "you": {"head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}]},
             "board": {"food": [{"x": 3, "y": 2}], "snakes": []}
         }
 
