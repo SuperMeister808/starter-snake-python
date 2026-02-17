@@ -515,29 +515,33 @@ class Move():
         neck = self.get_neck(body)
         
         result = self.check_moves(head, game_state, body, neck)
-        if "id" in result:
-            if result["id"] == "Emergency!":
-                return {"move": next_move}
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return {"move": next_move}
         
         result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
-        if "id" in result:
-            if "id" == "Emergency!":
-                return {"move": result}
+        if isinstance(result, dict):
+            if "id" in result:
+                if "id" == "Emergency!":
+                    return {"move": result}
         
         safe_moves = self.get_safe_moves(game_state)
         
         for move , data in safe_moves.items():
             result = self.emergency_system(self.call_future_safety, move=move, head=head, game_state=game_state, body=body, neck=neck)
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    return {"move": result}
+            if isinstance(result, dict):
+                if "id" in result:
+                    if result["id"] == "Emergency!":
+                        return {"move": result}
             if result == False:
                 del safe_moves[move]
 
         result = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
-        if "id" in result:
-            if result["id"] == "Emergency!":
-                return {"move": result}
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return {"move": result}
         
         memory_moves = self.get_priority_moves(safe_moves, game_state)
         
