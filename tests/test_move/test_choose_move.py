@@ -44,8 +44,12 @@ class TestChooseMove(unittest.TestCase):
         for name, mock in self.mocks.items():
              
             if exclude_call_future_safety == True:
-                   
-            mock.assert_called()
+                if name == 6:
+                    mock.assert_not_called()
+                else:
+                    mock.assert_called()    
+            else:
+                mock.assert_called()
     
     def test_priority_left(self):
 
@@ -157,7 +161,7 @@ class TestChooseMove(unittest.TestCase):
                             
                     self.assertIn(result["move"], expected)
 
-    def test_ever_move_unsafe(self):
+    def test_every_move_unsafe(self):
 
 
                                 
@@ -167,7 +171,7 @@ class TestChooseMove(unittest.TestCase):
 
                     expected = ["down"]
                             
-                    self.check_calls()
+                    self.check_calls(exclude_call_future_safety=True)
                             
                     self.assertIn(result["move"], expected)
 
