@@ -447,13 +447,7 @@ class Move():
             safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
             return safe_moves
         
-    def get_priority_moves(self, **kwargs):
-
-        head, game_state, body, neck = self.get_keywords(**kwargs)
-        
-        if safe_moves not in kwargs:
-            raise RuntimeError("Keyword fehlt!")
-        safe_moves = kwargs["safe_moves"]
+    def get_priority_moves(self, safe_moves, game_state):
 
         memory_moves = []
         memory_priority = 0
@@ -520,26 +514,32 @@ class Move():
         body = game_state["you"]["body"]
         neck = self.get_neck(body)
         
-        next_move = self.check_moves(head, game_state, body, neck)
-        if "id" in next_move:
-            if next_move["id"] == "Emergency!":
+        result = self.check_moves(head, game_state, body, neck)
+        if "id" in result:
+            if result["id"] == "Emergency!":
                 return {"move": next_move}
         
-        next_move = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
-        if next_move is not None:
-            return {"move": next_move}
+        result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+        if "id" in result:
+            if "id" == "Emergency!":
+                return {"move": result}
         
         safe_moves = self.get_safe_moves(game_state)
         
         for move , data in safe_moves.items():
-            if self.emergency_system(self.call_future_safety, move=move, head=head, game_state=game_state, body=body, neck=neck) == False:
+            result = self.emergency_system(self.call_future_safety, move=move, head=head, game_state=game_state, body=body, neck=neck)
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return {"move": result}
+            if result == False:
                 del safe_moves[move]
 
-        next_move = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
-        if next_move is not None:
-            return {"move": next_move}
+        result = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
+        if "id" in result:
+            if result["id"] == "Emergency!":
+                return {"move": result}
         
-        memory_moves = self.emergency_system(self.get_priority_moves, safe_moves=safe_moves, head=head, game_state=game_state, body=body, neck=neck)
+        memory_moves = self.get_priority_moves(safe_moves, game_state)
         
         next_move = self.random_choice(game_state, safe_moves, memory_moves)
         return next_move
