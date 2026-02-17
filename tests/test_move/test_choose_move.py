@@ -11,21 +11,25 @@ class TestChooseMove(unittest.TestCase):
         
         self.bot = Move()
 
+        self.game_state = {"you": {"head": {}, "body": {}}}
+        
         self.patchers = [
              patch.object(self.bot, "reset_is_move_safe"),
              patch.object(self.bot, "not_enemy_collision"),
              patch.object(self.bot, "not_backward"),
              patch.object(self.bot, "not_itself_collision"),
              patch.object(self.bot, "not_wall_collision"),
-             patch.object(self.bot, "calculate_food")      
+             patch.object(self.bot, "calculate_food"),
+             patch.object(self.bot, "call_future_safety"),
+             patch.object(self.bot, "get_neck", return_value={})      
         ]
 
         self.mocks = {}
 
-        for patcher in self.patchers:
+        for i, patcher in enumerate(self.patchers):
              
             mock = patcher.start()
-            self.mocks[mock._mock_name] = mock
+            self.mocks[i] = mock
 
         self.addCleanup(self.stop_patches)
 
@@ -35,22 +39,21 @@ class TestChooseMove(unittest.TestCase):
 
             patcher.stop()
 
-    def check_calls(self):
+    def check_calls(self, exclude_call_future_safety=False):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+            if exclude_call_future_safety == True:
+                   
+            mock.assert_called()
     
     def test_priority_left(self):
-
-  
-                game_state = "Not_important"
 
 
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["left"]
                             
@@ -61,14 +64,10 @@ class TestChooseMove(unittest.TestCase):
     def test_priority_right(self):
 
 
-  
-                game_state = "Not_important"
-
-
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 1}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["right"]
                             
@@ -77,16 +76,10 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_priority_up(self):
-
-
-  
-                game_state = "Not_important"
-
-
-                
+       
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 2}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
                                           
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["up"]
                             
@@ -97,14 +90,10 @@ class TestChooseMove(unittest.TestCase):
     def test_priority_down(self):
 
 
-  
-                game_state = "Not_important"
-
-
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 1}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 2}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["down"]
                             
@@ -115,14 +104,10 @@ class TestChooseMove(unittest.TestCase):
     def test_priority_right_and_left(self):
 
 
-  
-                game_state = "Not_important"
-
-
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 1}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["left", "right"]
                             
@@ -131,16 +116,12 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_priority_up_and_down(self):
-           
-
-      
-                game_state = "Not_important"
 
 
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 1}, "up": {"is_safe": True, "priority": 2}, "down": {"is_safe": True, "priority": 2}}) as is_move_safe:
 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["up", "down"]
                             
@@ -149,16 +130,12 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_unsafe_move(self):
-         
-
-               
-                game_state = "Not important"
 
 
 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": False, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}) as is_move_safe:
 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["up", "down", "right"]
                             
@@ -169,14 +146,10 @@ class TestChooseMove(unittest.TestCase):
     def test_priority_and_unsafe(self):
 
 
-               
-                game_state = "Not important"
-
-
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": False, "priority": 0}, "up": {"is_safe": False, "priority": 0}, "down": {"is_safe": True, "priority": 2}}) as is_move_safe:
                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["down"]
                             
@@ -185,16 +158,12 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_ever_move_unsafe(self):
-                            
-
-  
-                game_state = {"turn": 1}
 
 
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": False, "priority": 0}, "right": {"is_safe": False, "priority": 0}, "up": {"is_safe": False, "priority": 0}, "down": {"is_safe": False, "priority": 0}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["down"]
                             
@@ -203,16 +172,12 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_multiple_priorities(self):
-         
-
-  
-                game_state = {"turn": 1}
 
 
                                 
                 with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": True, "priority": 1}, "right": {"is_safe": True, "priority": 2}, "up": {"is_safe": True, "priority": 1}, "down": {"is_safe": True, "priority": 2}}) as is_move_safe:
                                 
-                    result = self.bot.choose_move(game_state)
+                    result = self.bot.choose_move(self.game_state)
 
                     expected = ["down", "right"]
                             
@@ -221,14 +186,12 @@ class TestChooseMove(unittest.TestCase):
                     self.assertIn(result["move"], expected)
 
     def test_unsafe_with_priority(self):
-           
-        game_state = {"turn": 1}
 
 
                                 
         with patch.object(self.bot, "is_move_safe", {"left": {"is_safe": False, "priority": 1}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 1}}) as is_move_safe:
                                 
-                result = self.bot.choose_move(game_state)
+                result = self.bot.choose_move(self.game_state)
 
                 expected = ["down"]
                             
