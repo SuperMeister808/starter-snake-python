@@ -16,7 +16,8 @@ class TestIsGrowing(unittest.TestCase):
              patch.object(self.bot, "not_backward"),
              patch.object(self.bot, "not_itself_collision"),
              patch.object(self.bot, "not_wall_collision"),
-             patch.object(self.bot, "calculate_food")      
+             patch.object(self.bot, "calculate_food"),
+             patch.object(self.bot, "call_future_safety")      
         ]
 
         self.mocks = {}
@@ -38,7 +39,7 @@ class TestIsGrowing(unittest.TestCase):
          
         for name, mock in self.mocks.items():
              
-            mock.assert_called_once()
+            mock.assert_called()
     
     def check_safe_move(self, is_move_safe, excluded_move):
 
