@@ -219,15 +219,19 @@ class Move():
 
         return positions
     
-    def reset_is_move_safe(self):
+    def reset_is_move_safe(self, **kwargs):
 
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
 
-    def reset_is_move_safe_memory(self):
+    def reset_is_move_safe_memory(self, **kwargs):
 
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        
         self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
@@ -263,7 +267,10 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, relevant_position, neck, body, game_state):
+    def future_safety(self, **kwargs):
+            
+            head, game_state, body, neck = self.get_keywords(**kwargs)
+            relevant_position = head
             
             check = self.check_moves(relevant_position, game_state, body, neck)
             if check is not None:
@@ -275,10 +282,18 @@ class Move():
                 
             return False
     
-    def call_future_safety(self, move, game_state, calls=2):
+    def call_future_safety(self, **kwargs):
 
-            relevant_position = game_state["you"]["head"]
-            body = game_state["you"]["body"]
+            head, game_state, body, neck = self.get_keywords(**kwargs)
+            if "move" not in kwargs:
+                raise RuntimeError("Keyword fehlt!")
+            move = kwargs["move"]
+            if "calls" not in kwargs:
+                calls = 2
+            else:
+                calls = kwargs["calls"]
+
+            relevant_position = head
             
             for i in range(calls):
             
@@ -308,12 +323,9 @@ class Move():
     
 
     def check_moves(self, head, game_state, body, neck):
-
-        next_move = self.emergency_system(game_state, self.reset_is_move_safe)
-        if next_move is not None:
-            return next_move
         
-        checks = [self.not_backward, 
+        checks = [self.reset_is_move_safe,
+                  self.not_backward, 
                   self.not_wall_collision, 
                   self.not_itself_collision, 
                   self.not_enemy_collision, 
@@ -321,11 +333,11 @@ class Move():
 
         for check in checks:
 
-            next_move = self.emergency_system(game_state, check, head=head, body=body, neck=neck)
-            if next_move is not None:
-                return next_move
+            next_move = self.emergency_system(check, head=head, game_state=game_state, body=body, neck=neck)
+            return next_move
 
-    def safe_is_move_safe(self):
+    def safe_is_move_safe(self, **kwargs):
+
 
         self.is_move_safe_memory = self.is_move_safe
 
@@ -334,7 +346,7 @@ class Move():
 
         
 
-    def load_is_move_safe(self):
+    def load_is_move_safe(self, **kwargs):
 
         self.is_move_safe = self.is_move_safe_memory
         self.reset_is_move_safe_memory()
@@ -399,9 +411,11 @@ class Move():
 
         emergency_moves = ["left", "right", "up", "down"]
 
+        head, game_state, body, neck = self.get_keywords(**kwargs)
 
         try: 
-            func(**kwargs)
+            result = func(head=head, game_state=game_state, body=body, neck=neck, **kwargs)
+            return result
         except Exception as e:
             EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
             if func.__name__ == "reset_is_move_safe":
@@ -413,10 +427,10 @@ class Move():
             else:
                 try:
                     next_move = random.choice(emergency_moves)
-                    return {"move": next_move}
+                    return {"move": next_move, "id": "Emergency!"}
                 except Exception as e:
                     EmergencyLogger.loger_queue.put((func.__name__, f"{e}", game_state))
-                    return {"move": "down"}
+                    return {"move": "down", "id": "Emergency!"}
 
     def get_safe_moves(self, game_state):
 
@@ -433,9 +447,14 @@ class Move():
             safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
             return safe_moves
         
-    def get_priority_moves(self, game_state, safe_moves):
+    def get_priority_moves(self, **kwargs):
 
-        # Choose a random move from the safe ones 
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        
+        if safe_moves not in kwargs:
+            raise RuntimeError("Keyword fehlt!")
+        safe_moves = kwargs["safe_moves"]
+
         memory_moves = []
         memory_priority = 0
         try:
@@ -502,24 +521,25 @@ class Move():
         neck = self.get_neck(body)
         
         next_move = self.check_moves(head, game_state, body, neck)
+        if "id" in next_move:
+            if next_move["id"] == "Emergency!":
+                return {"move": next_move}
+        
+        next_move = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if next_move is not None:
             return {"move": next_move}
         
-        self.safe_is_move_safe()
         safe_moves = self.get_safe_moves(game_state)
         
         for move , data in safe_moves.items():
-            if self.call_future_safety(move, game_state) == False:
+            if self.emergency_system(self.call_future_safety, move=move, head=head, game_state=game_state, body=body, neck=neck) == False:
                 del safe_moves[move]
 
-        self.load_is_move_safe()
-
-        if safe_moves == {}:
-            turn = game_state.get("turn", "?")
-            print(f"MOVE {turn}: No safe moves detected! Moving down")
-            return {"move": "down"}
+        next_move = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
+        if next_move is not None:
+            return {"move": next_move}
         
-        memory_moves = self.get_priority_moves(game_state, safe_moves)
+        memory_moves = self.emergency_system(self.get_priority_moves, safe_moves=safe_moves, head=head, game_state=game_state, body=body, neck=neck)
         
         next_move = self.random_choice(game_state, safe_moves, memory_moves)
         return next_move
