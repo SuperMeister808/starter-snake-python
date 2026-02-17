@@ -22,15 +22,12 @@ class Move():
                              "right": {"is_safe": True, "priority": 0}}
 
 
-    def not_backward(self, *args, **kwargs):
+    def not_backward(self, **kwargs):
 
         # We've included code to prevent your Battlesnake from moving backwards
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        my_head = kwargs["head"]  # Coordinates of your head
-        if "neck" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        my_neck = kwargs["neck"]  # Coordinates of your "neck"
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        my_head = head # Coordinates of your head
+        my_neck = neck  # Coordinates of your "neck"
 
         if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
             self.is_move_safe["left"]["is_safe"] = False
@@ -47,17 +44,11 @@ class Move():
 
 
        
-    def not_wall_collision(self, *args, **kwargs):
+    def not_wall_collision(self, **kwargs):
 
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        my_head = kwargs["head"]
-        game_state = None
-        for arg in args:
-            if isinstance(arg, dict):
-                game_state = arg
-        if game_state is None:
-            raise RuntimeError("Arg fehlt!")
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        
+        my_head = head
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
     
@@ -77,15 +68,13 @@ class Move():
 
             self.is_move_safe["down"]["is_safe"] = False
 
-    def not_itself_collision(self, *args, **kwargs):
+    def not_itself_collision(self, **kwargs):
 
-        if "body" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        my_body = kwargs["body"]
-
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        position = kwargs["head"]
+        
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        
+        my_body = body
+        position = head
 
         position_x = position["x"]
 
@@ -112,17 +101,10 @@ class Move():
 
                 self.is_move_safe["down"]["is_safe"] = False
 
-    def not_enemy_collision(self, *args, **kwargs):
+    def not_enemy_collision(self, **kwargs):
         
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        my_position = kwargs["head"]
-        game_state = None
-        for arg in args:
-            if isinstance(arg, dict):
-                game_state = arg
-        if game_state is None:
-            raise RuntimeError("Arg fehlt!")
+        head, game_state, body, neck = self.get_keywords(**kwargs)
+        my_position = game_state["head"]
 
         first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
 
@@ -252,17 +234,9 @@ class Move():
                              "right": {"is_safe": True, "priority": 0}}
 
     
-    def calculate_food(self, *args, **kwargs):
+    def calculate_food(self, **kwargs):
         
-        if "head" not in kwargs:
-            raise RuntimeError("Key Word Arg fehlt!")
-        head = kwargs["head"]
-        game_state = None
-        for arg in args:
-            if isinstance(arg, dict):
-                game_state = arg
-        if game_state is None:
-            raise RuntimeError("Arg fehlt!")
+        head, game_state, body, neck = self.get_keywords(**kwargs)
         
         food_list = game_state["board"]["food"]
 
@@ -365,6 +339,18 @@ class Move():
         self.is_move_safe = self.is_move_safe_memory
         self.reset_is_move_safe_memory()
 
+    def get_keywords(self, **kwargs):
+
+        try:
+            head = kwargs["head"]
+            game_state = kwargs["game_state"]
+            body = kwargs["body"]
+            neck = kwargs["neck"]
+        except KeyError:
+            raise KeyError("Keyword fehlt!")
+
+        return head, game_state, body, neck
+    
     def get_body(self, new_head, new_snake=None):
         
         if new_snake is None:
@@ -409,12 +395,13 @@ class Move():
 
 
     
-    def emergency_system(self, game_state, func, **kwargs):
+    def emergency_system(self, func, **kwargs):
 
         emergency_moves = ["left", "right", "up", "down"]
-        
+
+
         try: 
-            func(game_state, **kwargs)
+            func(**kwargs)
         except Exception as e:
             EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
             if func.__name__ == "reset_is_move_safe":
