@@ -267,10 +267,7 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, **kwargs):
-            
-            head, game_state, body, neck = self.get_keywords(**kwargs)
-            relevant_position = head
+    def future_safety(self, relevant_position, game_state, body, neck):
             
             check = self.check_moves(relevant_position, game_state, body, neck)
             if check is not None:
