@@ -414,7 +414,7 @@ class Move():
         head, game_state, body, neck = self.get_keywords(**kwargs)
 
         try: 
-            result = func(head=head, game_state=game_state, body=body, neck=neck, **kwargs)
+            result = func(**kwargs)
             return result
         except Exception as e:
             EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
