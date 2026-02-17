@@ -294,7 +294,7 @@ class Move():
             
             for i in range(calls):
             
-                self.reset_is_move_safe()
+                self.reset_is_move_safe(**kwargs)
                 
                 if move == "left":
                     neck = relevant_position
