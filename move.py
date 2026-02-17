@@ -341,7 +341,7 @@ class Move():
 
         self.is_move_safe_memory = self.is_move_safe
 
-        self.reset_is_move_safe()
+        self.reset_is_move_safe(**kwargs)
 
 
         
@@ -349,7 +349,7 @@ class Move():
     def load_is_move_safe(self, **kwargs):
 
         self.is_move_safe = self.is_move_safe_memory
-        self.reset_is_move_safe_memory()
+        self.reset_is_move_safe_memory(**kwargs)
 
     def get_keywords(self, **kwargs):
 
