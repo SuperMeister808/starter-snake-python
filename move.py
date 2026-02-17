@@ -267,15 +267,47 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, relevant_position, game_state, body, neck):
+    def future_safety(self, head, game_state, body, neck, relevant_position=None):
             
-            check = self.check_moves(relevant_position, game_state, body, neck)
-            if check is not None:
-                return False
+            if relevant_position is None:
+                relevant_position = []
+            
+                move_left = {{"x": head["x"] - 1, "y": head["y"]}: []}
+                move_right = {{"x": head["x"] + 1, "y": head["y"]}: []}
+                move_up = {"x": head["x"], "y": head["y"] + 1}
+                move_down = {"x": head["x"], "y": head["y"] - 1}
+                possible_moves = [move_left, move_right, move_up, move_down]
+            
+                relevant_position.extend(possible_moves)
+            
+            safe_move_left = False
+            
+            for e in relevant_position:
+            
+                relevant_position.extend(possible_moves)
+                
+                result = self.check_moves(e, game_state, body, neck)
+                if isinstance(result, dict):
+                    if "id" in result:
+                        if result["id"] == "Emergency!":
+                            relevant_position.remove(e)
+                            continue
+                
+                for move , data in self.is_move_safe.items():
+                    if data["is_safe"] == True:
+                        safe_move_left = True
+                        relevant_position.remove(e)
+                
+                        move_left = {"x": head["x"] - 1, "y": head["y"]}
+                        move_right = {"x": head["x"] + 1, "y": head["y"]}
+                        move_up = {"x": head["x"], "y": head["y"] + 1}
+                        move_down = {"x": head["x"], "y": head["y"] - 1}
+                        possible_moves = [move_left, move_right, move_up, move_down]
 
-            for move , data in self.is_move_safe.items():
-                if data["is_safe"] == True:
-                    return True
+                        relevant_position.extend(possible_moves)
+
+                relevant_position.remove(e)
+
                 
             return False
     
@@ -289,30 +321,25 @@ class Move():
                 calls = 2
             else:
                 calls = kwargs["calls"]
-
-            relevant_position = head
             
+            if move == "left":
+                neck = head
+                head = {"x": head["x"] -1, "y": head["y"]}
+            if move == "right":
+                neck = head
+                head = {"x": head["x"] + 1, "y": head["y"]}
+            if move == "up":
+                neck = head
+                head = {"x": head["x"], "y": head["y"] + 1}
+            if move == "down":
+                neck = head
+                head = {"x": head["x"], "y": head["y"] - 1}
+
             for i in range(calls):
             
                 self.reset_is_move_safe(**kwargs)
-                
-                if move == "left":
-                    neck = relevant_position
-                    relevant_position = {"x": relevant_position["x"] -1, "y": relevant_position["y"]}
-                if move == "right":
-                    neck = relevant_position
-                    relevant_position = {"x": relevant_position["x"] + 1, "y": relevant_position["y"]}
-                if move == "up":
-                    neck = relevant_position
-    
-                    relevant_position = {"x": relevant_position["x"], "y": relevant_position["y"] + 1}
-                if move == "down":
-                    neck = relevant_position
-                    relevant_position = {"x": relevant_position["x"], "y": relevant_position["y"] - 1}
 
-                body = self.call_get_body(relevant_position, body)
-
-                if self.future_safety(relevant_position, game_state, body, neck) == False:
+                if self.future_safety(head, game_state, body, neck) == False:
                     return False
                 
             return True
@@ -526,7 +553,7 @@ class Move():
         safe_moves = self.get_safe_moves(game_state)
         
         for move , data in safe_moves.items():
-            result = self.emergency_system(self.call_future_safety, move=move, head=head, game_state=game_state, body=body, neck=neck)
+            result = self.emergency_system(self.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
             if isinstance(result, dict):
                 if "id" in result:
                     if result["id"] == "Emergency!":
