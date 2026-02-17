@@ -518,13 +518,13 @@ class Move():
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
-                    return {"move": next_move}
+                    return {"move": result["move"]}
         
         result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
                 if "id" == "Emergency!":
-                    return {"move": result}
+                    return {"move": result["move"]}
         
         safe_moves = self.get_safe_moves(game_state)
         
@@ -533,7 +533,7 @@ class Move():
             if isinstance(result, dict):
                 if "id" in result:
                     if result["id"] == "Emergency!":
-                        return {"move": result}
+                        return {"move": result["move"]}
             if result == False:
                 del safe_moves[move]
 
@@ -541,7 +541,7 @@ class Move():
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
-                    return {"move": result}
+                    return {"move": result["move"]}
         
         memory_moves = self.get_priority_moves(safe_moves, game_state)
         
