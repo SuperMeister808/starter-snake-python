@@ -267,12 +267,14 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, head, game_state, body, neck, relevant_position=[]):
+    def future_safety(self, head, game_state, body, neck, relevant_position=None):
             
-            if relevant_position == []:
+            if relevant_position == None:
             
-                move_left = {{"x": head["x"] - 1, "y": head["y"]}: []}
-                move_right = {{"x": head["x"] + 1, "y": head["y"]}: []}
+                relevant_position = []
+                
+                move_left = {"x": head["x"] - 1, "y": head["y"]}
+                move_right = {"x": head["x"] + 1, "y": head["y"]}
                 move_up = {"x": head["x"], "y": head["y"] + 1}
                 move_down = {"x": head["x"], "y": head["y"] - 1}
                 possible_moves = [move_left, move_right, move_up, move_down]
