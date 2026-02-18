@@ -115,7 +115,17 @@ class TestFutureSafety(unittest.TestCase):
 
     def test_no_safe_moves_left(self):
 
-        pass
+        patcher_check_moves = self.create_patcher_check_moves(None)
+        patcher_is_move_safe = self.create_patcher_is_move_safe({"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}})
+        self.patchers.append(patcher_check_moves)
+        self.patchers.append(patcher_is_move_safe)
+
+        self.start_patchers()
+
+        result_bool , result_list = self.bot.future_safety(self.head, self.game_state, self.body, self.neck)
+        
+        self.assertFalse(result_bool)
+        self.assertEqual(result_list, [])
 
 if __name__ == "__main__":
     unittest.main()
