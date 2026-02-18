@@ -269,8 +269,8 @@ class Move():
 
     def future_safety(self, head, game_state, body, neck, relevant_position=None):
             
-            if relevant_position == None:
-            
+            if relevant_position is None:
+                
                 relevant_position = []
                 
                 move_left = {"x": head["x"] - 1, "y": head["y"]}
@@ -282,6 +282,7 @@ class Move():
                 relevant_position.extend(possible_moves)
             
             safe_move_left = False
+            new_relevant_positions = []
             
             for e in relevant_position:
                 
@@ -289,13 +290,11 @@ class Move():
                 if isinstance(result, dict):
                     if "id" in result:
                         if result["id"] == "Emergency!":
-                            relevant_position.remove(e)
                             continue
                 
                 for move , data in self.is_move_safe.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
-                        relevant_position.remove(e)
                 
                         move_left = {"x": e["x"] - 1, "y": e["y"]}
                         move_right = {"x": e["x"] + 1, "y": e["y"]}
@@ -303,13 +302,9 @@ class Move():
                         move_down = {"x": e["x"], "y": e["y"] - 1}
                         possible_moves = [move_left, move_right, move_up, move_down]
 
-                        relevant_position.extend(possible_moves)
-
-                if e in relevant_position:
-                    relevant_position.remove(e)
-
-                
-            return safe_move_left , relevant_position
+                        new_relevant_positions.extend(e)
+   
+            return safe_move_left , new_relevant_positions
     
     def call_future_safety(self, **kwargs):
 
