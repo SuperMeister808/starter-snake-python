@@ -267,10 +267,9 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, head, game_state, body, neck, relevant_position=None):
+    def future_safety(self, head, game_state, body, neck, relevant_position=[]):
             
-            if relevant_position is None:
-                relevant_position = []
+            if relevant_position == []:
             
                 move_left = {{"x": head["x"] - 1, "y": head["y"]}: []}
                 move_right = {{"x": head["x"] + 1, "y": head["y"]}: []}
@@ -283,8 +282,6 @@ class Move():
             safe_move_left = False
             
             for e in relevant_position:
-            
-                relevant_position.extend(possible_moves)
                 
                 result = self.check_moves(e, game_state, body, neck)
                 if isinstance(result, dict):
@@ -298,18 +295,19 @@ class Move():
                         safe_move_left = True
                         relevant_position.remove(e)
                 
-                        move_left = {"x": head["x"] - 1, "y": head["y"]}
-                        move_right = {"x": head["x"] + 1, "y": head["y"]}
-                        move_up = {"x": head["x"], "y": head["y"] + 1}
-                        move_down = {"x": head["x"], "y": head["y"] - 1}
+                        move_left = {"x": e["x"] - 1, "y": e["y"]}
+                        move_right = {"x": e["x"] + 1, "y": e["y"]}
+                        move_up = {"x": e["x"], "y": e["y"] + 1}
+                        move_down = {"x": e["x"], "y": e["y"] - 1}
                         possible_moves = [move_left, move_right, move_up, move_down]
 
                         relevant_position.extend(possible_moves)
 
-                relevant_position.remove(e)
+                if e in relevant_position:
+                    relevant_position.remove(e)
 
                 
-            return False
+            return safe_move_left , relevant_position
     
     def call_future_safety(self, **kwargs):
 
@@ -335,11 +333,13 @@ class Move():
                 neck = head
                 head = {"x": head["x"], "y": head["y"] - 1}
 
+            relevant_position = []
             for i in range(calls):
             
                 self.reset_is_move_safe(**kwargs)
 
-                if self.future_safety(head, game_state, body, neck) == False:
+                safe_move_left , relevant_position = self.future_safety(head, game_state, body, neck, relevant_position)
+                if safe_move_left == False:
                     return False
                 
             return True
