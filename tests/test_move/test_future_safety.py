@@ -129,7 +129,12 @@ class TestFutureSafety(unittest.TestCase):
 
     def test_wrong_datatype_relevant_position(self):
 
-        pass
+        relevant_position = str("Testing...")
+
+        with self.assertRaises(TypeError):
+            result_bool , result_list = self.bot.future_safety(self.head, self.game_state, self.body, self.neck, relevant_position=relevant_position)
+
+
 
     def test_wrong_datatype_head(self):
 
