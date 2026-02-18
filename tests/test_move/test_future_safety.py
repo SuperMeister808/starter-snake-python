@@ -138,7 +138,10 @@ class TestFutureSafety(unittest.TestCase):
 
     def test_wrong_datatype_head(self):
 
-        pass
+        head = str("Testing...")
+
+        with self.assertRaises(TypeError):
+            result_bool , result_list = self.bot.future_safety(head, self.game_state, self.body, self.neck)
 
 if __name__ == "__main__":
     unittest.main()
