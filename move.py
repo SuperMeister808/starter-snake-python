@@ -284,6 +284,10 @@ class Move():
             if not isinstance(relevant_position, list):
 
                 raise TypeError("relevant_position als Liste erforderlich!")
+            
+            if not isinstance(head, dict):
+
+                raise TypeError("head als Dictionary erforderlich!")
 
             safe_move_left = False
             new_relevant_positions = []
@@ -300,11 +304,13 @@ class Move():
                     if data["is_safe"] == True:
                         safe_move_left = True
                 
+                        
                         move_left = {"x": e["x"] - 1, "y": e["y"]}
                         move_right = {"x": e["x"] + 1, "y": e["y"]}
                         move_up = {"x": e["x"], "y": e["y"] + 1}
                         move_down = {"x": e["x"], "y": e["y"] - 1}
                         possible_moves = [move_left, move_right, move_up, move_down]
+                        
 
                         new_relevant_positions.extend(possible_moves)
    

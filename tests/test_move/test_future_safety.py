@@ -127,6 +127,10 @@ class TestFutureSafety(unittest.TestCase):
         self.assertFalse(result_bool)
         self.assertEqual(result_list, [])
 
+    def test_wrong_datatype(self):
+
+        pass
+
 if __name__ == "__main__":
     unittest.main()
 
