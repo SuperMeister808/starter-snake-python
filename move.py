@@ -281,6 +281,10 @@ class Move():
             
                 relevant_position.extend(possible_moves)
             
+            if not isinstance(relevant_position, list):
+
+                raise TypeError("relevant_position als Liste erforderlich!")
+
             safe_move_left = False
             new_relevant_positions = []
             
