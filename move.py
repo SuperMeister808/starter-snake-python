@@ -302,7 +302,7 @@ class Move():
                         move_down = {"x": e["x"], "y": e["y"] - 1}
                         possible_moves = [move_left, move_right, move_up, move_down]
 
-                        new_relevant_positions.extend(e)
+                        new_relevant_positions.extend(possible_moves)
    
             return safe_move_left , new_relevant_positions
     

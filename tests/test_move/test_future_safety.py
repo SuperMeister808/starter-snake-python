@@ -53,6 +53,25 @@ class TestFutureSafety(unittest.TestCase):
         patcher = patch.object(self.bot, "is_move_safe", new=new)
         return patcher
     
+    def get_moves(self, head):
+
+        left_move = {"x": head["x"] - 1, "y": head["y"]}
+        right_move = {"x": head["x"] + 1, "y": head["y"]}
+        down_move = {"x": head["x"], "y": head["y"] - 1}
+        up_move = {"x": head["x"], "y": head["y"] + 1}
+
+        return left_move , right_move , down_move , up_move
+    
+    def compare_lists(self, list0, list1):
+
+        for e in list0:
+            if e in list1:
+                continue
+            else:
+                return False
+            
+        return True
+    
     def test_emergency_id(self):
 
         return_value = {"id": "Emergency!"}
@@ -78,6 +97,19 @@ class TestFutureSafety(unittest.TestCase):
         self.patchers.append(patcher_is_move_safe)
 
         self.start_patchers()
+
+        result_bool , result_list = self.bot.future_safety(self.head, self.game_state, self.body, self.neck)
+        
+        self.assertTrue(result_bool)
+        
+        move_left , move_right , move_down , move_up = self.get_moves(self.head)
+        expected_current_relevant_positions = [move_left, move_right, move_down, move_up]
+        expected_relevant_positions = []
+        for e in expected_current_relevant_positions:
+            move_left , move_right , move_down , move_up = self.get_moves(e)
+            possible_moves = [move_left, move_right, move_down, move_up]
+            expected_relevant_positions.extend(possible_moves)
+        self.compare_lists(result_list, expected_relevant_positions)
 
 
 
