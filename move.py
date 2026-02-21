@@ -474,7 +474,7 @@ class Move():
                 required_calls = required_calls - 1
                 continue
             
-            new_snake = self.get_body(head, new_snake)
+            new_snake = self.get_body(new_snake, head=head)
 
             head = body_part
 
