@@ -7,6 +7,8 @@ import threading
 
 import typing
 
+import copy
+
 from emergency_logger import EmergencyLogger
 
 class Move():
@@ -397,8 +399,8 @@ class Move():
         
     def safe_is_move_safe(self, **kwargs):
 
-
-        self.is_move_safe_memory = self.is_move_safe
+        #copy, da dicts mutable sind
+        self.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
 
         self.reset_is_move_safe(**kwargs)
 
@@ -407,7 +409,8 @@ class Move():
 
     def load_is_move_safe(self, **kwargs):
 
-        self.is_move_safe = self.is_move_safe_memory
+        #copy, da dicts mutable sind
+        self.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
         self.reset_is_move_safe_memory(**kwargs)
 
     def get_allowed_keywords(self, **kwargs):
@@ -616,7 +619,7 @@ class Move():
         result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
-                if "id" == "Emergency!":
+                if result["id"] == "Emergency!":
                     return {"move": result["move"]}
         
         safe_moves = self.get_safe_moves(game_state=game_state)
