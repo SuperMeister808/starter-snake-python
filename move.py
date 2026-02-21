@@ -267,7 +267,7 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, relevant_position=None, **kwargs):
+    def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
             head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -284,14 +284,6 @@ class Move():
                 possible_moves = [move_left, move_right, move_up, move_down]
             
                 relevant_position.extend(possible_moves)
-            
-            if not isinstance(relevant_position, list):
-
-                raise TypeError("relevant_position als Liste erforderlich!")
-            
-            if not isinstance(head, dict):
-
-                raise TypeError("head als Dictionary erforderlich!")
 
             safe_move_left = False
             new_relevant_positions = []
@@ -446,7 +438,7 @@ class Move():
 
         return found_keywords
     
-    def get_body(self, new_snake=None, **kwargs):
+    def get_body(self, new_snake:typing.List[dict]=None, **kwargs):
         
         NEEDED_KEYWORDS = ["new_head"]
         new_head = self.extract_keywords(NEEDED_KEYWORDS)
@@ -498,7 +490,7 @@ class Move():
 
 
     
-    def emergency_system(self, func, **kwargs):
+    def emergency_system(self, func:typing.Callable, **kwargs):
         
         NEEDED_KEYWORDS = ["game_state"]
         game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -609,7 +601,7 @@ class Move():
 
     
     
-    def choose_move(self, game_state):
+    def choose_move(self, game_state:typing.Dict):
         
         head = game_state["you"]["head"]
         body = game_state["you"]["body"]
