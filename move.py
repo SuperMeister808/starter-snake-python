@@ -292,7 +292,7 @@ class Move():
             
             for e in relevant_position:
                 
-                result = self.check_moves(e, game_state, body, neck)
+                result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
                 if isinstance(result, dict):
                     if "id" in result:
                         if result["id"] == "Emergency!":
@@ -624,6 +624,7 @@ class Move():
         
         safe_moves = self.get_safe_moves(game_state=game_state)
         
+        to_delete = []
         for move , data in safe_moves.items():
             result = self.emergency_system(self.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
             if isinstance(result, dict):
@@ -631,7 +632,9 @@ class Move():
                     if result["id"] == "Emergency!":
                         return {"move": result["move"]}
             if result == False:
-                del safe_moves[move]
+                to_delete.append(move) 
+        for key in to_delete:
+            del safe_moves[key]
 
         result = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
         if isinstance(result, dict):
