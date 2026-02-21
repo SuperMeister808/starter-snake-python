@@ -5,6 +5,8 @@ from git import Repo
 
 import threading
 
+import typing
+
 from emergency_logger import EmergencyLogger
 
 class Move():
@@ -230,7 +232,7 @@ class Move():
 
     def reset_is_move_safe_memory(self, **kwargs):
 
-        head, game_state, body, neck = self.get_keywords(**kwargs)
+        found_keywords = self.get_keywords(**kwargs)
         
         self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
@@ -272,6 +274,7 @@ class Move():
             if relevant_position is None:
                 
                 relevant_position = []
+
                 
                 move_left = {"x": head["x"] - 1, "y": head["y"]}
                 move_right = {"x": head["x"] + 1, "y": head["y"]}
@@ -318,14 +321,8 @@ class Move():
     
     def call_future_safety(self, **kwargs):
 
-            head, game_state, body, neck = self.get_keywords(**kwargs)
-            if "move" not in kwargs:
-                raise RuntimeError("Keyword fehlt!")
-            move = kwargs["move"]
-            if "calls" not in kwargs:
-                calls = 2
-            else:
-                calls = kwargs["calls"]
+            NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
+            game_state , body , move , calls , head = self.extract_keywords(**kwargs)
             
             if move == "left":
                 neck = head
@@ -350,8 +347,6 @@ class Move():
                     return False
                 
             return True
-    
-    
 
     def check_moves(self, head, game_state, body, neck):
         
@@ -367,6 +362,48 @@ class Move():
             next_move = self.emergency_system(check, head=head, game_state=game_state, body=body, neck=neck)
             return next_move
 
+    def check_datatype(self, keywords: typing.Dict):
+
+        DICTIONARY_KEYS = ["head", "game_state", "neck"]
+        LIST_KEYS = ["body"]
+        STRING_KEYS = []
+        INTEGER_KEYS = []
+        FLOAT_KEYS = []
+
+        for key , keyword in keywords.items():
+
+            listed = False
+            
+            if key in DICTIONARY_KEYS:
+                listed = True
+                if not isinstance(keyword, dict):
+                    raise TypeError(f"{key} als Dictionary erforderlich!")
+                
+            if key in LIST_KEYS:
+                listed = True
+                if not isinstance(keyword, list):
+                    raise TypeError(f"{key} als Liste erforderlich!")
+                
+            if key in STRING_KEYS:
+                listed = True
+                if not isinstance(keyword, str):
+                    raise TypeError(f"{key} als String erforderlich!")
+                
+            if key in INTEGER_KEYS:
+                listed = True
+                if not isinstance(keyword, int):
+                    raise TypeError(f"{key} als Integer erforderlich!")
+                
+            if key in FLOAT_KEYS:
+                listed = True
+                if not isinstance(keyword, float):
+                    raise TypeError(f"{key} als Float erforderlich!")
+                
+            if listed == False:
+                raise RuntimeError(f"{key} nicht gelistet!")
+                
+
+        
     def safe_is_move_safe(self, **kwargs):
 
 
@@ -382,17 +419,33 @@ class Move():
         self.is_move_safe = self.is_move_safe_memory
         self.reset_is_move_safe_memory(**kwargs)
 
-    def get_keywords(self, **kwargs):
+    def get_allowed_keywords(self, **kwargs):
 
-        try:
-            head = kwargs["head"]
-            game_state = kwargs["game_state"]
-            body = kwargs["body"]
-            neck = kwargs["neck"]
-        except KeyError:
-            raise KeyError("Keyword fehlt!")
+        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        keywords = {}
 
-        return head, game_state, body, neck
+        for allowed_keyword in ALLOWED_KEYWORDS:
+            try:
+                keyword = kwargs[allowed_keyword]
+                keywords[allowed_keyword] = keyword
+            except KeyError as e:
+                continue
+        
+        return keywords
+    
+    def extract_keywords(self, needed_keywords: typing.List[str], **kwargs):
+
+        keywords = self.get_allowed_keywords(**kwargs)
+        
+        self.check_datatype(keywords)
+        
+        found_keywords = []
+        for keyword in needed_keywords:
+            if keyword not in keywords:
+                raise KeyError(f"{keyword} erforderlich!")
+            found_keywords.append(keyword)
+
+        return found_keywords
     
     def get_body(self, new_head, new_snake=None):
         
@@ -544,6 +597,8 @@ class Move():
         head = game_state["you"]["head"]
         body = game_state["you"]["body"]
         neck = self.get_neck(body)
+
+        self.emergency_system(self.check_datatypes, head=head, game_state=game_state)
         
         result = self.check_moves(head, game_state, body, neck)
         if isinstance(result, dict):
