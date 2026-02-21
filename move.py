@@ -412,7 +412,7 @@ class Move():
 
     def get_allowed_keywords(self, **kwargs):
 
-        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves"]
         keywords = {}
 
         for allowed_keyword in ALLOWED_KEYWORDS:
