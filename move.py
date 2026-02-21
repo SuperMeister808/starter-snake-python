@@ -488,8 +488,7 @@ class Move():
         body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         try:
-            neck_slice = body[1:2]
-            neck = neck_slice[0]
+            neck = body[1]
         except IndexError:
             raise IndexError("Kein neck vorhanden!")
         
