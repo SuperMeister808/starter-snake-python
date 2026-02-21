@@ -26,21 +26,19 @@ class Move():
 
     def not_backward(self, **kwargs):
 
-        # We've included code to prevent your Battlesnake from moving backwards
-        head, game_state, body, neck = self.get_keywords(**kwargs)
-        my_head = head # Coordinates of your head
-        my_neck = neck  # Coordinates of your "neck"
+        NEEDED_KEYWORDS = ["head", "neck"]
+        head , neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        if my_neck["x"] < my_head["x"]:  # Neck is left of head, don't move left
+        if neck["x"] < head["x"]:  
             self.is_move_safe["left"]["is_safe"] = False
 
-        elif my_neck["x"] > my_head["x"]:  # Neck is right of head, don't move right
+        elif neck["x"] > head["x"]:  
             self.is_move_safe["right"]["is_safe"] = False
 
-        elif my_neck["y"] < my_head["y"]:  # Neck is below head, don't move down
+        elif neck["y"] < head["y"]:  
             self.is_move_safe["down"]["is_safe"] = False
 
-        elif my_neck["y"] > my_head["y"]:  # Neck is above head, don't move up
+        elif neck["y"] > head["y"]: 
             self.is_move_safe["up"]["is_safe"] = False         
 
 
@@ -48,32 +46,33 @@ class Move():
        
     def not_wall_collision(self, **kwargs):
 
-        head, game_state, body, neck = self.get_keywords(**kwargs)
+        NEEDED_KEYWORDS = ["head", "game_state"]
+        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
-        my_head = head
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
     
-        if my_head["x"] == board_width -1:
+        if head["x"] == board_width -1:
 
             self.is_move_safe["right"]["is_safe"] = False
 
-        if my_head["x"] == 0:
+        if head["x"] == 0:
 
             self.is_move_safe["left"]["is_safe"] = False
 
-        if my_head["y"] == board_hight -1:
+        if head["y"] == board_hight -1:
 
             self.is_move_safe["up"]["is_safe"] = False
 
-        if my_head["y"] == 0:
+        if head["y"] == 0:
 
             self.is_move_safe["down"]["is_safe"] = False
 
     def not_itself_collision(self, **kwargs):
 
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
         
-        head, game_state, body, neck = self.get_keywords(**kwargs)
+        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         my_body = body
         position = head
@@ -105,8 +104,9 @@ class Move():
 
     def not_enemy_collision(self, **kwargs):
         
-        head, game_state, body, neck = self.get_keywords(**kwargs)
-        my_position = game_state["head"]
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        my_position = head
 
         first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
 
@@ -222,8 +222,6 @@ class Move():
         return positions
     
     def reset_is_move_safe(self, **kwargs):
-
-        head, game_state, body, neck = self.get_keywords(**kwargs)
         
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
@@ -231,8 +229,6 @@ class Move():
                              "right": {"is_safe": True, "priority": 0}}
 
     def reset_is_move_safe_memory(self, **kwargs):
-
-        found_keywords = self.get_keywords(**kwargs)
         
         self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
@@ -242,7 +238,8 @@ class Move():
     
     def calculate_food(self, **kwargs):
         
-        head, game_state, body, neck = self.get_keywords(**kwargs)
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         food_list = game_state["board"]["food"]
 
@@ -322,7 +319,7 @@ class Move():
     def call_future_safety(self, **kwargs):
 
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
-            game_state , body , move , calls , head = self.extract_keywords(**kwargs)
+            game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             
             if move == "left":
                 neck = head
