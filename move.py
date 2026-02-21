@@ -363,10 +363,10 @@ class Move():
 
     def check_datatype(self, keywords: typing.Dict):
 
-        DICTIONARY_KEYS = ["head", "game_state", "neck"]
-        LIST_KEYS = ["body"]
-        STRING_KEYS = []
-        INTEGER_KEYS = []
+        DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves"]
+        LIST_KEYS = ["body", "snake", "memory_moves"]
+        STRING_KEYS = ["move"]
+        INTEGER_KEYS = ["calls"]
         FLOAT_KEYS = []
 
         for key , keyword in keywords.items():
