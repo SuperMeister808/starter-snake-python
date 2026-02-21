@@ -363,8 +363,11 @@ class Move():
 
         for check in checks:
 
-            next_move = self.emergency_system(check, head=head, game_state=game_state, body=body, neck=neck)
-            return next_move
+            result = self.emergency_system(check, head=head, game_state=game_state, body=body, neck=neck)
+            if isinstance(result, dict):
+                if "id" in result:
+                    if result["id"] == "Emergency!":
+                        return result
 
     def check_datatype(self, keywords: typing.Dict):
 
@@ -375,36 +378,28 @@ class Move():
         FLOAT_KEYS = []
 
         for key , keyword in keywords.items():
-
-            listed = False
             
             if key in DICTIONARY_KEYS:
-                listed = True
                 if not isinstance(keyword, dict):
                     raise TypeError(f"{key} als Dictionary erforderlich!")
                 
             if key in LIST_KEYS:
-                listed = True
                 if not isinstance(keyword, list):
                     raise TypeError(f"{key} als Liste erforderlich!")
                 
             if key in STRING_KEYS:
-                listed = True
                 if not isinstance(keyword, str):
                     raise TypeError(f"{key} als String erforderlich!")
                 
             if key in INTEGER_KEYS:
-                listed = True
                 if not isinstance(keyword, int):
                     raise TypeError(f"{key} als Integer erforderlich!")
                 
             if key in FLOAT_KEYS:
-                listed = True
                 if not isinstance(keyword, float):
                     raise TypeError(f"{key} als Float erforderlich!")
                 
-            if listed == False:
-                raise RuntimeError(f"{key} nicht gelistet!")
+
                 
 
         
