@@ -70,18 +70,15 @@ class Move():
 
     def not_itself_collision(self, **kwargs):
 
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        NEEDED_KEYWORDS = ["head", "body"]
         
-        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        
-        my_body = body
-        position = head
+        head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        position_x = position["x"]
+        position_x = head["x"]
 
-        position_y = position["y"]
+        position_y = head["y"]
         
-        for e in my_body[1:]:
+        for e in body[1:]:
 
             x = e["x"]
             y = e["y"]
@@ -104,17 +101,16 @@ class Move():
 
     def not_enemy_collision(self, **kwargs):
         
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        my_position = head
+        NEEDED_KEYWORDS = ["head", "game_state"]
+        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        first_move = {"x": my_position["x"] + 1, "y": my_position["y"]}
+        first_move = {"x": head["x"] + 1, "y": head["y"]}
 
-        second_move = {"x": my_position["x"] - 1, "y": my_position["y"]}
+        second_move = {"x": head["x"] - 1, "y": head["y"]}
 
-        third_move = {"x": my_position["x"], "y": my_position["y"] + 1}
+        third_move = {"x": head["x"], "y": head["y"] + 1}
 
-        fourth_move = {"x": my_position["x"], "y": my_position["y"] - 1}
+        fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
         opponents_positions = self.calculate_opponents_positions(game_state)
 
@@ -158,8 +154,10 @@ class Move():
 
                         self.is_move_safe["down"]["priority"] += 1
 
-    def is_growing(self, snake, game_state):
+    def is_growing(self, **kwargs):
 
+        ALLOWED_KEYWORDS = ["snake", "game_state"]
+        snake , game_state = self.extract_keywords(ALLOWED_KEYWORDS, **kwargs)
         head = snake["head"]
 
         food = game_state["board"]["food"]
@@ -184,8 +182,11 @@ class Move():
             
         return False
 
-    def calculate_opponents_positions(self, game_state):
+    def calculate_opponents_positions(self, **kwargs):
 
+        NEEDED_KEYWORDS = ["game_state"]
+        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        
         positions = {}
         
         snakes = game_state["board"]["snakes"]
@@ -238,8 +239,8 @@ class Move():
     
     def calculate_food(self, **kwargs):
         
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        NEEDED_KEYWORDS = ["head", "game_state"]
+        head, game_state= self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         food_list = game_state["board"]["food"]
 
@@ -266,7 +267,10 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, head, game_state, body, neck, relevant_position=None):
+    def future_safety(self, relevant_position=None, **kwargs):
+            
+            NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             
             if relevant_position is None:
                 
@@ -345,7 +349,10 @@ class Move():
                 
             return True
 
-    def check_moves(self, head, game_state, body, neck):
+    def check_moves(self, **kwargs):
+        
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         checks = [self.reset_is_move_safe,
                   self.not_backward, 
@@ -440,12 +447,15 @@ class Move():
         for keyword in needed_keywords:
             if keyword not in keywords:
                 raise KeyError(f"{keyword} erforderlich!")
-            found_keywords.append(keyword)
+            found_keywords.append(keywords[keyword])
 
         return found_keywords
     
-    def get_body(self, new_head, new_snake=None):
+    def get_body(self, new_snake=None, **kwargs):
         
+        NEEDED_KEYWORDS = ["new_head"]
+        new_head = self.extract_keywords(NEEDED_KEYWORDS)
+
         if new_snake is None:
             new_snake = []
 
@@ -453,7 +463,10 @@ class Move():
 
         return new_snake
         
-    def call_get_body(self, head, snake):
+    def call_get_body(self, **kwargs):
+        
+        NEEDED_KEYWORDS = ["head", "snake"]
+        head, snake = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         new_snake = []
         
@@ -479,9 +492,11 @@ class Move():
 
         return new_snake
 
-    def get_neck(self, body):
+    def get_neck(self, **kwargs):
 
-        
+        NEEDED_KEYWORDS = ["body"]
+        body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
         neck_slice = body[1:2]
         neck = neck_slice[0]
         return neck
@@ -489,10 +504,11 @@ class Move():
 
     
     def emergency_system(self, func, **kwargs):
+        
+        NEEDED_KEYWORDS = ["game_state"]
+        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         emergency_moves = ["left", "right", "up", "down"]
-
-        head, game_state, body, neck = self.get_keywords(**kwargs)
 
         try: 
             result = func(**kwargs)
@@ -513,8 +529,11 @@ class Move():
                     EmergencyLogger.loger_queue.put((func.__name__, f"{e}", game_state))
                     return {"move": "down", "id": "Emergency!"}
 
-    def get_safe_moves(self, game_state):
+    def get_safe_moves(self, **kwargs):
 
+        NEEDED_KEYWORDS = ["game_state"]
+        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        
         # Are there any safe moves left?
         safe_moves = {}
         try:
@@ -528,8 +547,11 @@ class Move():
             safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
             return safe_moves
         
-    def get_priority_moves(self, safe_moves, game_state):
-
+    def get_priority_moves(self, **kwargs):
+        
+        NEEDED_KEYWORDS = ["safe_moves", "game_state"]
+        safe_moves , game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        
         memory_moves = []
         memory_priority = 0
         try:
@@ -562,8 +584,11 @@ class Move():
             memory_moves = []
             return memory_moves
         
-    def random_choice(self, game_state, safe_moves, memory_moves):
+    def random_choice(self, **kwargs):
 
+        NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
+        game_state , safe_moves , memory_moves = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        
         emergency_moves = ["left", "right", "up", "down"]
         
         try:
@@ -593,11 +618,11 @@ class Move():
         
         head = game_state["you"]["head"]
         body = game_state["you"]["body"]
-        neck = self.get_neck(body)
+        neck = self.get_neck(body=body)
 
         self.emergency_system(self.check_datatypes, head=head, game_state=game_state)
         
-        result = self.check_moves(head, game_state, body, neck)
+        result = self.check_moves(head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
@@ -609,7 +634,7 @@ class Move():
                 if "id" == "Emergency!":
                     return {"move": result["move"]}
         
-        safe_moves = self.get_safe_moves(game_state)
+        safe_moves = self.get_safe_moves(game_state=game_state)
         
         for move , data in safe_moves.items():
             result = self.emergency_system(self.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
@@ -626,9 +651,9 @@ class Move():
                 if result["id"] == "Emergency!":
                     return {"move": result["move"]}
         
-        memory_moves = self.get_priority_moves(safe_moves, game_state)
+        memory_moves = self.get_priority_moves(safe_moves=safe_moves, game_state=game_state)
         
-        next_move = self.random_choice(game_state, safe_moves, memory_moves)
+        next_move = self.random_choice(game_state=game_state, safe_moves=safe_moves, memory_moves=memory_moves)
         return next_move
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
