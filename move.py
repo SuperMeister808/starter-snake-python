@@ -112,7 +112,7 @@ class Move():
 
         fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-        opponents_positions = self.calculate_opponents_positions(game_state)
+        opponents_positions = self.calculate_opponents_positions(game_state=game_state)
 
         for snake , position in opponents_positions.items():
                 
@@ -343,7 +343,7 @@ class Move():
             
                 self.reset_is_move_safe(**kwargs)
 
-                safe_move_left , relevant_position = self.future_safety(head, game_state, body, neck, relevant_position)
+                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
                 if safe_move_left == False:
                     return False
                 
@@ -614,8 +614,6 @@ class Move():
         head = game_state["you"]["head"]
         body = game_state["you"]["body"]
         neck = self.get_neck(body=body)
-
-        self.emergency_system(self.check_datatypes, head=head, game_state=game_state)
         
         result = self.check_moves(head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
