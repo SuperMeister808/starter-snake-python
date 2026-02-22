@@ -24,13 +24,18 @@ class Move():
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
+        
+        self.turn_counter = 0
 
 
     def not_backward(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
-        head , neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
+        try:
+            head , neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
+            
         if neck["x"] < head["x"]:  
             self.is_move_safe["left"]["is_safe"] = False
 
@@ -49,8 +54,11 @@ class Move():
     def not_wall_collision(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
-        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        
+        try:
+            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
+
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
     
@@ -74,7 +82,10 @@ class Move():
 
         NEEDED_KEYWORDS = ["head", "body"]
         
-        head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
 
         position_x = head["x"]
 
@@ -104,7 +115,10 @@ class Move():
     def not_enemy_collision(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
-        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
 
         first_move = {"x": head["x"] + 1, "y": head["y"]}
 
@@ -114,7 +128,10 @@ class Move():
 
         fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-        opponents_positions = self.calculate_opponents_positions(game_state=game_state)
+        try:
+            opponents_positions = self.calculate_opponents_positions(game_state=game_state)
+        except Exception:
+            raise
 
         for snake , position in opponents_positions.items():
                 
@@ -158,8 +175,12 @@ class Move():
 
     def is_growing(self, **kwargs):
 
-        ALLOWED_KEYWORDS = ["snake", "game_state"]
-        snake , game_state = self.extract_keywords(ALLOWED_KEYWORDS, **kwargs)
+        NEEDED_KEYWORDS = ["snake", "game_state"]
+        try:
+            snake , game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
+
         head = snake["head"]
 
         food = game_state["board"]["food"]
@@ -187,7 +208,10 @@ class Move():
     def calculate_opponents_positions(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state"]
-        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
         
         positions = {}
         
@@ -218,9 +242,12 @@ class Move():
                     
                     positions[snake["id"]]["unsafe"].append(body_part)
                 else:
-                    if self.is_growing(snake, game_state):
+                    try:
+                        if self.is_growing(snake, game_state):
 
-                        positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                            positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                    except Exception:
+                        raise
 
         return positions
     
@@ -242,7 +269,10 @@ class Move():
     def calculate_food(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
-        head, game_state= self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            head, game_state= self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
         
         food_list = game_state["board"]["food"]
 
@@ -272,7 +302,10 @@ class Move():
     def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            try:
+                head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            except Exception:
+                raise
             
             if relevant_position is None:
                 
@@ -292,11 +325,10 @@ class Move():
             
             for e in relevant_position:
                 
-                result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
-                if isinstance(result, dict):
-                    if "id" in result:
-                        if result["id"] == "Emergency!":
-                            continue
+                try:
+                    result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
+                except Exception:
+                    raise
                 
                 for move , data in self.is_move_safe.items():
                     if data["is_safe"] == True:
@@ -317,8 +349,11 @@ class Move():
     def call_future_safety(self, **kwargs):
 
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
-            game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-            
+            try:
+                game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            except Exception:
+                raise
+
             if move == "left":
                 neck = head
                 head = {"x": head["x"] -1, "y": head["y"]}
@@ -335,9 +370,16 @@ class Move():
             relevant_position = []
             for i in range(calls):
             
-                self.reset_is_move_safe(**kwargs)
+                try:
+                    self.reset_is_move_safe(**kwargs)
+                except Exception:
+                    raise
 
-                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
+                try:
+                    safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
+                except Exception:
+                    raise
+
                 if safe_move_left == False:
                     return False
                 
@@ -346,8 +388,11 @@ class Move():
     def check_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        
+        try:
+            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
+
         checks = [self.reset_is_move_safe,
                   self.not_backward, 
                   self.not_wall_collision, 
@@ -357,12 +402,47 @@ class Move():
 
         for check in checks:
 
-            result = self.emergency_system(check, head=head, game_state=game_state, body=body, neck=neck)
+            result = check(check, head=head, game_state=game_state, body=body, neck=neck)
             if isinstance(result, dict):
                 if "id" in result:
                     if result["id"] == "Emergency!":
                         return result
 
+        
+    def safe_is_move_safe(self, **kwargs):
+
+        #copy, da dicts mutable sind
+        self.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
+
+        try:
+            self.reset_is_move_safe(**kwargs)
+        except Exception:
+            raise
+
+    def load_is_move_safe(self, **kwargs):
+
+        #copy, da dicts mutable sind
+        self.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
+        
+        try:
+            self.reset_is_move_safe_memory(**kwargs)
+        except Exception:
+            raise
+
+    def get_allowed_keywords(self, **kwargs):
+
+        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves"]
+        keywords = {}
+
+        for allowed_keyword in ALLOWED_KEYWORDS:
+            try:
+                keyword = kwargs[allowed_keyword]
+                keywords[allowed_keyword] = keyword
+            except KeyError as e:
+                continue
+        
+        return keywords
+    
     def check_datatype(self, keywords: typing.Dict):
 
         DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves"]
@@ -392,46 +472,18 @@ class Move():
             if key in FLOAT_KEYS:
                 if not isinstance(keyword, float):
                     raise TypeError(f"{key} als Float erforderlich!")
-                
-
-                
-
-        
-    def safe_is_move_safe(self, **kwargs):
-
-        #copy, da dicts mutable sind
-        self.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
-
-        self.reset_is_move_safe(**kwargs)
-
-
-        
-
-    def load_is_move_safe(self, **kwargs):
-
-        #copy, da dicts mutable sind
-        self.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
-        self.reset_is_move_safe_memory(**kwargs)
-
-    def get_allowed_keywords(self, **kwargs):
-
-        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves"]
-        keywords = {}
-
-        for allowed_keyword in ALLOWED_KEYWORDS:
-            try:
-                keyword = kwargs[allowed_keyword]
-                keywords[allowed_keyword] = keyword
-            except KeyError as e:
-                continue
-        
-        return keywords
     
     def extract_keywords(self, needed_keywords: typing.List[str], **kwargs):
 
-        keywords = self.get_allowed_keywords(**kwargs)
+        try:
+            keywords = self.get_allowed_keywords(**kwargs)
+        except Exception:
+            raise
         
-        self.check_datatype(keywords)
+        try:
+            self.check_datatype(keywords)
+        except Exception:
+            raise
         
         found_keywords = []
         for keyword in needed_keywords:
@@ -444,7 +496,10 @@ class Move():
     def get_body(self, new_snake:typing.List[dict]=None, **kwargs):
         
         NEEDED_KEYWORDS = ["new_head"]
-        new_head = self.extract_keywords(NEEDED_KEYWORDS)
+        try:
+            new_head = self.extract_keywords(NEEDED_KEYWORDS)
+        except Exception:
+            raise
 
         if new_snake is None:
             new_snake = []
@@ -456,7 +511,10 @@ class Move():
     def call_get_body(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "snake"]
-        head, snake = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            head, snake = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
         
         new_snake = []
         
@@ -474,7 +532,10 @@ class Move():
                 required_calls = required_calls - 1
                 continue
             
-            new_snake = self.get_body(new_snake, head=head)
+            try:
+                new_snake = self.get_body(new_snake, head=head)
+            except Exception:
+                raise
 
             head = body_part
 
@@ -485,7 +546,10 @@ class Move():
     def get_neck(self, **kwargs):
 
         NEEDED_KEYWORDS = ["body"]
-        body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        try:
+            body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        except Exception:
+            raise
 
         try:
             neck = body[1]
@@ -496,14 +560,13 @@ class Move():
 
 
     
-    def emergency_system(self, func:typing.Callable, **kwargs):
+    def emergency_system(self, func:typing.Callable, *args, **kwargs):
         
         NEEDED_KEYWORDS = ["game_state"]
-        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
         emergency_moves = ["left", "right", "up", "down"]
 
         try: 
+            game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             result = func(**kwargs)
             return result
         except Exception as e:
@@ -525,7 +588,13 @@ class Move():
     def get_safe_moves(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state"]
-        game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+    
+        result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return result
+        game_state = result
         
         # Are there any safe moves left?
         safe_moves = {}
@@ -543,7 +612,12 @@ class Move():
     def get_priority_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["safe_moves", "game_state"]
-        safe_moves , game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return result
+        safe_moves , game_state = result
         
         memory_moves = []
         memory_priority = 0
@@ -580,7 +654,12 @@ class Move():
     def random_choice(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
-        game_state , safe_moves , memory_moves = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return result
+        game_state , safe_moves , memory_moves = result
         
         emergency_moves = ["left", "right", "up", "down"]
         
@@ -609,23 +688,40 @@ class Move():
     
     def choose_move(self, game_state:typing.Dict):
         
-        head = game_state["you"]["head"]
-        body = game_state["you"]["body"]
-        neck = self.get_neck(body=body)
-        
-        result = self.check_moves(head=head, game_state=game_state, body=body, neck=neck)
+        try:
+            head = game_state["you"]["head"]
+            body = game_state["you"]["body"]
+        except Exception:
+            raise RuntimeError("Variabele game_state nicht vorhanden!")
+        result = self.emergency_system(self.get_neck, body=body, game_state=game_state)
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
+        neck = result
+        
+        result = self.emergency_system(self.check_moves, head=head, game_state=game_state, body=body, neck=neck)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
                     return {"move": result["move"]}
         
         result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
+                    self.turn_counter += 1
                     return {"move": result["move"]}
         
-        safe_moves = self.get_safe_moves(game_state=game_state)
+        result = self.emergency_system(self.get_safe_moves, game_state=game_state)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
+        safe_moves = result
         
         to_delete = []
         for move , data in safe_moves.items():
@@ -633,6 +729,7 @@ class Move():
             if isinstance(result, dict):
                 if "id" in result:
                     if result["id"] == "Emergency!":
+                        self.turn_counter += 1
                         return {"move": result["move"]}
             if result == False:
                 to_delete.append(move) 
@@ -643,11 +740,27 @@ class Move():
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
+                    self.turn_counter += 1
                     return {"move": result["move"]}
         
-        memory_moves = self.get_priority_moves(safe_moves=safe_moves, game_state=game_state)
+        result = self.emergency_system(self.get_priority_moves, safe_moves=safe_moves, game_state=game_state) 
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
+        memory_moves = result
         
-        next_move = self.random_choice(game_state=game_state, safe_moves=safe_moves, memory_moves=memory_moves)
+        
+        result = self.random_choice(game_state=game_state, safe_moves=safe_moves, memory_moves=memory_moves)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
+        next_move = result
+
+        self.turn_counter += 1
         return next_move
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
