@@ -1,13 +1,22 @@
 
 import typing
 
+from keywords import Keywords
+from move import Move
+
 class FutureSafety():
+
+    def __init__(self):
+         
+        self.keywords = Keywords()
+
+        self.move = Move()
 
     def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
-            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
             
             if relevant_position is None:
@@ -28,11 +37,11 @@ class FutureSafety():
             
             for e in relevant_position:
                 
-                self.reset_is_move_safe(**kwargs)
+                self.move.reset_is_move_safe(**kwargs)
 
-                result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
+                result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
 
-                for move , data in self.is_move_safe.items():
+                for move , data in self.move.is_move_safe.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
                 
@@ -52,7 +61,7 @@ class FutureSafety():
 
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
 
-            game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            game_state , body , move , calls , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
 
             if move == "left":

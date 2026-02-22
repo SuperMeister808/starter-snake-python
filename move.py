@@ -404,7 +404,7 @@ class Move():
 
         NEEDED_KEYWORDS = ["game_state"]
     
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         game_state = result
@@ -424,7 +424,7 @@ class Move():
     def get_priority_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["safe_moves", "game_state"]
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         safe_moves , game_state = result
@@ -464,7 +464,7 @@ class Move():
     def random_choice(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         game_state , safe_moves , memory_moves = result
