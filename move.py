@@ -33,10 +33,9 @@ class Move():
     def not_backward(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
-        try:
-            head , neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head , neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
             
         if neck["x"] < head["x"]:  
             self.is_move_safe["left"]["is_safe"] = False
@@ -56,10 +55,9 @@ class Move():
     def not_wall_collision(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
-        try:
-            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
         board_width = game_state["board"]["width"]
         board_hight = game_state["board"]["height"]
@@ -84,10 +82,9 @@ class Move():
 
         NEEDED_KEYWORDS = ["head", "body"]
         
-        try:
-            head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
         position_x = head["x"]
 
@@ -117,10 +114,9 @@ class Move():
     def not_enemy_collision(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
-        try:
-            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
         first_move = {"x": head["x"] + 1, "y": head["y"]}
 
@@ -173,10 +169,9 @@ class Move():
     def is_growing(self, **kwargs):
 
         NEEDED_KEYWORDS = ["snake", "game_state"]
-        try:
-            snake , game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        snake , game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
         head = snake["head"]
 
@@ -205,10 +200,9 @@ class Move():
     def calculate_opponents_positions(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state"]
-        try:
-            game_state, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        game_state, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
         
         positions = {}
         
@@ -274,10 +268,9 @@ class Move():
     def calculate_food(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
-        try:
-            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
         
         food_list = game_state["board"]["food"]
 
@@ -307,10 +300,9 @@ class Move():
     def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-            try:
-                head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-            except Exception:
-                raise
+
+            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
             
             if relevant_position is None:
                 
@@ -354,10 +346,9 @@ class Move():
     def call_future_safety(self, **kwargs):
 
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
-            try:
-                game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-            except Exception:
-                raise
+
+            game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
             if move == "left":
                 neck = head
@@ -395,10 +386,9 @@ class Move():
     def check_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-        try:
-            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
 
         checks = [self.reset_is_move_safe,
                   self.not_backward, 
@@ -421,20 +411,18 @@ class Move():
         #copy, da dicts mutable sind
         self.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
 
-        try:
-            self.reset_is_move_safe(**kwargs)
-        except Exception:
-            raise
+
+        self.reset_is_move_safe(**kwargs)
+
 
     def load_is_move_safe(self, **kwargs):
 
         #copy, da dicts mutable sind
         self.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
         
-        try:
-            self.reset_is_move_safe_memory(**kwargs)
-        except Exception:
-            raise
+
+        self.reset_is_move_safe_memory(**kwargs)
+
 
     def get_allowed_keywords(self, **kwargs):
 
@@ -492,16 +480,11 @@ class Move():
     
     def extract_keywords(self, needed_keywords: typing.List[str], **kwargs):
 
-        try:
-            keywords = self.get_allowed_keywords(**kwargs)
-        except Exception:
-            raise
-        
-        try:
-            self.check_datatype(keywords)
-        except Exception:
-            raise
-        
+
+        keywords = self.get_allowed_keywords(**kwargs)
+
+        self.check_datatype(keywords)
+
         found_keywords = []
         for keyword in needed_keywords:
             if keyword not in keywords:
@@ -513,10 +496,8 @@ class Move():
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
         NEEDED_KEYWORDS = ["head"]
-        try:
-            head, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        head, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         if new_body is None:
             new_body = []
@@ -528,11 +509,9 @@ class Move():
     def call_get_body(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "body"]
-        try:
-            head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
         
+        head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+
         new_body = []
         
         calls = 0
@@ -548,11 +527,8 @@ class Move():
             if "id" in body_part:
                 required_calls = required_calls - 1
                 continue
-            
-            try:
-                new_body = self.get_body(new_body, head=head)
-            except Exception:
-                raise
+
+            new_body = self.get_body(new_body, head=head)
 
             head = body_part
 
@@ -563,10 +539,8 @@ class Move():
     def get_neck(self, **kwargs):
 
         NEEDED_KEYWORDS = ["body"]
-        try:
-            body, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        except Exception:
-            raise
+
+        body, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         try:
             neck = body[1]
