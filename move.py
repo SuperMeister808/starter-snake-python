@@ -300,13 +300,11 @@ class Move():
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
-            print("called future safety")
             head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
             
             if relevant_position is None:
                 
-                print("refil relevant position")
                 relevant_position = []
 
                 
@@ -327,7 +325,6 @@ class Move():
 
                 result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
 
-                print(self.is_move_safe)
                 for move , data in self.is_move_safe.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
@@ -589,9 +586,7 @@ class Move():
         safe_moves = {}
         try:
             for move , data in self.is_move_safe.items():
-                print("Goes throug self.is_move_safe")
                 if data["is_safe"] == True:
-                    print("Find safe_move")
                     safe_moves[move] = data["priority"]
             return safe_moves
         except Exception as e:
@@ -717,8 +712,7 @@ class Move():
         
         to_delete = []
         for move , data in safe_moves.items():
-            result = self.emergency_system(self.call_future_safety, calls=1, move=move, head=head, game_state=game_state, body=body, neck=neck)
-            print(result)
+            result = self.emergency_system(self.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
             if self.is_emergency(result):
                 self.turn_counter += 1
                 return {"move": result["move"]}
