@@ -25,6 +25,8 @@ class Move():
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
         
+        self.opponents_positions = {}
+        
         self.turn_counter = 0
 
 
@@ -128,12 +130,7 @@ class Move():
 
         fourth_move = {"x": head["x"], "y": head["y"] - 1}
 
-        try:
-            opponents_positions = self.calculate_opponents_positions(game_state=game_state)
-        except Exception:
-            raise
-
-        for snake , position in opponents_positions.items():
+        for snake , position in self.opponents_positions.items():
                 
             if snake != game_state["you"]["id"]:
             
@@ -723,6 +720,14 @@ class Move():
                     self.turn_counter += 1
                     return {"move": result["move"]}
         neck = result
+
+        result = self.emergency_system(self.calculate_opponents_positions, game_state=game_state)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
+        self.opponents_positions = result
 
         self.emergency_system(self.reset_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
