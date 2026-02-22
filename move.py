@@ -402,7 +402,7 @@ class Move():
 
         for check in checks:
 
-            result = check(check, head=head, game_state=game_state, body=body, neck=neck)
+            result = check(head=head, game_state=game_state, body=body, neck=neck)
             if isinstance(result, dict):
                 if "id" in result:
                     if result["id"] == "Emergency!":
@@ -568,7 +568,7 @@ class Move():
         emergency_moves = ["left", "right", "up", "down"]
 
         try: 
-            result = func(**kwargs)
+            result = func(*args, **kwargs)
             return result
         except Exception as e:
             EmergencyLogger.loger_queue.put((func.__name__, e, self.turn_counter))
