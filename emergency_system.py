@@ -1,7 +1,13 @@
 
-class EmergencySystem():
+import typing
 
-    def emergency_system(self, func:typing.Callable, *args, **kwargs):
+import random
+
+from emergency_logger import EmergencyLogger
+
+class EmergencySystem():
+    
+    def emergency_system(self, func:typing.Callable, turn, *args, **kwargs):
         
         emergency_moves = ["left", "right", "up", "down"]
 
@@ -9,7 +15,7 @@ class EmergencySystem():
             result = func(*args, **kwargs)
             return result
         except Exception as e:
-            EmergencyLogger.loger_queue.put((func.__name__, e, self.turn_counter))
+            EmergencyLogger.loger_queue.put((func.__name__, e, turn))
             if func.__name__ == "reset_is_move_safe":
                 self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
                                  "right": {"is_safe": True, "priority": 0},
@@ -21,7 +27,7 @@ class EmergencySystem():
                     next_move = random.choice(emergency_moves)
                     return {"move": next_move, "id": "Emergency!"}
                 except Exception as e:
-                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", self.turn_counter))
+                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", turn))
                     return {"move": "down", "id": "Emergency!"}
                 
     def is_emergency(self, result):

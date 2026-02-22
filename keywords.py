@@ -1,4 +1,6 @@
 
+import typing
+
 class Keywords():
 
     def get_allowed_keywords(self, **kwargs):
