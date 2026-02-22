@@ -243,7 +243,7 @@ class Move():
                     positions[snake["id"]]["unsafe"].append(body_part)
                 else:
                     try:
-                        if self.is_growing(snake, game_state):
+                        if self.is_growing(snake=snake, game_state=game_state):
 
                             positions[snake["id"]]["unsafe"].append(snake["body"][-1])
                     except Exception:
