@@ -209,7 +209,7 @@ class Move():
 
         NEEDED_KEYWORDS = ["game_state"]
         try:
-            game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            game_state, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         except Exception:
             raise
         
@@ -270,7 +270,7 @@ class Move():
         
         NEEDED_KEYWORDS = ["head", "game_state"]
         try:
-            head, game_state= self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            head, game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         except Exception:
             raise
         
@@ -495,16 +495,16 @@ class Move():
     
     def get_body(self, new_snake:typing.List[dict]=None, **kwargs):
         
-        NEEDED_KEYWORDS = ["new_head"]
+        NEEDED_KEYWORDS = ["head"]
         try:
-            new_head = self.extract_keywords(NEEDED_KEYWORDS)
+            head, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         except Exception:
             raise
 
         if new_snake is None:
             new_snake = []
 
-        new_snake.append(new_head)
+        new_snake.append(head)
 
         return new_snake
         
@@ -547,14 +547,17 @@ class Move():
 
         NEEDED_KEYWORDS = ["body"]
         try:
-            body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            body, = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         except Exception:
             raise
 
         try:
             neck = body[1]
         except IndexError:
-            neck = body[0]
+            try:
+                neck = body[0]
+            except IndexError:
+                raise IndexError("Body ist leer")
         
         return neck
 
