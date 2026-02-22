@@ -219,6 +219,14 @@ class Move():
         
         for snake in snakes:
 
+            # Defensive: skip malformed snake entries instead of aborting move logic.
+            if not isinstance(snake, dict):
+                continue
+
+            required_snake_keys = ["id", "head", "length", "body"]
+            if any(key not in snake for key in required_snake_keys):
+                continue
+
             positions [snake["id"]] = {"unsafe": [],"priority": []}
             positions [snake["id"]]["unsafe"].append(snake["head"])
                 
@@ -367,6 +375,8 @@ class Move():
                 neck = head
                 head = {"x": head["x"], "y": head["y"] - 1}
 
+            body = self.call_get_body(body=body, head=head)
+
             relevant_position = []
             for i in range(calls):
             
@@ -503,7 +513,7 @@ class Move():
 
         return found_keywords
     
-    def get_body(self, new_snake:typing.List[dict]=None, **kwargs):
+    def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
         NEEDED_KEYWORDS = ["head"]
         try:
@@ -511,39 +521,39 @@ class Move():
         except Exception:
             raise
 
-        if new_snake is None:
-            new_snake = []
+        if new_body is None:
+            new_body = []
 
-        new_snake.append(head)
+        new_body.append(head)
 
-        return new_snake
+        return new_body
         
     def call_get_body(self, **kwargs):
         
-        NEEDED_KEYWORDS = ["head", "snake"]
+        NEEDED_KEYWORDS = ["head", "body"]
         try:
-            head, snake = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            head, body = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         except Exception:
             raise
         
-        new_snake = []
+        new_body = []
         
         calls = 0
 
-        required_calls = len(snake)
+        required_calls = len(body)
         
-        for body_part in snake:
+        for body_part in body:
             
             if calls == required_calls:
 
-                return new_snake
+                return new_body
             
             if "id" in body_part:
                 required_calls = required_calls - 1
                 continue
             
             try:
-                new_snake = self.get_body(new_snake, head=head)
+                new_body = self.get_body(new_body, head=head)
             except Exception:
                 raise
 
@@ -551,7 +561,7 @@ class Move():
 
             calls += 1
 
-        return new_snake
+        return new_body
 
     def get_neck(self, **kwargs):
 
@@ -699,11 +709,13 @@ class Move():
     
     def choose_move(self, game_state:typing.Dict):
         
+        
         try:
             head = game_state["you"]["head"]
             body = game_state["you"]["body"]
         except Exception:
             raise RuntimeError("Variabele game_state nicht vorhanden!")
+        
         result = self.emergency_system(self.get_neck, body=body, game_state=game_state)
         if isinstance(result, dict):
             if "id" in result:
@@ -711,15 +723,15 @@ class Move():
                     self.turn_counter += 1
                     return {"move": result["move"]}
         neck = result
-        
-        result = self.emergency_system(self.check_moves, head=head, game_state=game_state, body=body, neck=neck)
+
+        self.emergency_system(self.reset_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
                     self.turn_counter += 1
                     return {"move": result["move"]}
         
-        result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+        result = self.emergency_system(self.check_moves, head=head, game_state=game_state, body=body, neck=neck)
         if isinstance(result, dict):
             if "id" in result:
                 if result["id"] == "Emergency!":
@@ -733,6 +745,13 @@ class Move():
                     self.turn_counter += 1
                     return {"move": result["move"]}
         safe_moves = result
+        
+        result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    self.turn_counter += 1
+                    return {"move": result["move"]}
         
         to_delete = []
         for move , data in safe_moves.items():
