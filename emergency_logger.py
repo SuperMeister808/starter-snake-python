@@ -18,13 +18,7 @@ class EmergencyLogger():
     print_collector = PrintCollector()
         
     @classmethod
-    def emergency_log(cls, where, exception, game_state):
-
-        try:
-            turn = game_state.get("turn", "unknown")
-        except AttributeError as e:
-            turn = "unknown"
-            print("Game_state must be a dict!")
+    def emergency_log(cls, where, exception, turn="unknown"):
 
         try:
             with open("runtime.log", "a") as f:
@@ -60,13 +54,11 @@ class EmergencyLogger():
     def log_worker(cls):
             
             while not cls.loger_queue.empty():
-            
-                
 
                 try:
                     item = cls.loger_queue.get(timeout=0.1)
-                    where, exception, game_state = item
-                    cls.emergency_log(where, exception, game_state)
+                    where, exception, turn = item
+                    cls.emergency_log(where, exception, turn)
                 except (ValueError, TypeError) as e:
                     print(f"ValueError: {e}")
                     cls.print_collector.collect_message(f"ValueError: {e}")

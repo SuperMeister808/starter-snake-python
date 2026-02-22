@@ -562,15 +562,13 @@ class Move():
     
     def emergency_system(self, func:typing.Callable, *args, **kwargs):
         
-        NEEDED_KEYWORDS = ["game_state"]
         emergency_moves = ["left", "right", "up", "down"]
 
         try: 
-            game_state = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             result = func(**kwargs)
             return result
         except Exception as e:
-            EmergencyLogger.loger_queue.put((func.__name__, e, game_state))
+            EmergencyLogger.loger_queue.put((func.__name__, e, self.turn_counter))
             if func.__name__ == "reset_is_move_safe":
                 self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
                                  "right": {"is_safe": True, "priority": 0},
@@ -582,7 +580,7 @@ class Move():
                     next_move = random.choice(emergency_moves)
                     return {"move": next_move, "id": "Emergency!"}
                 except Exception as e:
-                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", game_state))
+                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", self.turn_counter))
                     return {"move": "down", "id": "Emergency!"}
 
     def get_safe_moves(self, **kwargs):
@@ -605,7 +603,7 @@ class Move():
                     safe_moves[move] = data["priority"]
             return safe_moves
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("safe_moves", f"{e}", game_state)) 
+            EmergencyLogger.loger_queue.put(("safe_moves", f"{e}", self.turn_counter)) 
             safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
             return safe_moves
         
@@ -647,7 +645,7 @@ class Move():
                         continue
             return memory_moves
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("priority", f"{e}", game_state))
+            EmergencyLogger.loger_queue.put(("priority", f"{e}", self.turn_counter))
             memory_moves = []
             return memory_moves
         
@@ -665,10 +663,10 @@ class Move():
         
         try:
             next_move = random.choice(memory_moves)
-            EmergencyLogger.loger_queue.put(("random_choice", "Success: Priority Move choosed", game_state))
+            EmergencyLogger.loger_queue.put(("random_choice", "Success: Priority Move choosed", self.turn_counter))
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"No priorities set: {e}", game_state))
+            EmergencyLogger.loger_queue.put(("random_choice", f"No priorities set: {e}", self.turn_counter))
             try:
                 keys = []
                 for key , value in safe_moves.items():
@@ -676,12 +674,12 @@ class Move():
                 next_move = random.choice(keys)
                 return {"move": next_move}
             except Exception as e:
-                EmergencyLogger.loger_queue.put(("random_choice", f"No safe moves left: {e}", game_state))
+                EmergencyLogger.loger_queue.put(("random_choice", f"No safe moves left: {e}", self.turn_counter))
                 try:
                     next_move = random.choice(emergency_moves)
                     return {"move": next_move}
                 except Exception as e:
-                    EmergencyLogger.loger_queue.put(("random_choice", f"{e}", game_state))
+                    EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
                     return {"move": "down"}
 
     
