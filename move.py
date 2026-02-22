@@ -248,22 +248,7 @@ class Move():
                         raise
 
         return positions
-    
-    def reset_is_move_safe(self, **kwargs):
-        
-        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
 
-    def reset_is_move_safe_memory(self, **kwargs):
-        
-        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
-
-    
     def calculate_food(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
@@ -296,84 +281,6 @@ class Move():
 
                 self.is_move_safe["down"]["priority"] += 1
 
-    def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
-            
-            NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-
-            head, game_state, body, neck = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
-            
-            if relevant_position is None:
-                
-                relevant_position = []
-
-                
-                move_left = {"x": head["x"] - 1, "y": head["y"]}
-                move_right = {"x": head["x"] + 1, "y": head["y"]}
-                move_up = {"x": head["x"], "y": head["y"] + 1}
-                move_down = {"x": head["x"], "y": head["y"] - 1}
-                possible_moves = [move_left, move_right, move_up, move_down]
-            
-                relevant_position.extend(possible_moves)
-
-            safe_move_left = False
-            new_relevant_positions = []
-            
-            for e in relevant_position:
-                
-                self.reset_is_move_safe(**kwargs)
-
-                result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
-
-                for move , data in self.is_move_safe.items():
-                    if data["is_safe"] == True:
-                        safe_move_left = True
-                
-                        
-                        move_left = {"x": e["x"] - 1, "y": e["y"]}
-                        move_right = {"x": e["x"] + 1, "y": e["y"]}
-                        move_up = {"x": e["x"], "y": e["y"] + 1}
-                        move_down = {"x": e["x"], "y": e["y"] - 1}
-                        possible_moves = [move_left, move_right, move_up, move_down]
-                        
-
-                        new_relevant_positions.extend(possible_moves)
-   
-            return safe_move_left , new_relevant_positions
-    
-    def call_future_safety(self, **kwargs):
-
-            NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
-
-            game_state , body , move , calls , head = self.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
-
-            if move == "left":
-                neck = head
-                head = {"x": head["x"] -1, "y": head["y"]}
-            if move == "right":
-                neck = head
-                head = {"x": head["x"] + 1, "y": head["y"]}
-            if move == "up":
-                neck = head
-                head = {"x": head["x"], "y": head["y"] + 1}
-            if move == "down":
-                neck = head
-                head = {"x": head["x"], "y": head["y"] - 1}
-
-            body = self.call_get_body(body=body, head=head)
-
-            for i in range(calls):
-            
-                self.reset_is_move_safe(**kwargs)
-
-                safe_move_left , relevant_position = self.future_safety(head=head, game_state=game_state, body=body, neck=neck)
-
-                if safe_move_left == False:
-                    return False
-                
-            return True
-
     def check_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
@@ -393,7 +300,20 @@ class Move():
             result = check(head=head, game_state=game_state, body=body, neck=neck)
             if self.is_emergency(result):
                 return result
+            
+    def reset_is_move_safe(self, **kwargs):
+        
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
 
+    def reset_is_move_safe_memory(self, **kwargs):
+        
+        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
         
     def safe_is_move_safe(self, **kwargs):
 
@@ -411,76 +331,6 @@ class Move():
         
 
         self.reset_is_move_safe_memory(**kwargs)
-
-
-    def get_allowed_keywords(self, **kwargs):
-
-        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves"]
-        keywords = {}
-
-        for allowed_keyword in ALLOWED_KEYWORDS:
-            try:
-                keyword = kwargs[allowed_keyword]
-                keywords[allowed_keyword] = keyword
-            except KeyError as e:
-                continue
-        
-        return keywords
-    
-    def check_datatype(self, keywords: typing.Dict):
-
-        DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves", "snake"]
-        LIST_KEYS = ["body", "memory_moves"]
-        STRING_KEYS = ["move"]
-        INTEGER_KEYS = ["calls"]
-        FLOAT_KEYS = []
-
-        for key , keyword in keywords.items():
-            
-            listed = False
-            
-            if key in DICTIONARY_KEYS:
-                listed = True
-                if not isinstance(keyword, dict):
-                    raise TypeError(f"{key} als Dictionary erforderlich!")
-                
-            if key in LIST_KEYS:
-                listed = True
-                if not isinstance(keyword, list):
-                    raise TypeError(f"{key} als Liste erforderlich!")
-                
-            if key in STRING_KEYS:
-                listed = True
-                if not isinstance(keyword, str):
-                    raise TypeError(f"{key} als String erforderlich!")
-                
-            if key in INTEGER_KEYS:
-                listed = True
-                if not isinstance(keyword, int):
-                    raise TypeError(f"{key} als Integer erforderlich!")
-                
-            if key in FLOAT_KEYS:
-                listed = True
-                if not isinstance(keyword, float):
-                    raise TypeError(f"{key} als Float erforderlich!")
-                
-            if listed == False:
-                raise RuntimeError(f"{key} nicht gelisted")
-    
-    def extract_keywords(self, needed_keywords: typing.List[str], **kwargs):
-
-
-        keywords = self.get_allowed_keywords(**kwargs)
-
-        self.check_datatype(keywords)
-
-        found_keywords = []
-        for keyword in needed_keywords:
-            if keyword not in keywords:
-                raise KeyError(f"{keyword} erforderlich!")
-            found_keywords.append(keywords[keyword])
-
-        return found_keywords
     
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
@@ -541,38 +391,6 @@ class Move():
         
         return neck
     
-    def emergency_system(self, func:typing.Callable, *args, **kwargs):
-        
-        emergency_moves = ["left", "right", "up", "down"]
-
-        try: 
-            result = func(*args, **kwargs)
-            return result
-        except Exception as e:
-            EmergencyLogger.loger_queue.put((func.__name__, e, self.turn_counter))
-            if func.__name__ == "reset_is_move_safe":
-                self.is_move_safe = {"left": {"is_safe": True, "priority": 0}, 
-                                 "right": {"is_safe": True, "priority": 0},
-                                 "up": {"is_safe": True, "priority": 0},
-                                 "down": {"is_safe": True, "priority": 0}}
-                return None
-            else:
-                try:
-                    next_move = random.choice(emergency_moves)
-                    return {"move": next_move, "id": "Emergency!"}
-                except Exception as e:
-                    EmergencyLogger.loger_queue.put((func.__name__, f"{e}", self.turn_counter))
-                    return {"move": "down", "id": "Emergency!"}
-                
-    def is_emergency(self, result):
-
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    return True
-                
-        return False
-
     def get_safe_moves(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state"]
@@ -664,8 +482,6 @@ class Move():
                 except Exception as e:
                     EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
                     return {"move": "down"}
-
-    
     
     def choose_move(self, game_state:typing.Dict):
         
