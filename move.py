@@ -60,7 +60,7 @@ class Move():
 
 
         board_width = game_state["board"]["width"]
-        board_hight = game_state["board"]["height"]
+        board_height = game_state["board"]["height"]
     
         if head["x"] == board_width -1:
 
@@ -70,7 +70,7 @@ class Move():
 
             self.is_move_safe["left"]["is_safe"] = False
 
-        if head["y"] == board_hight -1:
+        if head["y"] == board_height -1:
 
             self.is_move_safe["up"]["is_safe"] = False
 
@@ -210,7 +210,6 @@ class Move():
         
         for snake in snakes:
 
-            # Defensive: skip malformed snake entries instead of aborting move logic.
             if not isinstance(snake, dict):
                 continue
 
@@ -322,10 +321,9 @@ class Move():
             
             for e in relevant_position:
                 
-                try:
-                    result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
-                except Exception:
-                    raise
+
+                result = self.check_moves(head=e, game_state=game_state, body=body, neck=neck)
+
                 
                 for move , data in self.is_move_safe.items():
                     if data["is_safe"] == True:
@@ -368,15 +366,9 @@ class Move():
             relevant_position = []
             for i in range(calls):
             
-                try:
-                    self.reset_is_move_safe(**kwargs)
-                except Exception:
-                    raise
+                self.reset_is_move_safe(**kwargs)
 
-                try:
-                    safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
-                except Exception:
-                    raise
+                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
 
                 if safe_move_left == False:
                     return False
@@ -400,10 +392,8 @@ class Move():
         for check in checks:
 
             result = check(head=head, game_state=game_state, body=body, neck=neck)
-            if isinstance(result, dict):
-                if "id" in result:
-                    if result["id"] == "Emergency!":
-                        return result
+            if self.is_emergency(result):
+                return result
 
         
     def safe_is_move_safe(self, **kwargs):
@@ -551,8 +541,6 @@ class Move():
                 raise IndexError("Body ist leer")
         
         return neck
-
-
     
     def emergency_system(self, func:typing.Callable, *args, **kwargs):
         
@@ -576,16 +564,23 @@ class Move():
                 except Exception as e:
                     EmergencyLogger.loger_queue.put((func.__name__, f"{e}", self.turn_counter))
                     return {"move": "down", "id": "Emergency!"}
+                
+    def is_emergency(self, result):
+
+        if isinstance(result, dict):
+            if "id" in result:
+                if result["id"] == "Emergency!":
+                    return True
+                
+        return False
 
     def get_safe_moves(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state"]
     
         result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    return result
+        if self.is_emergency(result):
+            return result
         game_state = result
         
         # Are there any safe moves left?
@@ -605,10 +600,8 @@ class Move():
         
         NEEDED_KEYWORDS = ["safe_moves", "game_state"]
         result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    return result
+        if self.is_emergency(result):
+            return result
         safe_moves , game_state = result
         
         memory_moves = []
@@ -647,10 +640,8 @@ class Move():
 
         NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
         result = self.emergency_system(self.extract_keywords, NEEDED_KEYWORDS, **kwargs)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    return result
+        if self.is_emergency(result):
+            return result
         game_state , safe_moves , memory_moves = result
         
         emergency_moves = ["left", "right", "up", "down"]
@@ -688,85 +679,66 @@ class Move():
             raise RuntimeError("Variabele game_state nicht vorhanden!")
         
         result = self.emergency_system(self.get_neck, body=body, game_state=game_state)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         neck = result
 
         result = self.emergency_system(self.calculate_opponents_positions, game_state=game_state)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         self.opponents_positions = result
 
-        self.emergency_system(self.reset_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        result = self.emergency_system(self.reset_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         
         result = self.emergency_system(self.check_moves, head=head, game_state=game_state, body=body, neck=neck)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         
         result = self.emergency_system(self.get_safe_moves, game_state=game_state)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
+        
         safe_moves = result
         
         result = self.emergency_system(self.safe_is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         
         to_delete = []
         for move , data in safe_moves.items():
             result = self.emergency_system(self.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
-            if isinstance(result, dict):
-                if "id" in result:
-                    if result["id"] == "Emergency!":
-                        self.turn_counter += 1
-                        return {"move": result["move"]}
+            if self.is_emergency(result):
+                self.turn_counter += 1
+                return {"move": result["move"]}
             if result == False:
                 to_delete.append(move) 
         for key in to_delete:
             del safe_moves[key]
 
         result = self.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         
         result = self.emergency_system(self.get_priority_moves, safe_moves=safe_moves, game_state=game_state) 
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         memory_moves = result
         
         
         result = self.random_choice(game_state=game_state, safe_moves=safe_moves, memory_moves=memory_moves)
-        if isinstance(result, dict):
-            if "id" in result:
-                if result["id"] == "Emergency!":
-                    self.turn_counter += 1
-                    return {"move": result["move"]}
+        if self.is_emergency(result):
+            self.turn_counter += 1
+            return {"move": result["move"]}
         next_move = result
 
         self.turn_counter += 1
