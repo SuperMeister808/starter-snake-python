@@ -490,7 +490,7 @@ class Move():
         try:
             neck = body[1]
         except IndexError:
-            raise IndexError("Kein neck vorhanden!")
+            neck = body[0]
         
         return neck
 
