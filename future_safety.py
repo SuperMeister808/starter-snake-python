@@ -2,15 +2,14 @@
 import typing
 
 from keywords import Keywords
-from move import Move
 
 class FutureSafety():
 
-    def __init__(self):
+    def __init__(self, move):
          
         self.keywords = Keywords()
 
-        self.move = Move()
+        self.move = move()
 
     def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
@@ -41,7 +40,7 @@ class FutureSafety():
 
                 result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
 
-                for move , data in self.move.is_move_safe.items():
+                for move , data in move.is_move_safe.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
                 
@@ -77,11 +76,11 @@ class FutureSafety():
                 neck = head
                 head = {"x": head["x"], "y": head["y"] - 1}
 
-            body = self.call_get_body(body=body, head=head)
+            body = self.move.call_get_body(body=body, head=head)
 
             for i in range(calls):
             
-                self.reset_is_move_safe(**kwargs)
+                self.move.reset_is_move_safe(**kwargs)
 
                 safe_move_left , relevant_position = self.future_safety(head=head, game_state=game_state, body=body, neck=neck)
 

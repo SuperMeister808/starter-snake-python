@@ -16,23 +16,23 @@ from future_safety import FutureSafety
 
 class Move():
 
+    is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+    
+    is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+    
     def __init__(self):
-
+        
         self.keywords = Keywords()
         
         self.emergency_system = EmergencySystem()
 
-        self.future_safety = FutureSafety()
-        
-        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
-        
-        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
+        self.future_safety = FutureSafety(Move)
         
         self.opponents_positions = {}
         
@@ -47,16 +47,16 @@ class Move():
 
             
         if neck["x"] < head["x"]:  
-            self.is_move_safe["left"]["is_safe"] = False
+            Move.is_move_safe["left"]["is_safe"] = False
 
         elif neck["x"] > head["x"]:  
-            self.is_move_safe["right"]["is_safe"] = False
+            Move.is_move_safe["right"]["is_safe"] = False
 
         elif neck["y"] < head["y"]:  
-            self.is_move_safe["down"]["is_safe"] = False
+            Move.is_move_safe["down"]["is_safe"] = False
 
         elif neck["y"] > head["y"]: 
-            self.is_move_safe["up"]["is_safe"] = False         
+            Move.is_move_safe["up"]["is_safe"] = False         
 
 
 
@@ -73,19 +73,19 @@ class Move():
     
         if head["x"] == board_width -1:
 
-            self.is_move_safe["right"]["is_safe"] = False
+            Move.is_move_safe["right"]["is_safe"] = False
 
         if head["x"] == 0:
 
-            self.is_move_safe["left"]["is_safe"] = False
+            Move.is_move_safe["left"]["is_safe"] = False
 
         if head["y"] == board_height -1:
 
-            self.is_move_safe["up"]["is_safe"] = False
+            Move.is_move_safe["up"]["is_safe"] = False
 
         if head["y"] == 0:
 
-            self.is_move_safe["down"]["is_safe"] = False
+            Move.is_move_safe["down"]["is_safe"] = False
 
     def not_itself_collision(self, **kwargs):
 
@@ -106,19 +106,19 @@ class Move():
 
             if (position_x) + 1 == x and position_y == y:
 
-                self.is_move_safe["right"]["is_safe"] = False
+                Move.is_move_safe["right"]["is_safe"] = False
 
             if (position_x) - 1 == x and position_y == y:
 
-                self.is_move_safe["left"]["is_safe"] = False
+                Move.is_move_safe["left"]["is_safe"] = False
 
             if (position_y) + 1 == y and position_x == x:
 
-                self.is_move_safe["up"]["is_safe"] = False
+                Move.is_move_safe["up"]["is_safe"] = False
 
             if (position_y) - 1 == y and position_x == x:
 
-                self.is_move_safe["down"]["is_safe"] = False
+                Move.is_move_safe["down"]["is_safe"] = False
 
     def not_enemy_collision(self, **kwargs):
         
@@ -143,37 +143,37 @@ class Move():
             
                     if entry == first_move:
 
-                        self.is_move_safe["right"]["is_safe"] = False
+                        Move.is_move_safe["right"]["is_safe"] = False
 
                     if entry == second_move:
 
-                        self.is_move_safe["left"]["is_safe"] = False
+                        Move.is_move_safe["left"]["is_safe"] = False
 
                     if entry == third_move:
 
-                        self.is_move_safe["up"]["is_safe"] = False
+                        Move.is_move_safe["up"]["is_safe"] = False
 
                     if entry == fourth_move:
 
-                        self.is_move_safe["down"]["is_safe"] = False
+                        Move.is_move_safe["down"]["is_safe"] = False
 
                 for entry in position["priority"]:
 
                     if entry == first_move:
 
-                        self.is_move_safe["right"]["priority"] += 1
+                        Move.is_move_safe["right"]["priority"] += 1
 
                     if entry == second_move:
 
-                        self.is_move_safe["left"]["priority"] += 1
+                        Move.is_move_safe["left"]["priority"] += 1
 
                     if entry == third_move:
 
-                        self.is_move_safe["up"]["priority"] += 1
+                        Move.is_move_safe["up"]["priority"] += 1
 
                     if entry == fourth_move:
 
-                        self.is_move_safe["down"]["priority"] += 1
+                        Move.is_move_safe["down"]["priority"] += 1
 
     def is_growing(self, **kwargs):
 
@@ -276,19 +276,19 @@ class Move():
 
             if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
-                self.is_move_safe["left"]["priority"] += 1
+                Move.is_move_safe["left"]["priority"] += 1
 
             if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
 
-                self.is_move_safe["right"]["priority"] += 1
+                Move.is_move_safe["right"]["priority"] += 1
 
             if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
 
-                self.is_move_safe["up"]["priority"] += 1
+                Move.is_move_safe["up"]["priority"] += 1
 
             if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
 
-                self.is_move_safe["down"]["priority"] += 1
+                Move.is_move_safe["down"]["priority"] += 1
 
     def check_moves(self, **kwargs):
         
@@ -312,14 +312,14 @@ class Move():
             
     def reset_is_move_safe(self, **kwargs):
         
-        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+        Move.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
 
     def reset_is_move_safe_memory(self, **kwargs):
         
-        self.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
+        Move.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
@@ -327,7 +327,7 @@ class Move():
     def safe_is_move_safe(self, **kwargs):
 
         #copy, da dicts mutable sind
-        self.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
+        Move.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
 
 
         self.reset_is_move_safe(**kwargs)
@@ -336,7 +336,7 @@ class Move():
     def load_is_move_safe(self, **kwargs):
 
         #copy, da dicts mutable sind
-        self.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
+        Move.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
         
 
         self.reset_is_move_safe_memory(**kwargs)
@@ -412,7 +412,7 @@ class Move():
         # Are there any safe moves left?
         safe_moves = {}
         try:
-            for move , data in self.is_move_safe.items():
+            for move , data in Move.is_move_safe.items():
                 if data["is_safe"] == True:
                     safe_moves[move] = data["priority"]
             return safe_moves
