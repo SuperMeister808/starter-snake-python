@@ -32,7 +32,7 @@ class Move():
         
         self.emergency_system = EmergencySystem()
 
-        self.future_safety = FutureSafety(Move)
+        self.future_safety = FutureSafety(self)
         
         self.opponents_positions = {}
         

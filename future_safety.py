@@ -9,7 +9,7 @@ class FutureSafety():
          
         self.keywords = Keywords()
 
-        self.move = move()
+        self.move = move
 
     def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
             
@@ -40,7 +40,7 @@ class FutureSafety():
 
                 result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
 
-                for move , data in move.is_move_safe.items():
+                for move , data in self.move.is_move_safe.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
                 
