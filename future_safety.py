@@ -37,7 +37,7 @@ class FutureSafety():
                 for e in relevant_position:
                 
                     self.reset_safe_moves()
-                    result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
+                    result = self.move.check_moves(self.safe_moves, head=e, game_state=game_state, body=body, neck=neck)
 
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
