@@ -27,7 +27,7 @@ class Move():
         
         self.keywords = Keywords()
         
-        self.emergency_system = EmergencySystem()
+        self.emergency_system = EmergencySystem(self)
 
         self.future_safety = FutureSafety(self)
         

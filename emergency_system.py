@@ -4,13 +4,12 @@ import typing
 import random
 
 from emergency_logger import EmergencyLogger
-from move import Move
 
 class EmergencySystem():
     
-    def __init__(self):
+    def __init__(self, move):
 
-        self.move = Move()
+        self.move = move
     
     def emergency_system(self, func:typing.Callable, *args, **kwargs):
         
