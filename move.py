@@ -454,7 +454,7 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
 
-        self.check_safe_moves()
+        self.check_safe_moves(head=head, game_state=game_state, body=body, neck=neck)
         self.check_priority_moves()
         
         next_move = self.random_choice()
