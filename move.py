@@ -33,6 +33,8 @@ class Move():
         
         self.opponents_positions = {}
 
+        self.priority_moves = []
+
     def not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
@@ -288,7 +290,7 @@ class Move():
         head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
 
-        checks = [self.reset_is_move_safe,
+        checks = [
                   self.not_backward, 
                   self.not_wall_collision, 
                   self.not_itself_collision, 
@@ -366,37 +368,61 @@ class Move():
                 raise IndexError("Body ist leer")
         
         return neck
-        
-    def random_choice(self, **kwargs):
+    
+    def check_safe_moves(self):
 
-        NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
-        if self.emergency_system.is_emergency(result):
-            return result
-        game_state , safe_moves , memory_moves = result
-        
-        emergency_moves = ["left", "right", "up", "down"]
-        
         try:
-            next_move = random.choice(memory_moves)
-            EmergencyLogger.loger_queue.put(("random_choice", "Success: Priority Move choosed", self.turn_counter))
+            for move , data in self.is_move_safe.items():
+                if data["is_safe"] == True:
+                    result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
+                    if self.emergency_system.is_emergency(result):
+                        Move.turn_counter += 1
+                        return {"move": result["move"]}
+                    if result == False:
+                        self.is_move_safe[move]["is_safe"] = False
+        except Exception as e:
+            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter))
+            self.reset_is_move_safe()
+
+    def check_priority_moves(self):
+
+        try:
+            priority_counter = 0
+            for move , data in self.is_move_safe.items():
+                if data["priority"] >  priority_counter:
+                    self.priority_moves.clear()
+                    self.priority_moves.append(move)
+                    priority_counter = data["priority"]
+                if data["priority"] == priority_counter:
+                    self.priority_moves.append(move)
+        except Exception as e:
+            EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter))
+            self.priority_moves = []
+
+    def random_choice(self):
+
+        safe_opperturnities = []
+        priority_opperturnities = []
+        EMERGENCY_MOVES = ["left", "right", "up", "down"]
+        try:
+            for move , data in self.is_move_safe.items():
+                if data["is_safe"] == True:
+                    safe_opperturnities.append(move)
+            for move in safe_opperturnities:
+                if move in self.priority_moves:
+                    priority_opperturnities.append(move)
+            if len(priority_opperturnities) > 0:
+                next_move = random.choice(priority_opperturnities)
+                return {"move": next_move}
+            if len(safe_opperturnities) > 0:
+                next_move = random.choice(safe_opperturnities)
+                return {"move": next_move}
+            next_move = random.choice(EMERGENCY_MOVES)
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"No priorities set: {e}", self.turn_counter))
-            try:
-                keys = []
-                for key , value in safe_moves.items():
-                    keys.append(key)
-                next_move = random.choice(keys)
-                return {"move": next_move}
-            except Exception as e:
-                EmergencyLogger.loger_queue.put(("random_choice", f"No safe moves left: {e}", self.turn_counter))
-                try:
-                    next_move = random.choice(emergency_moves)
-                    return {"move": next_move}
-                except Exception as e:
-                    EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
-                    return {"move": "down"}
+            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
+            next_move = random.choice(EMERGENCY_MOVES)
+            return {"move": next_move}
     
     def choose_move(self, game_state:typing.Dict):
          
@@ -425,55 +451,10 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
 
-        try:
-            for move , data in self.is_move_safe.items():
-                result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
-                if self.emergency_system.is_emergency(result):
-                    Move.turn_counter += 1
-                    return {"move": result["move"]}
-                if result == False:
-                    self.is_move_safe[move]["is_safe"] = False
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter))
-            self.reset_is_move_safe()
+        self.check_safe_moves()
+        self.check_priority_moves()
         
-        try:
-            priority_moves = []
-            prioritiy_counter = 0
-            for move , data in self.is_move_safe.items():
-                if data["priority"] >  prioritiy_counter:
-                    priority_moves.clear()
-                    priority_moves.append(move)
-                    prioritiy_counter = data["priority"]
-                if data["priority"] == prioritiy_counter:
-                    priority_moves.append(move)
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter))
-            priority_moves = []
-        
-        safe_opperturnities = []
-        priority_opperturnities = []
-        EMERGENCY_MOVES = ["left", "right", "up", "down"]
-        try:
-            for move , data in self.is_move_safe.items():
-                if data["is_safe"] == True:
-                    safe_opperturnities.append(move)
-            for move in safe_opperturnities:
-                if move in priority_moves:
-                    priority_opperturnities.append(move)
-            if len(priority_opperturnities) > 0:
-                next_move = random.choice(priority_opperturnities)
-                return {"move": next_move}
-            if len(safe_opperturnities) > 0:
-                next_move = random.choice(safe_opperturnities)
-                return {"move": next_move}
-            next_move = random.choice(EMERGENCY_MOVES)
-            return {"move": next_move}
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
-            next_move = random.choice(EMERGENCY_MOVES)
-            return {"move": next_move}
-
+        next_move = self.random_choice()
         Move.turn_counter += 1
         return next_move
 
