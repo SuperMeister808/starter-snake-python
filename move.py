@@ -471,18 +471,17 @@ class Move():
             return {"move": result["move"]}
         safe_moves = result
 
-        for move , data in self.is_move_safe.items():
-            result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
-            if self.emergency_system.is_emergency(result):
-                Move.turn_counter += 1
-                return {"move": result["move"]}
-            if result == False:
-                del self.is_move_safe[move]
-
-        result = self.emergency_system.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
-        if self.emergency_system.is_emergency(result):
-            Move.turn_counter += 1
-            return {"move": result["move"]}
+        try:
+            for move , data in self.is_move_safe.items():
+                result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
+                if self.emergency_system.is_emergency(result):
+                    Move.turn_counter += 1
+                    return {"move": result["move"]}
+                if result == False:
+                    del self.is_move_safe[move]
+        except Exception as e:
+            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter))
+            
         
         result = self.emergency_system.emergency_system(self.get_priority_moves, safe_moves=safe_moves, game_state=game_state) 
         if self.emergency_system.is_emergency(result):
