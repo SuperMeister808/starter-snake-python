@@ -303,7 +303,7 @@ class Move():
             if self.emergency_system.is_emergency(result):
                 return result
             
-    def reset_is_move_safe(self, *args, **kwargs):
+    def reset_is_move_safe(self):
         
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
@@ -369,7 +369,10 @@ class Move():
         
         return neck
     
-    def check_safe_moves(self):
+    def check_safe_moves(self, **kwargs):
+
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        head , game_state , body , neck = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
 
         try:
             for move , data in self.is_move_safe.items():
