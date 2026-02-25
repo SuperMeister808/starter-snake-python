@@ -366,27 +366,6 @@ class Move():
                 raise IndexError("Body ist leer")
         
         return neck
-    
-    def get_safe_moves(self, **kwargs):
-
-        NEEDED_KEYWORDS = ["game_state"]
-    
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
-        if self.emergency_system.is_emergency(result):
-            return result
-        game_state = result
-        
-        # Are there any safe moves left?
-        safe_moves = {}
-        try:
-            for move , data in Move.is_move_safe.items():
-                if data["is_safe"] == True:
-                    safe_moves[move] = data["priority"]
-            return safe_moves
-        except Exception as e:
-            EmergencyLogger.loger_queue.put(("safe_moves", f"{e}", self.turn_counter)) 
-            safe_moves = {"left": 0, "right": 0, "up": 0, "down": 0} 
-            return safe_moves
         
     def get_priority_moves(self, **kwargs):
         
@@ -491,18 +470,14 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
         safe_moves = result
-        
-        to_delete = []
-        for move , data in safe_moves.items():
+
+        for move , data in self.is_move_safe.items():
             result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
             if self.emergency_system.is_emergency(result):
                 Move.turn_counter += 1
                 return {"move": result["move"]}
             if result == False:
-                to_delete.append(move) 
-        for key in to_delete:
-            print("Delete safe_move")
-            del safe_moves[key]
+                del self.is_move_safe[move]
 
         result = self.emergency_system.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
         if self.emergency_system.is_emergency(result):
