@@ -16,17 +16,14 @@ from future_safety import FutureSafety
 
 class Move():
 
-    is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
-    
-    is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
+    turn_counter = 0
     
     def __init__(self):
+        
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
         
         self.keywords = Keywords()
         
@@ -35,11 +32,8 @@ class Move():
         self.future_safety = FutureSafety(self)
         
         self.opponents_positions = {}
-        
-        self.turn_counter = 0
 
-
-    def not_backward(self, **kwargs):
+    def not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
 
@@ -47,21 +41,18 @@ class Move():
 
             
         if neck["x"] < head["x"]:  
-            Move.is_move_safe["left"]["is_safe"] = False
+            is_move_safe["left"]["is_safe"] = False
 
         elif neck["x"] > head["x"]:  
-            Move.is_move_safe["right"]["is_safe"] = False
+            is_move_safe["right"]["is_safe"] = False
 
         elif neck["y"] < head["y"]:  
-            Move.is_move_safe["down"]["is_safe"] = False
+            is_move_safe["down"]["is_safe"] = False
 
         elif neck["y"] > head["y"]: 
-            Move.is_move_safe["up"]["is_safe"] = False         
-
-
-
+            is_move_safe["up"]["is_safe"] = False         
        
-    def not_wall_collision(self, **kwargs):
+    def not_wall_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
 
@@ -73,21 +64,21 @@ class Move():
     
         if head["x"] == board_width -1:
 
-            Move.is_move_safe["right"]["is_safe"] = False
+            is_move_safe["right"]["is_safe"] = False
 
         if head["x"] == 0:
 
-            Move.is_move_safe["left"]["is_safe"] = False
+            is_move_safe["left"]["is_safe"] = False
 
         if head["y"] == board_height -1:
 
-            Move.is_move_safe["up"]["is_safe"] = False
+            is_move_safe["up"]["is_safe"] = False
 
         if head["y"] == 0:
 
-            Move.is_move_safe["down"]["is_safe"] = False
+            is_move_safe["down"]["is_safe"] = False
 
-    def not_itself_collision(self, **kwargs):
+    def not_itself_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "body"]
         
@@ -106,21 +97,21 @@ class Move():
 
             if (position_x) + 1 == x and position_y == y:
 
-                Move.is_move_safe["right"]["is_safe"] = False
+                is_move_safe["right"]["is_safe"] = False
 
             if (position_x) - 1 == x and position_y == y:
 
-                Move.is_move_safe["left"]["is_safe"] = False
+                is_move_safe["left"]["is_safe"] = False
 
             if (position_y) + 1 == y and position_x == x:
 
-                Move.is_move_safe["up"]["is_safe"] = False
+                is_move_safe["up"]["is_safe"] = False
 
             if (position_y) - 1 == y and position_x == x:
 
-                Move.is_move_safe["down"]["is_safe"] = False
+                is_move_safe["down"]["is_safe"] = False
 
-    def not_enemy_collision(self, **kwargs):
+    def not_enemy_collision(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
 
@@ -143,37 +134,37 @@ class Move():
             
                     if entry == first_move:
 
-                        Move.is_move_safe["right"]["is_safe"] = False
+                        is_move_safe["right"]["is_safe"] = False
 
                     if entry == second_move:
 
-                        Move.is_move_safe["left"]["is_safe"] = False
+                        is_move_safe["left"]["is_safe"] = False
 
                     if entry == third_move:
 
-                        Move.is_move_safe["up"]["is_safe"] = False
+                        is_move_safe["up"]["is_safe"] = False
 
                     if entry == fourth_move:
 
-                        Move.is_move_safe["down"]["is_safe"] = False
+                        is_move_safe["down"]["is_safe"] = False
 
                 for entry in position["priority"]:
 
                     if entry == first_move:
 
-                        Move.is_move_safe["right"]["priority"] += 1
+                        is_move_safe["right"]["priority"] += 1
 
                     if entry == second_move:
 
-                        Move.is_move_safe["left"]["priority"] += 1
+                        is_move_safe["left"]["priority"] += 1
 
                     if entry == third_move:
 
-                        Move.is_move_safe["up"]["priority"] += 1
+                        is_move_safe["up"]["priority"] += 1
 
                     if entry == fourth_move:
 
-                        Move.is_move_safe["down"]["priority"] += 1
+                        is_move_safe["down"]["priority"] += 1
 
     def is_growing(self, **kwargs):
 
@@ -258,7 +249,7 @@ class Move():
 
         return positions
 
-    def calculate_food(self, **kwargs):
+    def calculate_food(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
 
@@ -276,21 +267,21 @@ class Move():
 
             if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
 
-                Move.is_move_safe["left"]["priority"] += 1
+                is_move_safe["left"]["priority"] += 1
 
             if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
 
-                Move.is_move_safe["right"]["priority"] += 1
+                is_move_safe["right"]["priority"] += 1
 
             if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
 
-                Move.is_move_safe["up"]["priority"] += 1
+                is_move_safe["up"]["priority"] += 1
 
             if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
 
-                Move.is_move_safe["down"]["priority"] += 1
+                is_move_safe["down"]["priority"] += 1
 
-    def check_moves(self, **kwargs):
+    def check_moves(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
@@ -306,40 +297,16 @@ class Move():
 
         for check in checks:
 
-            result = check(head=head, game_state=game_state, body=body, neck=neck)
+            result = check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
             if self.emergency_system.is_emergency(result):
                 return result
             
-    def reset_is_move_safe(self, **kwargs):
+    def reset_is_move_safe(self, *args, **kwargs):
         
-        Move.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
-
-    def reset_is_move_safe_memory(self, **kwargs):
-        
-        Move.is_move_safe_memory = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
-        
-    def safe_is_move_safe(self, **kwargs):
-
-        #copy, da dicts mutable sind
-        Move.is_move_safe_memory = copy.deepcopy(self.is_move_safe)
-
-
-        self.reset_is_move_safe(**kwargs)
-
-
-    def load_is_move_safe(self, **kwargs):
-
-        #copy, da dicts mutable sind
-        Move.is_move_safe = copy.deepcopy(self.is_move_safe_memory)
-        
-
-        self.reset_is_move_safe_memory(**kwargs)
     
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
@@ -404,7 +371,7 @@ class Move():
 
         NEEDED_KEYWORDS = ["game_state"]
     
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         game_state = result
@@ -424,7 +391,7 @@ class Move():
     def get_priority_moves(self, **kwargs):
         
         NEEDED_KEYWORDS = ["safe_moves", "game_state"]
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         safe_moves , game_state = result
@@ -464,7 +431,7 @@ class Move():
     def random_choice(self, **kwargs):
 
         NEEDED_KEYWORDS = ["game_state", "safe_moves", "memory_moves"]
-        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, self.turn_counter, NEEDED_KEYWORDS, **kwargs)
+        result = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
         if self.emergency_system.is_emergency(result):
             return result
         game_state , safe_moves , memory_moves = result
@@ -493,7 +460,8 @@ class Move():
                     return {"move": "down"}
     
     def choose_move(self, game_state:typing.Dict):
-        
+         
+        self.reset_is_move_safe()
         
         try:
             head = game_state["you"]["head"]
@@ -501,45 +469,34 @@ class Move():
         except Exception:
             raise RuntimeError("Variabele game_state nicht vorhanden!")
         
-        result = self.emergency_system.emergency_system(self.get_neck, self.turn_counter, body=body, game_state=game_state)
+        result = self.emergency_system.emergency_system(self.get_neck, body=body, game_state=game_state)
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         neck = result
 
-        result = self.emergency_system.emergency_system(self.calculate_opponents_positions, self.turn_counter, game_state=game_state)
+        result = self.emergency_system.emergency_system(self.calculate_opponents_positions, game_state=game_state)
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         self.opponents_positions = result
-
-        result = self.emergency_system.emergency_system(self.reset_is_move_safe, self.turn_counter, head=head, game_state=game_state, body=body, neck=neck)
+        
+        result = self.emergency_system.emergency_system(self.check_moves, self.is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         
-        result = self.emergency_system.emergency_system(self.check_moves, self.turn_counter, head=head, game_state=game_state, body=body, neck=neck)
+        result = self.emergency_system.emergency_system(self.get_safe_moves, game_state=game_state)
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
-        
-        result = self.emergency_system.emergency_system(self.get_safe_moves, self.turn_counter, game_state=game_state)
-        if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
-            return {"move": result["move"]}
-        
         safe_moves = result
-        
-        result = self.emergency_system.emergency_system(self.safe_is_move_safe, self.turn_counter, head=head, game_state=game_state, body=body, neck=neck)
-        if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
-            return {"move": result["move"]}
         
         to_delete = []
         for move , data in safe_moves.items():
-            result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, self.turn_counter, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
+            result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls=2, move=move, head=head, game_state=game_state, body=body, neck=neck)
             if self.emergency_system.is_emergency(result):
-                self.turn_counter += 1
+                Move.turn_counter += 1
                 return {"move": result["move"]}
             if result == False:
                 to_delete.append(move) 
@@ -547,25 +504,25 @@ class Move():
             print("Delete safe_move")
             del safe_moves[key]
 
-        result = self.emergency_system.emergency_system(self.load_is_move_safe, self.turn_counter, head=head, game_state=game_state, body=body, neck=neck) 
+        result = self.emergency_system.emergency_system(self.load_is_move_safe, head=head, game_state=game_state, body=body, neck=neck) 
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         
-        result = self.emergency_system.emergency_system(self.get_priority_moves, self.turn_counter, safe_moves=safe_moves, game_state=game_state) 
+        result = self.emergency_system.emergency_system(self.get_priority_moves, safe_moves=safe_moves, game_state=game_state) 
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         memory_moves = result
         
         
         result = self.random_choice(game_state=game_state, safe_moves=safe_moves, memory_moves=memory_moves)
         if self.emergency_system.is_emergency(result):
-            self.turn_counter += 1
+            Move.turn_counter += 1
             return {"move": result["move"]}
         next_move = result
 
-        self.turn_counter += 1
+        Move.turn_counter += 1
         return next_move
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds

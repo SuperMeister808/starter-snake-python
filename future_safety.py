@@ -11,17 +11,16 @@ class FutureSafety():
 
         self.move = move
 
-    def future_safety(self, relevant_position:typing.List[dict]=None, **kwargs):
+        self.safe_moves = {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}
+
+    def future_safety(self, relevant_position:typing.List[dict], **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
             head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
             
-            if relevant_position is None:
-                
-                relevant_position = []
-
+            if relevant_position == []:
                 
                 move_left = {"x": head["x"] - 1, "y": head["y"]}
                 move_right = {"x": head["x"] + 1, "y": head["y"]}
@@ -34,26 +33,28 @@ class FutureSafety():
             safe_move_left = False
             new_relevant_positions = []
             
-            for e in relevant_position:
+            try:
+                for e in relevant_position:
                 
-                self.move.reset_is_move_safe(**kwargs)
+                    self.reset_safe_moves()
+                    result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
 
-                result = self.move.check_moves(head=e, game_state=game_state, body=body, neck=neck)
-
-                for move , data in self.move.is_move_safe.items():
-                    if data["is_safe"] == True:
-                        safe_move_left = True
+                    for move , data in self.safe_moves.items():
+                        if data["is_safe"] == True:
+                            safe_move_left = True
                 
                         
-                        move_left = {"x": e["x"] - 1, "y": e["y"]}
-                        move_right = {"x": e["x"] + 1, "y": e["y"]}
-                        move_up = {"x": e["x"], "y": e["y"] + 1}
-                        move_down = {"x": e["x"], "y": e["y"] - 1}
-                        possible_moves = [move_left, move_right, move_up, move_down]
+                            move_left = {"x": e["x"] - 1, "y": e["y"]}
+                            move_right = {"x": e["x"] + 1, "y": e["y"]}
+                            move_up = {"x": e["x"], "y": e["y"] + 1}
+                            move_down = {"x": e["x"], "y": e["y"] - 1}
+                            possible_moves = [move_left, move_right, move_up, move_down]
                         
 
-                        new_relevant_positions.extend(possible_moves)
-   
+                            new_relevant_positions.extend(possible_moves)
+            except TypeError:
+                raise TypeError("relevant_position muss als Liste übergeben werden")
+            
             return safe_move_left , new_relevant_positions
     
     def call_future_safety(self, **kwargs):
@@ -78,13 +79,16 @@ class FutureSafety():
 
             body = self.move.call_get_body(body=body, head=head)
 
+            relevant_position = []
             for i in range(calls):
-            
-                self.move.reset_is_move_safe(**kwargs)
 
-                safe_move_left , relevant_position = self.future_safety(head=head, game_state=game_state, body=body, neck=neck)
+                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
 
                 if safe_move_left == False:
                     return False
                 
             return True
+    
+    def reset_safe_moves(self):
+         
+        self.safe_moves = {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}
