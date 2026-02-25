@@ -37,7 +37,9 @@ class FutureSafety():
                 for e in relevant_position:
                 
                     self.reset_safe_moves()
-                    result = self.move.check_moves(self.safe_moves, head=e, game_state=game_state, body=body, neck=neck)
+                    new_body = self.move.call_get_body(head=e, body=body)
+                    new_neck = self.move.get_neck(body=new_body)
+                    result = self.move.check_moves(self.safe_moves, head=e, game_state=game_state, body=new_body, neck=new_neck)
 
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
@@ -55,7 +57,7 @@ class FutureSafety():
             except TypeError:
                 raise TypeError("relevant_position muss als Liste übergeben werden")
             
-            return safe_move_left , new_relevant_positions
+            return safe_move_left , new_relevant_positions , new_body , new_neck
     
     def call_future_safety(self, **kwargs):
 
@@ -80,9 +82,11 @@ class FutureSafety():
             body = self.move.call_get_body(body=body, head=head)
 
             relevant_position = []
+            new_body = body
+            new_neck = neck
             for i in range(calls):
 
-                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=body, neck=neck)
+                safe_move_left , relevant_position , new_body , new_neck = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
 
                 if safe_move_left == False:
                     return False
