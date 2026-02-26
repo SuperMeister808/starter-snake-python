@@ -12,7 +12,7 @@ class TestFutureSafetyTree(unittest.TestCase):
     
     def test_find_parent(self):
 
-        test_root = {"id": 0, "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
+        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
         with patch.object(self.future_safety_tree, "root", new=test_root):
 
             id = [0 , 2]
