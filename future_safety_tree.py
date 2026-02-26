@@ -32,13 +32,13 @@ class FutureSafetyTree():
             if iteration_counter is None:
                 iteration_counter = 0
         
+            if len(id) == 1:
+                if id[-1] == 0:
+                    return parent
 
             for child in parent.get("children", []):
                 if iteration_counter > max_depth:
                     raise RuntimeError("max depth überschritten")
-                if len(id) == 1:
-                    if id[-1] == 0:
-                        return parent
                 try:
                     child_id = child["id"]
                     if child_id[-1] == id[iteration_counter]:

@@ -14,6 +14,8 @@ class FutureSafety():
 
         self.safe_moves = {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}
 
+        self.tree_id = [0]
+
     def future_safety(self, relevant_position:typing.List[dict], **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
@@ -63,31 +65,30 @@ class FutureSafety():
             
             return safe_move_left , new_relevant_positions , new_body , new_neck
     
+    def future_safety_tree_add_node(self, data, parent):
+
+        
+    
     def call_future_safety(self, **kwargs):
 
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
 
             game_state , body , move , calls , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-
             if move == "left":
-                neck = head
                 head = {"x": head["x"] -1, "y": head["y"]}
             if move == "right":
-                neck = head
                 head = {"x": head["x"] + 1, "y": head["y"]}
             if move == "up":
-                neck = head
                 head = {"x": head["x"], "y": head["y"] + 1}
             if move == "down":
-                neck = head
                 head = {"x": head["x"], "y": head["y"] - 1}
 
             body = self.move.call_get_body(body=body, head=head)
 
             relevant_position = []
-            new_body = body
-            new_neck = neck
+            new_body = self.move.call_get_body(body=body, head=head)
+            new_neck = self.move.get_neck(body=new_body)
             for i in range(calls):
 
                 safe_move_left , relevant_position , new_body , new_neck = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
