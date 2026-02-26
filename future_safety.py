@@ -2,6 +2,7 @@
 import typing
 
 from keywords import Keywords
+from future_safety_tree import FutureSafetyTree
 
 class FutureSafety():
 
@@ -18,7 +19,8 @@ class FutureSafety():
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
             head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
+            tree_data = {"head": head, "body": body, "neck": neck}
+            future_safety_tree = FutureSafetyTree(tree_data)
             
             if relevant_position == []:
                 
@@ -39,7 +41,9 @@ class FutureSafety():
                     self.reset_safe_moves()
                     new_body = self.move.call_get_body(head=e, body=body)
                     new_neck = self.move.get_neck(body=new_body)
+                    
                     result = self.move.check_moves(self.safe_moves, head=e, game_state=game_state, body=new_body, neck=new_neck)
+
 
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
