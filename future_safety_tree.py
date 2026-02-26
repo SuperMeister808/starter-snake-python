@@ -22,7 +22,7 @@ class FutureSafetyTree():
             raise KeyError("key children oder id nicht in parent vorhanden")
         child_id = parent_id + [len(parent_children) + 1] 
         
-        node = {"id": child_id, "head": head, "body": body, "neck": neck}
+        node = {"id": child_id, "head": head, "body": body, "neck": neck, "children": []}
         parent_children.append(node)
 
     def find_parent(self, id, parent=None, iteration_counter=None, max_depth=20):
