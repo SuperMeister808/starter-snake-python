@@ -56,3 +56,7 @@ class TestFutureSafetyTree(unittest.TestCase):
     def test_reset_tree(self):
 
         pass
+
+if __name__ == "__main__":
+
+    unittest.main()
