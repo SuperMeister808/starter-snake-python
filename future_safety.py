@@ -16,7 +16,7 @@ class FutureSafety():
         
         self.tree_id = [0]
 
-    def future_safety(self, relevant_positions=None, **kwargs):
+    def future_safety(self, relevant_positions=None, calls=2, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
@@ -25,20 +25,59 @@ class FutureSafety():
                 data = {"head": head, "body": body, "neck": neck}
                 root_id = self.create_future_safety_tree(data)
                 
-                move_left = {"x": head["x"] - 1, "y": head["y"]}
-                move_right = {"x": head["x"] + 1, "y": head["y"]}
-                move_up = {"x": head["x"], "y": head["y"] + 1}
-                move_down = {"x": head["x"], "y": head["y"] - 1}
-                
-                positions = {"id": root_id, "positions": [move_left, move_right, move_up, move_down]}
+                positions = {"id": root_id}
                 relevant_positions = []
                 relevant_positions.append(positions)
 
             safe_move_left = False
             for e in relevant_positions:
-                pass
+                
+                self.reset_safe_moves()
+                
+                id = e["id"]
+                head , body , neck = self.extract_data_from_tree(id)
+
+                move_left , move_right , move_down , move_up = self.create_moves(head)
+                possible_moves = [move_left, move_right, move_down, move_up]
+                
+                for move in possible_moves:
+                    new_head , new_body , new_neck = self.create_data_from_head(move)
+
+                    self.move.check_moves(self.safe_moves, head=new_head, game_state=game_state, body=new_body, neck=new_neck)
+                    for move , data in self.safe_moves.items():
+                        if data["is_safe"] == True:
+                            safe_move_left = True
+                            data = {"head": new_head, "body": new_body, "neck": new_neck}
+                            child_id = self.future_safety_tree.add_node(data, id)
+
 
             return safe_move_left , new_relevant_positions , new_body , new_neck
+    
+    def extract_data_from_tree(self, id):
+         
+        parent = self.future_safety_tree.find_parent(id)
+        data = parent["data"]
+        
+        head = data["head"]
+        body = data["body"]
+        neck = data["neck"]
+
+        return head , body , neck
+    
+    def create_data_from_head(self, head, body):
+
+        new_body = self.move.call_get_body(head=head, body=body)
+        new_neck = self.move.get_neck(body=new_body)
+        return new_body , new_neck
+    
+    def create_moves(self, head):
+         
+        move_left = {"x": head["x"] - 1, "y": head["y"]}
+        move_right = {"x": head["x"] + 1, "y": head["y"]}
+        move_down = {"x": head["x"], "y": head["y"] - 1}
+        move_up = {"x": head["x"], "y": head["y"] + 1}
+
+        return move_left , move_right , move_down , move_up
     
     def create_future_safety_tree(self, data):
 
@@ -64,13 +103,10 @@ class FutureSafety():
             new_body = self.move.call_get_body(body=body, head=head)
             new_neck = self.move.get_neck(body=new_body)
 
-            relevant_position = None
-            for i in range(calls):
+            safe_move_left , relevant_position , new_body , new_neck = self.future_safety(head=head, game_state=game_state, body=new_body, neck=new_neck)
 
-                safe_move_left , relevant_position , new_body , new_neck = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
-
-                if safe_move_left == False:
-                    return False
+            if safe_move_left == False:
+                return False
                 
             return True
     
