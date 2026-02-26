@@ -98,7 +98,7 @@ class FutureSafety():
             if calls is None:
                 calls = 2
             
-            NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
+            NEEDED_KEYWORDS = ["game_state", "body", "move", "head"]
 
             game_state , body , move , calls , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
