@@ -2,11 +2,24 @@
 import unittest
 from unittest.mock import patch
 
-class TestFutureSafetyTree():
+from future_safety_tree import FutureSafetyTree
 
+class TestFutureSafetyTree(unittest.TestCase):
+
+    def setUp(self):
+        
+        self.future_safety_tree = FutureSafetyTree("...")
+    
     def test_find_parent(self):
 
-        pass
+        test_root = {"id": 0, "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
+        with patch.object(self.future_safety_tree, "root", new=test_root):
+
+            id = [0 , 2]
+            
+            result = self.future_safety_tree.find_parent([0 , 2])
+            expected = {"id": [0 , 2], "data": "...", "children": []}
+            self.assertEqual(result, expected)
 
     def test_find_parent_root(self):
 
