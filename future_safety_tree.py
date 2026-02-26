@@ -51,6 +51,11 @@ class FutureSafetyTree():
                     raise RuntimeError("child_id ungültig oder nicht vorhanden!")
                 
             raise RuntimeError("Kein Parent gefunden!")
+    
+    def reset_tree(self):
+
+        self.root = {"id": [0], "data": {}, "children": []}
+
 
 
 
