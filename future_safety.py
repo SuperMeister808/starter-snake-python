@@ -16,55 +16,28 @@ class FutureSafety():
         
         self.tree_id = [0]
 
-    def future_safety(self, relevant_position:typing.List[dict], relevant_tree_ids, **kwargs):
+    def future_safety(self, relevant_positions=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
-            head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-            data = {"head": head, "body": body, "neck": neck}
-            root_id = self.create_future_safety_tree(data)
-            relevant_tree_ids.append(root_id)
-            
-            if relevant_position == []:
+            if relevant_positions is None:
+                head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+                data = {"head": head, "body": body, "neck": neck}
+                root_id = self.create_future_safety_tree(data)
                 
                 move_left = {"x": head["x"] - 1, "y": head["y"]}
                 move_right = {"x": head["x"] + 1, "y": head["y"]}
                 move_up = {"x": head["x"], "y": head["y"] + 1}
                 move_down = {"x": head["x"], "y": head["y"] - 1}
-                possible_moves = [move_left, move_right, move_up, move_down]
-            
-                relevant_position.extend(possible_moves)
+                
+                positions = {"id": root_id, "positions": [move_left, move_right, move_up, move_down]}
+                relevant_positions = []
+                relevant_positions.append(positions)
 
             safe_move_left = False
-            new_relevant_positions = []
-            
-            try:
-                for i , e in relevant_position:
-                
-                    self.reset_safe_moves()
-                    parent = self
-                    new_body = self.move.call_get_body(head=e, body=body)
-                    new_neck = self.move.get_neck(body=new_body)
-                    self.future_safety_tree.add_node(data, self.tree_id)
-                    
-                    result = self.move.check_moves(self.safe_moves, head=e, game_state=game_state, body=new_body, neck=new_neck)
+            for e in relevant_positions:
+                pass
 
-                    for move , data in self.safe_moves.items():
-                        if data["is_safe"] == True:
-                            safe_move_left = True
-                
-                        
-                            move_left = {"x": e["x"] - 1, "y": e["y"]}
-                            move_right = {"x": e["x"] + 1, "y": e["y"]}
-                            move_up = {"x": e["x"], "y": e["y"] + 1}
-                            move_down = {"x": e["x"], "y": e["y"] - 1}
-                            possible_moves = [move_left, move_right, move_up, move_down]
-                        
-
-                            new_relevant_positions.extend(possible_moves)
-            except TypeError:
-                raise TypeError("relevant_position muss als Liste übergeben werden")
-            
             return safe_move_left , new_relevant_positions , new_body , new_neck
     
     def create_future_safety_tree(self, data):
@@ -91,11 +64,10 @@ class FutureSafety():
             new_body = self.move.call_get_body(body=body, head=head)
             new_neck = self.move.get_neck(body=new_body)
 
-            relevant_position = []
-            relevant_tree_ids = []
+            relevant_position = None
             for i in range(calls):
 
-                safe_move_left , relevant_position , new_body , new_neck = self.future_safety(relevant_position, relevant_tree_ids, head=head, game_state=game_state, body=new_body, neck=new_neck)
+                safe_move_left , relevant_position , new_body , new_neck = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
 
                 if safe_move_left == False:
                     return False
