@@ -16,7 +16,7 @@ class FutureSafety():
         
         self.tree_id = [0]
 
-    def future_safety(self, relevant_positions=None, calls=2, **kwargs):
+    def future_safety(self, relevant_positions=None, **kwargs):
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
 
@@ -30,6 +30,7 @@ class FutureSafety():
                 relevant_positions.append(positions)
 
             safe_move_left = False
+            new_relevant_position = []
             for e in relevant_positions:
                 
                 self.reset_safe_moves()
@@ -41,17 +42,23 @@ class FutureSafety():
                 possible_moves = [move_left, move_right, move_down, move_up]
                 
                 for move in possible_moves:
-                    new_head , new_body , new_neck = self.create_data_from_head(move)
+                    
+                    self.reset_safe_moves()
+                    
+                    new_body , new_neck = self.create_data_from_head(move)
 
-                    self.move.check_moves(self.safe_moves, head=new_head, game_state=game_state, body=new_body, neck=new_neck)
+                    self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck)
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
                             safe_move_left = True
-                            data = {"head": new_head, "body": new_body, "neck": new_neck}
+                            data = {"head": move, "body": new_body, "neck": new_neck}
                             child_id = self.future_safety_tree.add_node(data, id)
+                            new_relevant_position.append(child_id)
 
+                relevant_positions.remove(e)
+                relevant_positions.extend(new_relevant_position)
 
-            return safe_move_left , new_relevant_positions , new_body , new_neck
+            return safe_move_left , relevant_positions
     
     def extract_data_from_tree(self, id):
          
@@ -86,8 +93,11 @@ class FutureSafety():
 
         return root["id"]
     
-    def call_future_safety(self, **kwargs):
+    def call_future_safety(self, calls=None, **kwargs):
 
+            if calls is None:
+                calls = 2
+            
             NEEDED_KEYWORDS = ["game_state", "body", "move", "calls", "head"]
 
             game_state , body , move , calls , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -103,7 +113,9 @@ class FutureSafety():
             new_body = self.move.call_get_body(body=body, head=head)
             new_neck = self.move.get_neck(body=new_body)
 
-            safe_move_left , relevant_position , new_body , new_neck = self.future_safety(head=head, game_state=game_state, body=new_body, neck=new_neck)
+            relevant_position = None
+            for i in range(calls):
+                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
 
             if safe_move_left == False:
                 return False
