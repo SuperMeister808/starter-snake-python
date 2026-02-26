@@ -45,7 +45,7 @@ class FutureSafety():
                     
                     self.reset_safe_moves()
                     
-                    new_body , new_neck = self.create_data_from_head(move)
+                    new_body , new_neck = self.create_data_from_head(move, body)
 
                     self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck)
                     for move , data in self.safe_moves.items():
