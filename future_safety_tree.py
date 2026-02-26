@@ -34,7 +34,7 @@ class FutureSafetyTree():
         
             if len(id) == 1:
                 if id[-1] == 0:
-                    return parent
+                    return self.root
 
             for child in parent.get("children", []):
                 if iteration_counter > max_depth:
