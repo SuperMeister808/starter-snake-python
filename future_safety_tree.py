@@ -25,6 +25,8 @@ class FutureSafetyTree():
         node = {"id": child_id, "head": head, "body": body, "neck": neck, "children": []}
         parent_children.append(node)
 
+        return child_id
+
     def find_parent(self, id, parent=None, iteration_counter=None, max_depth=20):
 
             if parent is None:
