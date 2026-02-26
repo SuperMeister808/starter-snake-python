@@ -100,7 +100,7 @@ class FutureSafety():
             
             NEEDED_KEYWORDS = ["game_state", "body", "move", "head"]
 
-            game_state , body , move , calls , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            game_state , body , move , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
             if move == "left":
                 head = {"x": head["x"] -1, "y": head["y"]}
