@@ -5,7 +5,7 @@ class FutureSafetyTree():
         
         self.root = {"id": [0], "data": data, "children": []}
 
-    def add_node(self, data, id):
+    def add_node(self, data, parent_id):
 
         try:
             head = data["head"]
@@ -14,7 +14,11 @@ class FutureSafetyTree():
         except KeyError:
             raise KeyError("head, body oder neck nicht in data vorhanden")
         
-        parent = self.find_parent(id)
+        try:
+            parent = self.find_parent(parent_id)
+        except RuntimeError:
+            raise RuntimeError("parent nicht gefunden")
+        
         try:
             parent_children = parent["children"]
             parent_id = parent["id"]
@@ -22,7 +26,7 @@ class FutureSafetyTree():
             raise KeyError("key children oder id nicht in parent vorhanden")
         child_id = parent_id + [len(parent_children) + 1] 
         
-        node = {"id": child_id, "head": head, "body": body, "neck": neck, "children": []}
+        node = {"id": child_id, "data": {"head": head, "body": body, "neck": neck}, "children": []}
         parent_children.append(node)
 
         return child_id
