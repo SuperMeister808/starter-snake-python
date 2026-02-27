@@ -369,10 +369,15 @@ class Move():
         
         return neck
     
+    def get_length(self, body):
+
+        length = len(body)
+        return length
+    
     def check_safe_moves(self, **kwargs):
 
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
-        head , game_state , body , neck = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
+        head , game_state , body , neck , my_length = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
 
         try:
             for move , data in self.is_move_safe.items():
@@ -452,7 +457,7 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
 
-        self.check_safe_moves(head=head, game_state=game_state, body=body, neck=neck)
+        self.check_safe_moves(head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         self.check_priority_moves()
         
         next_move = self.random_choice()

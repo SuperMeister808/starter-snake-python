@@ -18,11 +18,11 @@ class FutureSafety():
 
     def future_safety(self, relevant_positions=None, **kwargs):
             
-            NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+            NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
 
             if relevant_positions is None:
-                head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-                data = {"head": head, "body": body, "neck": neck}
+                head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+                data = {"head": head, "body": body, "neck": neck, "my_length": my_length}
                 root_id = self.create_future_safety_tree(data)
                 
                 positions = {"id": root_id}
@@ -36,7 +36,7 @@ class FutureSafety():
                 self.reset_safe_moves()
                 
                 id = e["id"]
-                head , body , neck = self.extract_data_from_tree(id)
+                head , body , neck , my_length = self.extract_data_from_tree(id)
 
                 move_left , move_right , move_down , move_up = self.create_moves(head)
                 possible_moves = [move_left, move_right, move_down, move_up]
@@ -45,13 +45,13 @@ class FutureSafety():
                     
                     self.reset_safe_moves()
                     
-                    new_body , new_neck = self.create_data_from_head(move, body)
+                    new_body , new_neck , my_length = self.create_data_from_head(move, body)
 
-                    self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck)
+                    self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
                             safe_move_left = True
-                            data = {"head": move, "body": new_body, "neck": new_neck}
+                            data = {"head": move, "body": new_body, "neck": new_neck, "my_length": my_length}
                             child_id = self.future_safety_tree.add_node(data, id)
                             new_relevant_position.append(child_id)
 
@@ -68,14 +68,16 @@ class FutureSafety():
         head = data["head"]
         body = data["body"]
         neck = data["neck"]
+        my_length = data["my_length"]
 
-        return head , body , neck
+        return head , body , neck , my_length
     
     def create_data_from_head(self, head, body):
 
         new_body = self.move.call_get_body(head=head, body=body)
         new_neck = self.move.get_neck(body=new_body)
-        return new_body , new_neck
+        my_length = self.move.get_length(body)
+        return new_body , new_neck , my_length
     
     def create_moves(self, head):
          
@@ -98,9 +100,9 @@ class FutureSafety():
             if calls is None:
                 calls = 2
             
-            NEEDED_KEYWORDS = ["game_state", "body", "move", "head"]
+            NEEDED_KEYWORDS = ["game_state", "body", "move", "head", "my_length"]
 
-            game_state , body , move , head = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            game_state , body , move , head , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
             if move == "left":
                 head = {"x": head["x"] -1, "y": head["y"]}
@@ -115,7 +117,7 @@ class FutureSafety():
 
             relevant_position = None
             for i in range(calls):
-                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck)
+                safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
 
             if safe_move_left == False:
                 return False
