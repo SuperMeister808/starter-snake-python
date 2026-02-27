@@ -154,7 +154,21 @@ class TestFutureSafetyTree(unittest.TestCase):
     
     def test_add_node(self):
 
-        pass
+        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}]}
+
+        self.setup_patchers(test_root)
+
+        data = {"head": "head", "body": "body", "neck": "neck"}
+        id = [0 , 1]
+
+        result = self.future_safety_tree.add_node(data , id)
+        expected = [0 , 1 , 1]
+        self.assertEqual(result , expected)
+        
+        expected_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": {"head": "head", "body": "body", "neck": "neck"}, "children": []}]}]}
+        self.assertEqual(self.future_safety_tree.root, expected_root)
+
+        self.check_calls_patchers()
 
     def test_add_node_wrong_keys(self):
 
