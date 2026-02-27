@@ -205,7 +205,15 @@ class TestFutureSafetyTree(unittest.TestCase):
 
     def test_reset_tree(self):
 
-        pass
+            test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}]}
+
+            self.setup_patchers(test_root)
+
+            self.future_safety_tree.reset_tree()
+            expected_root = {"id": [0], "data": "...", "children": []}
+            self.assertEqual(self.future_safety_tree.root, expected_root)
+
+            self.check_calls_patchers()
 
 if __name__ == "__main__":
 

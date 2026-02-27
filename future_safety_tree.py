@@ -3,7 +3,9 @@ class FutureSafetyTree():
 
     def __init__(self, data):
         
-        self.root = {"id": [0], "data": data, "children": []}
+        self.data = data
+        
+        self.root = {"id": [0], "data": self.data, "children": []}
 
     def add_node(self, data, parent_id):
 
@@ -61,7 +63,7 @@ class FutureSafetyTree():
     
     def reset_tree(self):
 
-        self.root = {"id": [0], "data": {}, "children": []}
+        self.root = {"id": [0], "data": self.data, "children": []}
 
 
 
