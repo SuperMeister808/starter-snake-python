@@ -187,7 +187,21 @@ class TestFutureSafetyTree(unittest.TestCase):
 
     def test_add_node_wrong_parent_keys(self):
 
-        pass
+        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}]}
+
+        self.setup_patchers(test_root)
+
+        with patch.object(self.future_safety_tree, "find_parent", return_value={"wrong_id": [0 , 1], "data": "...", "wrong_children": []}) as mock_parent:
+
+
+            data = {"head": "head", "body": "body", "neck": "neck"}
+            id = [0 , 1]
+
+            with self.assertRaises(KeyError):
+                result = self.future_safety_tree.add_node(data , id)
+
+            self.check_calls_patchers()
+            mock_parent.assert_called()
 
     def test_reset_tree(self):
 
