@@ -21,6 +21,18 @@ class TestFutureSafetyTree(unittest.TestCase):
             expected = {"id": [0 , 2], "data": "...", "children": []}
             self.assertEqual(result, expected)
 
+    def test_find_parent_more_iterations_necessary(self):
+        
+        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": "...", "children": []}, {"id": [0 , 1 , 2], "data": "...", "children": [{"id": [0 , 1 , 2 , 1], "data": "...", "children": []}]}]}, {"id": [0 , 2], "data": "...", "children": [{"id": [0 , 2 , 1], "data": "...", "children": []}]}]}
+
+        with patch.object(self.future_safety_tree , "root", new=test_root):
+
+            id = [0 , 1 , 2 , 1]
+            
+            result = self.future_safety_tree.find_parent(id)
+            expected = {"id": [0 , 1 , 2 , 1], "data": "...", "children": []}
+            self.assertEqual(result , expected)
+    
     def test_find_parent_root(self):
 
         pass
