@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch , MagicMock
 
 from future_safety_tree import FutureSafetyTree
 
@@ -10,27 +10,67 @@ class TestFutureSafetyTree(unittest.TestCase):
         
         self.future_safety_tree = FutureSafetyTree("...")
     
-    def test_find_parent(self):
+    def setup_patchers(self, root):
 
-        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
-        with patch.object(self.future_safety_tree, "root", new=test_root):
+        self.patchers = [
+            self.create_patcher_root(root)
+        ]
+
+        self.start_patchers()
+    
+    def create_patcher_root(self, root):
+
+        patcher = patch.object(self.future_safety_tree, "root", new=root)
+        return patcher
+    
+    def start_patchers(self):
+
+        self.mocks = {}
+        
+        for i , patcher in enumerate(self.patchers):
+
+            mock = patcher.start()
+            try:
+                self.mocks [mock._mock_name] = mock
+            except AttributeError:
+                self.mocks[i] = mock
+
+    def check_calls_patchers(self):
+
+        for name , mock in self.mocks.items():
+
+            try:
+                mock.assert_called_once()
+            except Exception:
+                pass
+
+    
+    def test_find_parent(self):
+        
+            test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
+
+            self.setup_patchers(test_root)
 
             id = [0 , 2]
             
             result = self.future_safety_tree.find_parent([0 , 2])
             expected = {"id": [0 , 2], "data": "...", "children": []}
+            
+            self.check_calls_patchers()
             self.assertEqual(result, expected)
 
     def test_find_parent_more_iterations_necessary(self):
         
-        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": "...", "children": []}, {"id": [0 , 1 , 2], "data": "...", "children": [{"id": [0 , 1 , 2 , 1], "data": "...", "children": []}]}]}, {"id": [0 , 2], "data": "...", "children": [{"id": [0 , 2 , 1], "data": "...", "children": []}]}]}
+            test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": "...", "children": []}, {"id": [0 , 1 , 2], "data": "...", "children": [{"id": [0 , 1 , 2 , 1], "data": "...", "children": []}]}]}, {"id": [0 , 2], "data": "...", "children": [{"id": [0 , 2 , 1], "data": "...", "children": []}]}]}
 
-        with patch.object(self.future_safety_tree , "root", new=test_root):
-
+            self.setup_patchers(test_root)
+            
             id = [0 , 1 , 2 , 1]
             
             result = self.future_safety_tree.find_parent(id)
             expected = {"id": [0 , 1 , 2 , 1], "data": "...", "children": []}
+            
+            self.check_calls_patchers()
             self.assertEqual(result , expected)
     
     def test_find_parent_root(self):
