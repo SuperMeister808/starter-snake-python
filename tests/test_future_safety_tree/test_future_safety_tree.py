@@ -9,6 +9,8 @@ class TestFutureSafetyTree(unittest.TestCase):
     def setUp(self):
         
         self.future_safety_tree = FutureSafetyTree("...")
+
+        self.addCleanup(self.stop_patchers)
     
     def setup_patchers(self, root):
 
@@ -35,6 +37,12 @@ class TestFutureSafetyTree(unittest.TestCase):
             except AttributeError:
                 self.mocks[i] = mock
 
+    def stop_patchers(self):
+
+        for patcher in self.patchers:
+
+            patcher.stop()
+    
     def check_calls_patchers(self):
 
         for name , mock in self.mocks.items():
@@ -75,7 +83,9 @@ class TestFutureSafetyTree(unittest.TestCase):
     
     def test_find_parent_root(self):
 
-        pass
+        test_root = {"id": [0], "data": "...", "children": []}
+
+        self.setup_patchers(test_root)
     
     def test_find_parent_too_many_iterations(self):
 
