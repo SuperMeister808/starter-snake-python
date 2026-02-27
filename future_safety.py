@@ -30,7 +30,6 @@ class FutureSafety():
                 relevant_positions.append(positions)
 
             safe_move_left = False
-            new_relevant_position = []
             for e in relevant_positions:
                 
                 self.reset_safe_moves()
@@ -41,11 +40,16 @@ class FutureSafety():
                 move_left , move_right , move_down , move_up = self.create_moves(head)
                 possible_moves = [move_left, move_right, move_down, move_up]
                 
+                new_relevant_position = []
                 for move in possible_moves:
                     
                     self.reset_safe_moves()
                     
-                    new_body , new_neck , my_length = self.create_data_from_head(move, body)
+                    snake = {"head": move}
+                    if self.move.is_growing(snake=move, game_state=game_state) == True:
+                        new_body , new_neck , new_length = self.create_data_from__head_is_growing(head, body)
+                    else:
+                        new_body , new_neck , my_length = self.create_data_from_head(move, body)
 
                     self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
                     for move , data in self.safe_moves.items():
@@ -57,6 +61,7 @@ class FutureSafety():
 
                 relevant_positions.remove(e)
                 relevant_positions.extend(new_relevant_position)
+                new_relevant_position.clear()
 
             return safe_move_left , relevant_positions
     
@@ -78,6 +83,13 @@ class FutureSafety():
         new_neck = self.move.get_neck(body=new_body)
         my_length = self.move.get_length(body)
         return new_body , new_neck , my_length
+    
+    def create_data_from__head_is_growing(self, head, body):
+        
+        body.insert(0, head)
+        new_neck = self.move.get_neck(body=body)
+        new_length = self.move.get_length(body)
+        return body , new_neck , new_length
     
     def create_moves(self, head):
          
