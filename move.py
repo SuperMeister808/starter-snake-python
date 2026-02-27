@@ -201,10 +201,9 @@ class Move():
 
     def calculate_opponents_positions(self, **kwargs):
 
-        NEEDED_KEYWORDS = ["game_state"]
+        NEEDED_KEYWORDS = ["game_state", "my_length"]
 
-        game_state, = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
+        game_state , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         
         positions = {}
         
@@ -285,10 +284,14 @@ class Move():
 
     def check_moves(self, is_move_safe, **kwargs):
         
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck"]
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
 
-        head, game_state, body, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
+        result = self.emergency_system.emergency_system(self.calculate_opponents_positions, game_state=game_state, my_length=my_length)
+        if self.emergency_system.is_emergency(result):
+            return result
+        self.opponents_positions = result
 
         checks = [
                   self.not_backward, 
@@ -434,6 +437,7 @@ class Move():
         try:
             head = game_state["you"]["head"]
             body = game_state["you"]["body"]
+            my_length = game_state["you"]["length"]
         except Exception:
             raise RuntimeError("Variabele game_state nicht vorhanden!")
         
@@ -442,14 +446,8 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
         neck = result
-
-        result = self.emergency_system.emergency_system(self.calculate_opponents_positions, game_state=game_state)
-        if self.emergency_system.is_emergency(result):
-            Move.turn_counter += 1
-            return {"move": result["move"]}
-        self.opponents_positions = result
         
-        result = self.emergency_system.emergency_system(self.check_moves, self.is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+        result = self.emergency_system.emergency_system(self.check_moves, self.is_move_safe, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         if self.emergency_system.is_emergency(result):
             Move.turn_counter += 1
             return {"move": result["move"]}

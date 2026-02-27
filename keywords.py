@@ -5,7 +5,7 @@ class Keywords():
 
     def get_allowed_keywords(self, **kwargs):
 
-        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves"]
+        ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves", "my_length"]
         keywords = {}
 
         for allowed_keyword in ALLOWED_KEYWORDS:
@@ -22,7 +22,7 @@ class Keywords():
         DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves", "snake"]
         LIST_KEYS = ["body", "memory_moves"]
         STRING_KEYS = ["move"]
-        INTEGER_KEYS = ["calls"]
+        INTEGER_KEYS = ["calls", "my_length"]
         FLOAT_KEYS = []
 
         for key , keyword in keywords.items():
