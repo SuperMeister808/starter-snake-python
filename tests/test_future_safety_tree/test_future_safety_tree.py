@@ -126,7 +126,17 @@ class TestFutureSafetyTree(unittest.TestCase):
 
     def test_find_parent_keyerror_child_id(self):
 
-        pass
+        test_root = {"id": [0], "data": "...", "children": [{"id": "[0 , 1]", "data": "...", "children": []}]}
+
+        self.setup_patchers(test_root)
+
+        id = [0 , 1]
+
+        with self.assertRaises(RuntimeError):
+
+            result = self.future_safety_tree.find_parent(id)
+
+        self.check_calls_patchers()
 
     def test_find_parent_too_short_id(self):
 
