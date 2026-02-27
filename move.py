@@ -154,19 +154,19 @@ class Move():
 
                     if entry == first_move:
 
-                        is_move_safe["right"]["priority"] += 1
+                        is_move_safe["right"]["priority"] += 2
 
                     if entry == second_move:
 
-                        is_move_safe["left"]["priority"] += 1
+                        is_move_safe["left"]["priority"] += 2
 
                     if entry == third_move:
 
-                        is_move_safe["up"]["priority"] += 1
+                        is_move_safe["up"]["priority"] += 2
 
                     if entry == fourth_move:
 
-                        is_move_safe["down"]["priority"] += 1
+                        is_move_safe["down"]["priority"] += 2
 
     def is_growing(self, **kwargs):
 
