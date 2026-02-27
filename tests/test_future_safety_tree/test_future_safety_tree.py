@@ -10,13 +10,13 @@ class TestFutureSafetyTree(unittest.TestCase):
         
         self.future_safety_tree = FutureSafetyTree("...")
 
+        self.patchers = []
+
         self.addCleanup(self.stop_patchers)
     
     def setup_patchers(self, root):
 
-        self.patchers = [
-            self.create_patcher_root(root)
-        ]
+        self.patchers.append(self.create_patcher_root(root))
 
         self.start_patchers()
     
@@ -83,9 +83,17 @@ class TestFutureSafetyTree(unittest.TestCase):
     
     def test_find_parent_root(self):
 
-        test_root = {"id": [0], "data": "...", "children": []}
+        test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}]}
 
         self.setup_patchers(test_root)
+
+        id = [0]
+
+        result = self.future_safety_tree.find_parent(id)
+        expected = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}]}
+
+        self.check_calls_patchers()
+        self.assertEqual(result , expected)
     
     def test_find_parent_too_many_iterations(self):
 
