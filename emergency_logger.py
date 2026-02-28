@@ -5,27 +5,41 @@ from git import Repo
 
 import time
 
+import logging
+
 from print_collector import PrintCollector
+from runtime_logger import RuntimeLogger , DefaultTurnAdapter
+
 
 class EmergencyLogger():
-       
-
 
     loger_queue = queue.Queue()  
 
     flags = {"is_running": False, "worker_thread": None}
 
     print_collector = PrintCollector()
+
+    runtime_logger = RuntimeLogger("runtime.log", True)
+    adapted_runtime_logger = DefaultTurnAdapter(runtime_logger)
         
     @classmethod
-    def emergency_log(cls, where, exception, turn="unknown"):
+    def emergency_log(cls, where, exception, level, turn="unknown"):
 
-        try:
-            with open("runtime.log", "a") as f:
+        LEVEL_VALUES = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
+    
+        if level in LEVEL_VALUES:
+            try:
+                message = cls.create_message(where, exception)
+                cls.adapted_runtime_logger.log(level, message, extra={"turn": turn})
+            except Exception as e:
+                raise RuntimeError(f"Could not log in runtime log:{e}")
+        else:
+            raise RuntimeError("Logger besitzt dieses Level nicht!")
+        
+    def create_message(self, where, exception):
 
-                f.write(f"[{turn}] {where}: {exception}\n")
-        except Exception as e:
-            raise RuntimeError(f"Could not opne runtime log:{e}")
+        message = f"{where}: {exception}"
+        return message
 
     @classmethod
     def upload_to_git(cls, repo_path=".", message="Game played", branch="runtime_logs"):
@@ -77,7 +91,7 @@ class EmergencyLogger():
 
             cls.print_collector.collect_message("logger queue is empty")
                 
-                
+             
 
     @classmethod
     def start_log_worker(cls):
