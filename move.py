@@ -443,6 +443,7 @@ class Move():
             head = game_state["you"]["head"]
             body = game_state["you"]["body"]
             my_length = game_state["you"]["length"]
+            self.future_safety.log_data("choose_move", {"head": head, "body": body, "my_length": my_length})
         except Exception:
             raise RuntimeError("Variabele game_state nicht vorhanden!")
         
@@ -451,13 +452,16 @@ class Move():
             Move.turn_counter += 1
             return {"move": result["move"]}
         neck = result
+        self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
         
         result = self.emergency_system.emergency_system(self.check_moves, self.is_move_safe, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         if self.emergency_system.is_emergency(result):
             Move.turn_counter += 1
             return {"move": result["move"]}
+        self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
 
         self.check_safe_moves(head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+        self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
         self.check_priority_moves()
         
         next_move = self.random_choice()
