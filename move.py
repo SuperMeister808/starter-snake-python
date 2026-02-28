@@ -13,6 +13,7 @@ from emergency_logger import EmergencyLogger
 from keywords import Keywords
 from emergency_system import EmergencySystem
 from future_safety import FutureSafety
+from runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
 class Move():
 
@@ -31,6 +32,9 @@ class Move():
 
         self.future_safety = FutureSafety(self)
         
+        self.runtime_logger = RuntimeLogger("runtime.log", True)
+        self.runtime_log_adapter = DefaultTurnAdapter(self.runtime_logger)
+
         self.opponents_positions = {}
 
         self.priority_moves = []
