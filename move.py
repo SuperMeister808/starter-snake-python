@@ -393,7 +393,7 @@ class Move():
                     if result == False:
                         self.is_move_safe[move]["is_safe"] = False
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter))
+            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter, 40))
             self.reset_is_move_safe()
 
     def check_priority_moves(self):
@@ -408,7 +408,7 @@ class Move():
                 if data["priority"] == priority_counter:
                     self.priority_moves.append(move)
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter))
+            EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter, 40))
             self.priority_moves = []
 
     def random_choice(self):
@@ -425,17 +425,17 @@ class Move():
                     priority_opperturnities.append(move)
             if len(priority_opperturnities) > 0:
                 next_move = random.choice(priority_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed priority move", self.turn_counter))
+                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed priority move", self.turn_counter, 40))
                 return {"move": next_move}
             if len(safe_opperturnities) > 0:
                 next_move = random.choice(safe_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed safe move", self.turn_counter))
+                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed safe move", self.turn_counter, 40))
                 return {"move": next_move}
             next_move = random.choice(EMERGENCY_MOVES)
-            EmergencyLogger.loger_queue.put(("random_choice", "Choosed emergency move", self.turn_counter))
+            EmergencyLogger.loger_queue.put(("random_choice", "Choosed emergency move", self.turn_counter, 40))
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter))
+            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter, 40))
             next_move = random.choice(EMERGENCY_MOVES)
             return {"move": next_move}
     
