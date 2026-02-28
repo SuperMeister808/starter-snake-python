@@ -33,6 +33,10 @@ class RuntimeLogger():
         )
         return formatter
     
+    def create_runtime_logger(self):
+
+        return self.logger
+    
 class DefaultTurnAdapter(LoggerAdapter):
 
     def process(self, msg, **kwargs):

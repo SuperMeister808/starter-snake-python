@@ -19,7 +19,8 @@ class EmergencyLogger():
 
     print_collector = PrintCollector()
 
-    runtime_logger = RuntimeLogger("runtime.log", True)
+    create_runtime_logger = RuntimeLogger("runtime.log", True)
+    runtime_logger = create_runtime_logger.create_runtime_logger()
     adapted_runtime_logger = DefaultTurnAdapter(runtime_logger)
         
     @classmethod
