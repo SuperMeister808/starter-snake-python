@@ -65,25 +65,20 @@ class EmergencyLogger():
             
             while not cls.loger_queue.empty():
 
+                item = cls.loger_queue.get(timeout=0.1)
                 try:
-                    item = cls.loger_queue.get(timeout=0.1)
                     where, exception, turn, level = item
                     cls.emergency_log(where, exception, level, turn)
                 except (ValueError, TypeError) as e:
-                    print(f"ValueError: {e}")
-                    cls.print_collector.collect_message(f"ValueError: {e}")
-                    if not isinstance(item, (tuple, list)):
-                        print("Item is not a tuple or a list!")
-                        cls.print_collector.collect_message("Item is not a tuple or a list!")
-                    else:
-                        if len(item) > 4:
-                            print(f"Too many values: {item[3:]}")
-                            cls.print_collector.collect_message(f"Too many values: {item[3:]}")
-                        if len(item) < 4:
-                            print(f"Not enough values: {item}")
-                            cls.print_collector.collect_message(f"Not enough values: {item}")
-                    print(f"RAW ITEM:, {item}, {type(item)}")
-                    cls.print_collector.collect_message(f"RAW ITEM:, {item}, {type(item)}")
+                    try:
+                        where , exception , turn = item
+                        cls.emergency_log(where, exception, turn=turn)
+                    except (ValueError, TypeError) as e:
+                        try:
+                            where , exception = item
+                        except (ValueError, TypeError) as e:
+
+                            print(f"{e}")
 
             cls.print_collector.collect_message("logger queue is empty")
                 
