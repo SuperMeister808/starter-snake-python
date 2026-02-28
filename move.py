@@ -439,6 +439,9 @@ class Move():
          
         self.reset_is_move_safe()
         
+        self.future_safety.log_data("choose_move", {"game_state": game_state})
+        print(game_state)
+
         try:
             head = game_state["you"]["head"]
             body = game_state["you"]["body"]
