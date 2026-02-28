@@ -31,7 +31,8 @@ class EmergencyLogger():
         except Exception as e:
             raise RuntimeError(f"Could not log in runtime log:{e}")
         
-    def create_message(self, where, exception):
+    @classmethod
+    def create_message(cls, where, exception):
 
         message = f"{where}: {exception}"
         return message
@@ -67,7 +68,7 @@ class EmergencyLogger():
                 try:
                     item = cls.loger_queue.get(timeout=0.1)
                     where, exception, turn, level = item
-                    cls.emergency_log(where, exception, turn, level)
+                    cls.emergency_log(where, exception, level, turn)
                 except (ValueError, TypeError) as e:
                     print(f"ValueError: {e}")
                     cls.print_collector.collect_message(f"ValueError: {e}")
