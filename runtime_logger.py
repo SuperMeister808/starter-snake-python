@@ -20,7 +20,7 @@ class RuntimeLogger():
         return logger
         
     def create_file_handler(self, file):
-        file_handler = logging.FileHandler(file)
+        file_handler = logging.FileHandler(file, delay=True)
         
         formatter = self.create_runtime_log_formatter()
         file_handler.setFormatter(formatter)

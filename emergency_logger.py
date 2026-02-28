@@ -21,14 +21,13 @@ class EmergencyLogger():
 
     create_runtime_logger = RuntimeLogger("runtime.log", True)
     runtime_logger = create_runtime_logger.create_runtime_logger()
-    adapted_runtime_logger = DefaultTurnAdapter(runtime_logger)
         
     @classmethod
     def emergency_log(cls, where, exception, level, turn="unknown"):
 
         try:
             message = cls.create_message(where, exception)
-            cls.adapted_runtime_logger.log(level, message, extra={"turn": turn})
+            cls.runtime_logger.log(level, message, extra={"turn": turn})
         except Exception as e:
             raise RuntimeError(f"Could not log in runtime log:{e}")
         
@@ -77,10 +76,10 @@ class EmergencyLogger():
                         print("Item is not a tuple or a list!")
                         cls.print_collector.collect_message("Item is not a tuple or a list!")
                     else:
-                        if len(item) > 3:
+                        if len(item) > 4:
                             print(f"Too many values: {item[3:]}")
                             cls.print_collector.collect_message(f"Too many values: {item[3:]}")
-                        if len(item) < 3:
+                        if len(item) < 4:
                             print(f"Not enough values: {item}")
                             cls.print_collector.collect_message(f"Not enough values: {item}")
                     print(f"RAW ITEM:, {item}, {type(item)}")
