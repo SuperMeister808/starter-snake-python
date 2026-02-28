@@ -25,16 +25,11 @@ class EmergencyLogger():
     @classmethod
     def emergency_log(cls, where, exception, level, turn="unknown"):
 
-        LEVEL_VALUES = [logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR, logging.CRITICAL]
-    
-        if level in LEVEL_VALUES:
-            try:
-                message = cls.create_message(where, exception)
-                cls.adapted_runtime_logger.log(level, message, extra={"turn": turn})
-            except Exception as e:
-                raise RuntimeError(f"Could not log in runtime log:{e}")
-        else:
-            raise RuntimeError("Logger besitzt dieses Level nicht!")
+        try:
+            message = cls.create_message(where, exception)
+            cls.adapted_runtime_logger.log(level, message, extra={"turn": turn})
+        except Exception as e:
+            raise RuntimeError(f"Could not log in runtime log:{e}")
         
     def create_message(self, where, exception):
 
