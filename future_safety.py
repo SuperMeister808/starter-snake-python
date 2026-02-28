@@ -149,7 +149,7 @@ class FutureSafety():
     
     def log_data(self, where, data):
 
-        EmergencyLogger.loger_queue.put((where, data, self.move.turn_counter))
+        EmergencyLogger.loger_queue.put((where, data, self.move.turn_counter, 10))
     
     def reset_safe_moves(self):
          
