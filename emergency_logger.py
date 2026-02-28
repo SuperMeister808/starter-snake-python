@@ -71,8 +71,8 @@ class EmergencyLogger():
 
                 try:
                     item = cls.loger_queue.get(timeout=0.1)
-                    where, exception, turn = item
-                    cls.emergency_log(where, exception, turn)
+                    where, exception, turn, level = item
+                    cls.emergency_log(where, exception, turn, level)
                 except (ValueError, TypeError) as e:
                     print(f"ValueError: {e}")
                     cls.print_collector.collect_message(f"ValueError: {e}")
@@ -91,8 +91,6 @@ class EmergencyLogger():
 
             cls.print_collector.collect_message("logger queue is empty")
                 
-             
-
     @classmethod
     def start_log_worker(cls):
 
