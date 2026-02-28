@@ -23,7 +23,7 @@ class EmergencyLogger():
     runtime_logger = create_runtime_logger.create_runtime_logger()
         
     @classmethod
-    def emergency_log(cls, where, exception, level, turn="unknown"):
+    def emergency_log(cls, where, exception, level=40, turn="unknown"):
 
         try:
             message = cls.create_message(where, exception)
