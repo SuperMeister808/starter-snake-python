@@ -374,6 +374,14 @@ class Move():
         length = len(body)
         return length
     
+    #Edge-Case: turn 0
+    def edit_body(self, body):
+        new_body = []
+        for seg in body:
+            if seg not in new_body:
+                new_body.append(seg)
+        return new_body
+    
     def check_safe_moves(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
@@ -443,7 +451,8 @@ class Move():
 
         try:
             head = game_state["you"]["head"]
-            body = game_state["you"]["body"]
+            raw_body = game_state["you"]["body"]
+            body = self.edit_body(raw_body)
             my_length = game_state["you"]["length"]
             self.future_safety.log_data("choose_move", {"head": head, "body": body, "my_length": my_length})
         except Exception:
