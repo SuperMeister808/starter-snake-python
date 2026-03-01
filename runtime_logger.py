@@ -4,31 +4,32 @@ from logging import LoggerAdapter
 
 class RuntimeLogger():
 
-    def __init__(self , logger, file, debug):
-
-        self.setup_logger(logger, debug)
-        file_handler = self.create_file_handler(file)
-        if isinstance(file_handler, logging.FileHandler):
-            self.logger.addHandler(file_handler)
+    @classmethod
+    def setup(cls, logger_name, file, debug):
+        logger = cls.create_logger(logger_name, debug)
+        cls.add_file_handler(logger, file)
     
-    def setup_logger(self, logger, debug):
+    @classmethod
+    def create_logger(cls, logger, debug):
 
-        self.logger = logging.getLogger(logger)
+        logger = logging.getLogger(logger)
         if debug:
-            self.logger.setLevel(logging.DEBUG)
+            logger.setLevel(logging.DEBUG)
         else:
-            self.logger.setLevel(logging.INFO)
+            logger.setLevel(logging.INFO)
+        return logger
 
-        
-    def create_file_handler(self, file):
-        if not any(isinstance(h, logging.FileHandler) for h in self.logger.handlers):
+    @classmethod
+    def add_file_handler(cls, logger, file):
+        if not any(isinstance(h, logging.FileHandler) for h in logger.handlers):
             file_handler = logging.FileHandler(file, delay=True)
         
-            formatter = self.create_runtime_log_formatter()
+            formatter = cls.create_runtime_log_formatter()
             file_handler.setFormatter(formatter)
-            return file_handler
+            logger.addHandler(file_handler)
         
-    def create_runtime_log_formatter(self):
+    @classmethod
+    def create_runtime_log_formatter(cls):
 
         formatter = logging.Formatter(
             "%(levelname)s | TURN %(turn)s | %(message)s"

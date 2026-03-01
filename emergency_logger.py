@@ -13,14 +13,18 @@ from runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
 class EmergencyLogger():
 
+    RuntimeLogger.setup("RuntimeLogger", "runtime.log", True)
+    runtime_logger = logging.getLogger("RuntimeLogger")
+    
     loger_queue = queue.Queue()  
 
     flags = {"is_running": False, "worker_thread": None}
 
     print_collector = PrintCollector()
 
-    create_runtime_logger = RuntimeLogger("runtime.log", True)
-    runtime_logger = create_runtime_logger.create_runtime_logger()
+    @classmethod
+    def setup(cls, logger):
+        cls.runtime_logger = logger
         
     @classmethod
     def emergency_log(cls, where, exception, level=40, turn="unknown"):
