@@ -52,11 +52,11 @@ class FutureSafety():
                     
 
                     if self.move.is_growing(head=move, game_state=game_state) == True:
-                        new_body , new_neck , my_length = self.create_data_from__head_is_growing(head, body)
-                        self.log_data("future_safety", {"body": new_body, "neck": new_neck, "length": my_length})
+                        new_body , new_neck , my_length = self.create_data_from__head_is_growing(head, body, my_length)
+                        self.log_data("future_safety", {"head": move, "body": new_body, "neck": new_neck, "length": my_length})
                     else:
-                        new_body , new_neck , my_length = self.create_data_from_head(move, body)
-                        self.log_data("future_safety", {"body": new_body, "neck": new_neck, "length": my_length})
+                        new_body , new_neck , my_length = self.create_data_from_head(move, body, my_length)
+                        self.log_data("future_safety", {"head": move, "body": new_body, "neck": new_neck, "length": my_length})
 
                     self.move.check_moves(self.safe_moves, head=move, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
                     for move , data in self.safe_moves.items():
@@ -86,18 +86,18 @@ class FutureSafety():
 
         return head , body , neck , my_length
     
-    def create_data_from_head(self, head, body):
+    def create_data_from_head(self, head, body, length):
 
         new_body = self.move.call_get_body(head=head, body=body)
         new_neck = self.move.get_neck(body=new_body)
-        my_length = self.move.get_length(body)
+        my_length = length
         return new_body , new_neck , my_length
     
-    def create_data_from__head_is_growing(self, head, body):
+    def create_data_from__head_is_growing(self, head, body, length):
         
         body.insert(0, head)
         new_neck = self.move.get_neck(body=body)
-        new_length = self.move.get_length(body)
+        new_length = length + 1
         return body , new_neck , new_length
     
     def create_moves(self, head):
