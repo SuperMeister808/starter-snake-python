@@ -121,9 +121,9 @@ class FutureSafety():
             if calls is None:
                 calls = 2
             
-            NEEDED_KEYWORDS = ["game_state", "body", "move", "head", "my_length"]
+            NEEDED_KEYWORDS = ["game_state", "body", "move", "head", "my_length", "neck"]
 
-            game_state , body , move , head , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+            game_state , body , move , head , my_length, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             self.log_data("call_future_safety", {"body": body, "move": move, "head": head, "my_length": my_length})
 
             if move == "left":
