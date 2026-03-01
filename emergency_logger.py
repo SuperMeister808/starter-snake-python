@@ -88,13 +88,11 @@ class EmergencyLogger():
     @classmethod
     def clear_emergency_logger(cls):
 
-        while not cls.loger_queue.empty():
-
-            cls.loger_queue.get(timeout=0.1)
-
         cls.flags = {"is_running": False, "worker_thread": None}
 
         cls.print_collector.clear_messages()
+
+        RuntimeLogger.close_file_handlers(cls.runtime_logger)
 
 
 

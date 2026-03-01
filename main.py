@@ -58,6 +58,7 @@ class ServerHandler():
             EmergencyLogger.flags["is_running"] = False
             worker_thread = EmergencyLogger.flags["worker_thread"]
             worker_thread.join()
+            EmergencyLogger.clear_emergency_logger()
         except Exception as e:
             print (f"Thread could not join: {e}")
             join = True
