@@ -365,7 +365,10 @@ class Move():
         try:
             neck = body[1]
         except IndexError:
-            raise IndexError("Body ist leer")
+            try:
+                neck = body[0]
+            except IndexError:
+                raise IndexError("Body ist leer")
         
         return neck
     
