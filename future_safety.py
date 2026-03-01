@@ -61,7 +61,8 @@ class FutureSafety():
                     for move , data in self.safe_moves.items():
                         if data["is_safe"] == True:
                             safe_move_left = True
-                            data = {"head": possible_move, "body": new_body, "neck": new_neck, "my_length": my_length}
+                            move_possitions = self.get_move(move, possible_move)
+                            data = {"head": move_possitions, "body": new_body, "neck": new_neck, "my_length": my_length}
                             self.log_data("future_safety", data)
                             child_id = self.future_safety_tree.add_node(data, id)
                             relevant_positions.append(child_id)
@@ -104,6 +105,18 @@ class FutureSafety():
         move_up = {"x": head["x"], "y": head["y"] + 1}
 
         return move_left , move_right , move_down , move_up
+    
+    def get_move(self, move, head):
+
+        move_left , move_right , move_down , move_up = self.create_moves(head)
+        if move == "left":
+            return move_left
+        if move == "right":
+            return move_right
+        if move == "down":
+            return move_down
+        if move == "up":
+            return move_up
     
     def create_future_safety_tree(self, data):
 
