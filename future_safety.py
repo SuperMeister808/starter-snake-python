@@ -50,8 +50,8 @@ class FutureSafety():
                     
                     self.reset_safe_moves()
                     
-                    snake = {"head": move}
-                    if self.move.is_growing(snake=move, game_state=game_state) == True:
+
+                    if self.move.is_growing(head=move, game_state=game_state) == True:
                         new_body , new_neck , my_length = self.create_data_from__head_is_growing(head, body)
                         self.log_data("future_safety", {"body": new_body, "neck": new_neck, "length": my_length})
                     else:

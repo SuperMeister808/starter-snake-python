@@ -170,12 +170,9 @@ class Move():
 
     def is_growing(self, **kwargs):
 
-        NEEDED_KEYWORDS = ["snake", "game_state"]
+        NEEDED_KEYWORDS = ["head", "game_state"]
 
-        snake , game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
-
-        head = snake["head"]
+        head , game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         food = game_state["board"]["food"]
 
