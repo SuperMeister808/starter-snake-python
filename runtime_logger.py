@@ -39,14 +39,15 @@ class RuntimeLogger():
     
     @staticmethod
     def close_file_handlers(logger):
+        if not isinstance(logger, logging.Logger):
+            raise RuntimeError("Kein logger Objekt übergeben!")
+        
         try:
-            if not isinstance(logger, logging.FileHandler):
-                raise RuntimeError("Kein logger Objekt übergeben!")
-            for handler in logger.handlers:
+            for handler in logger.handlers[:]:
                 handler.close()
                 logger.removeHandler(handler)
         except AttributeError:
-            raise RuntimeError("Kein logger Objekt übergeben!")    
+            raise RuntimeError("Keine Handler vorhanden!")    
 
 class DefaultTurnAdapter(LoggerAdapter):
 
