@@ -205,6 +205,7 @@ class Move():
         positions = {}
         
         snakes = game_state["board"]["snakes"]
+        you = game_state["you"]
         
         for snake in snakes:
 
@@ -215,35 +216,33 @@ class Move():
             if any(key not in snake for key in required_snake_keys):
                 continue
 
+            if you["id"] == snake["id"]:
+                continue
+
             positions [snake["id"]] = {"unsafe": [],"priority": []}
             positions [snake["id"]]["unsafe"].append(snake["head"])
-                
-            my_length = game_state["you"]["length"]
-            opponent_length = snake["length"]
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
             second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
             third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1}
             fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}      
-                
             moves = [first_move, second_move, third_move, fourth_move]      
 
             positions[snake["id"]]["priority"].extend(moves)
+            my_length = game_state["you"]["length"]
+            opponent_length = snake["length"]
             if opponent_length >= my_length:
                 positions[snake["id"]]["unsafe"].extend(moves)
 
             for i , body_part in enumerate(snake["body"]):
 
-                if i != len(snake["body"]) - 1:
+                if i == len(snake["body"]) - 1:
                     
-                    positions[snake["id"]]["unsafe"].append(body_part)
-                else:
-                    try:
-                        if self.is_growing(snake=snake, game_state=game_state):
+                    if self.is_growing(snake=snake, game_state=game_state):
 
-                            positions[snake["id"]]["unsafe"].append(snake["body"][-1])
-                    except Exception:
-                        raise
+                        positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                else:
+                    positions[snake["id"]]["unsafe"].append(body_part)
 
         return positions
 
