@@ -4,27 +4,29 @@ from logging import LoggerAdapter
 
 class RuntimeLogger():
 
-    def __init__(self , file, debug):
+    def __init__(self , logger, file, debug):
 
-        self.logger = self.setup_logger(debug)
+        self.setup_logger(logger, debug)
         file_handler = self.create_file_handler(file)
-        self.logger.addHandler(file_handler)
+        if isinstance(file_handler, logging.FileHandler):
+            self.logger.addHandler(file_handler)
     
-    def setup_logger(self, debug):
+    def setup_logger(self, logger, debug):
 
-        logger = logging.getLogger("RuntimeLogger")
+        self.logger = logging.getLogger(logger)
         if debug:
-            logger.setLevel(logging.DEBUG)
+            self.logger.setLevel(logging.DEBUG)
         else:
-            logger.setLevel(logging.INFO)
-        return logger
+            self.logger.setLevel(logging.INFO)
+
         
     def create_file_handler(self, file):
-        file_handler = logging.FileHandler(file, delay=True)
+        if not any(isinstance(h, logging.FileHandler) for h in self.logger.handlers):
+            file_handler = logging.FileHandler(file, delay=True)
         
-        formatter = self.create_runtime_log_formatter()
-        file_handler.setFormatter(formatter)
-        return file_handler
+            formatter = self.create_runtime_log_formatter()
+            file_handler.setFormatter(formatter)
+            return file_handler
         
     def create_runtime_log_formatter(self):
 
@@ -32,10 +34,6 @@ class RuntimeLogger():
             "%(levelname)s | TURN %(turn)s | %(message)s"
         )
         return formatter
-    
-    def create_runtime_logger(self):
-
-        return self.logger
     
     @staticmethod
     def close_file_handlers(logger):
