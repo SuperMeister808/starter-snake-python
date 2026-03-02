@@ -21,8 +21,8 @@ class FutureSafety():
             
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
 
+            head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
             if node_ids is None:
-                head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
                 data = {"head": head, "body": body, "neck": neck, "my_length": my_length}
                 root_id = self.create_future_safety_tree(data)
                 self.log_data("future_safety", {"process": "create root form args", "data": data})
