@@ -389,7 +389,7 @@ class Move():
         try:
             for move , data in self.is_move_safe.items():
                 if data["is_safe"] == True:
-                    result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, game_state=game_state, body=body, move=move, head=head, my_length=my_length, neck=neck)
+                    result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, 1, game_state=game_state, body=body, move=move, head=head, my_length=my_length, neck=neck)
                     if self.emergency_system.is_emergency(result):
                         Move.turn_counter += 1
                         return {"move": result["move"]}
