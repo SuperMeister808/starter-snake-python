@@ -62,7 +62,7 @@ class FutureSafety():
                         if data["is_safe"] == True:
                             safe_move_left = True
                             move_possition = self.get_move(move, possible_move)
-                            new_body , new_neck , my_length = self.create_data_from_head(move_possition)
+                            new_body , new_neck , my_length = self.create_data_from_head(move_possition, new_body, my_length)
                             data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": my_length}
                             child_id = self.future_safety_tree.add_node(data, id)
                             self.log_data("future_safety", {"process": "calculate_safe_moves", "head": move_possition, "body": new_body, "neck": new_neck, "my_length": my_length})
