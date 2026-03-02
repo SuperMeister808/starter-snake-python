@@ -22,8 +22,8 @@ class FutureSafety():
             NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
 
             if node_ids is None:
-                head, game_state, body, neck, length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-                data = {"head": head, "body": body, "neck": neck, "length": length}
+                head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+                data = {"head": head, "body": body, "neck": neck, "my_length": my_length}
                 root_id = self.create_future_safety_tree(data)
                 self.log_data("future_safety", {"process": "create root form args", "data": data})
                 
@@ -36,21 +36,21 @@ class FutureSafety():
                 
                 self.reset_safe_moves()
                 
-                head , body , neck , length = self.extract_data_from_tree(node_id)
-                self.log_data("future_safety", {"process": "extract_data_from_tree", "head": head, "body": body, "neck": neck, "length": length})
+                head , body , neck , my_length = self.extract_data_from_tree(node_id)
+                self.log_data("future_safety", {"process": "extract_data_from_tree", "head": head, "body": body, "neck": neck, "my_length": my_length})
                     
-                self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=body, neck=neck, my_length=length)
-                self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "length": length})
+                self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+                self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "my_length": my_length})
 
                 for move , data in self.safe_moves.items():
                     if data["is_safe"] == True:
                         safe_move_left = True
                         move_possition = self.get_move(move, head)
-                        new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, length)
-                        data = {"head": move_possition, "body": new_body, "neck": new_neck, "new_length": new_length}
+                        new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, my_length)
+                        data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": new_length}
                         child_id = self.future_safety_tree.add_node(data, node_id)
                         node_ids.append(child_id)
-                        self.log_data("future_safety", {"process": "add_node_safe_move", "head": move_possition, "body": new_body, "neck": new_neck, "new_length": new_length})
+                        self.log_data("future_safety", {"process": "add_node_safe_move", "head": move_possition, "body": new_body, "neck": new_neck, "my_length": new_length})
 
                 node_ids.remove(node_id)
                 self.log_data("future_safety", {"process": "remove_current_node"})
