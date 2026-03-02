@@ -10,10 +10,9 @@ class FutureSafety():
 
     def __init__(self, move):
          
-        self.keywords = Keywords()
-        self.emergency_system = EmergencySystem()
-
         self.move = move
+        self.keywords = Keywords()
+        self.emergency_system = EmergencySystem(self.move)
 
         self.safe_moves = {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}
         
