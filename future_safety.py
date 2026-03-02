@@ -41,8 +41,8 @@ class FutureSafety():
                 head , body , neck , length = self.extract_data_from_tree(id)
                 self.log_data("future_safety", {"process": "extract_data_from_tree", "head": head, "body": body, "neck": neck, "my_length": my_length})
                     
-                self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
-                self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "my_length": my_length})
+                self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=body, neck=neck, my_length=length)
+                self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "my_length": length})
 
                 for move , data in self.safe_moves.items():
                     if data["is_safe"] == True:
