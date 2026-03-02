@@ -24,12 +24,13 @@ class FutureSafety():
             if relevant_positions is None:
                 head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
                 data = {"head": head, "body": body, "neck": neck, "my_length": my_length}
-                self.log_data("future_safety", data)
                 root_id = self.create_future_safety_tree(data)
+                self.log_data("future_safety", {"process": "create root form args", "data": data})
                 
                 positions = {"id": root_id}
                 relevant_positions = []
                 relevant_positions.append(positions)
+                self.log_data("future_safety", {"process": "added root into relevant_position"})
 
             safe_move_left = False
             for e in relevant_positions[:]:
@@ -37,38 +38,24 @@ class FutureSafety():
                 self.reset_safe_moves()
                 
                 id = e["id"]
-                head , body , neck , my_length = self.extract_data_from_tree(id)
+                head , body , neck , length = self.extract_data_from_tree(id)
                 self.log_data("future_safety", {"process": "extract_data_from_tree", "head": head, "body": body, "neck": neck, "my_length": my_length})
-
-                move_left , move_right , move_down , move_up = self.create_moves(head)
-                self.log_data("future_safety", {"process": "calculate_possible_moves", "left": move_left, "right": move_right, "down": move_down, "up": move_up})
-                possible_moves = [move_left, move_right, move_down, move_up]
-                
-
-                for possible_move in possible_moves:
                     
-                    self.reset_safe_moves()
-                    
+                self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
+                self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "my_length": my_length})
 
-                    if self.move.is_growing(head=possible_move, game_state=game_state) == True:
-                        new_body , new_neck , my_length = self.create_data_from__head_is_growing(possible_move, body, my_length)
-                        self.log_data("future_safety", {"process": "calculate_possible_move_is_growing", "head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
-                    else:
-                        new_body , new_neck , my_length = self.create_data_from_head(possible_move, body, my_length)
-                        self.log_data("future_safety", {"process": "calculate_possible_move_is_not_growing", "head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
-
-                    self.move.check_moves(self.safe_moves, head=possible_move, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
-                    for move , data in self.safe_moves.items():
-                        if data["is_safe"] == True:
-                            safe_move_left = True
-                            move_possition = self.get_move(move, possible_move)
-                            new_body , new_neck , my_length = self.create_data_from_head(move_possition, new_body, my_length)
-                            data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": my_length}
-                            child_id = self.future_safety_tree.add_node(data, id)
-                            self.log_data("future_safety", {"process": "calculate_safe_moves", "head": move_possition, "body": new_body, "neck": new_neck, "my_length": my_length})
-                            relevant_positions.append(child_id)
+                for move , data in self.safe_moves.items():
+                    if data["is_safe"] == True:
+                        safe_move_left = True
+                        move_possition = self.get_move(move, head)
+                        new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, length)
+                        data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": new_length}
+                        child_id = self.future_safety_tree.add_node(data, id)
+                        relevant_positions.append(child_id)
+                        self.log_data("future_safety", {"process": "add_node_safe_move", "head": move_possition, "body": new_body, "neck": new_neck, "my_length": my_length})
 
                 relevant_positions.remove(e)
+                self.log_data("future_safety", {"process": "remove_current_node"})
 
             return safe_move_left , relevant_positions
     
@@ -134,7 +121,7 @@ class FutureSafety():
             NEEDED_KEYWORDS = ["game_state", "body", "move", "head", "my_length", "neck"]
 
             game_state , body , move , head , my_length, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-            self.log_data("call_future_safety", {"body": body, "move": move, "head": head, "my_length": my_length, "neck": neck})
+            self.log_data("call_future_safety", {"process": "get_kwargs", "body": body, "move": move, "head": head, "my_length": my_length, "neck": neck})
 
             if move == "left":
                 head = {"x": head["x"] -1, "y": head["y"]}
@@ -147,7 +134,7 @@ class FutureSafety():
             new_body = self.move.call_get_body(body=body, head=head)
             new_neck = self.move.get_neck(body=new_body)
 
-            self.log_data("call_future_safety", {"body": new_body, "neck": new_neck, "head": head, "my_length": my_length})
+            self.log_data("call_future_safety", {"process": "calculate body for move which will be simulated", "body": new_body, "neck": new_neck, "head": head, "my_length": my_length})
             relevant_position = None
             for i in range(calls):
                 safe_move_left , relevant_position = self.future_safety(relevant_position, head=head, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
