@@ -7,7 +7,7 @@ import threading
 
 import typing
 
-import copy
+from copy import deepcopy
 
 from emergency_logger import EmergencyLogger
 from keywords import Keywords
@@ -381,19 +381,30 @@ class Move():
                 new_body.append(seg)
         return new_body
     
-    def check_safe_moves(self, **kwargs):
+    def check_safe_moves(self, calls, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
         head , game_state , body , neck , my_length = self.emergency_system.emergency_system(self.keywords.extract_keywords, NEEDED_KEYWORDS, **kwargs)
 
+        if calls < 1:
+            raise RuntimeError("Mindestens 1 call erforderlich!")
+        
         try:
-            for move , data in self.is_move_safe.items():
-                if data["is_safe"] == True:
-                    result = self.emergency_system.emergency_system(self.future_safety.fallback_future_safety, 2, game_state, body, move, head, my_length, neck)
-                    if self.emergency_system.is_emergency(result):
-                        return result
-                    if result == False:
-                        self.is_move_safe[move]["is_safe"] = False
+            while calls > 0:
+                copy = deepcopy(self.is_move_safe)
+                for move , data in self.is_move_safe.items():
+                    if data["is_safe"] == True:
+                        result = self.emergency_system.emergency_system(self.future_safety.call_future_safety, calls, game_state=game_state, body=body, move=move, head=head, my_length=my_length, neck=neck)
+                        if self.emergency_system.is_emergency(result):
+                            return result
+                        if result == False:
+                            copy[move]["is_safe"] = False
+                if any(data["is_safe"] == True for move , data in copy.items()):
+                    break
+                else:
+                    calls = calls - 1
+                
+            self.is_move_safe = copy        
         except Exception as e:
             EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter, 40))
             self.reset_is_move_safe()
