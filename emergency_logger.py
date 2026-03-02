@@ -27,7 +27,12 @@ class EmergencyLogger():
         cls.runtime_logger = logger
         
     @classmethod
-    def emergency_log(cls, where, exception, level=40, turn="unknown"):
+    def emergency_log(cls, where, exception, level=None, turn=None):
+
+        if level is None:
+            level = 40
+        if turn is None:
+            turn = "unknown"
 
         try:
             message = cls.create_message(where, exception)
@@ -75,7 +80,7 @@ class EmergencyLogger():
                     continue
                 try:
                     where, exception, turn, level = item
-                    cls.emergency_log(where, exception, level, turn)
+                    cls.emergency_log(where, exception, level=level, turn=turn)
                 except (ValueError, TypeError) as e:
                     try:
                         where , exception , turn = item
@@ -83,6 +88,7 @@ class EmergencyLogger():
                     except (ValueError, TypeError) as e:
                         try:
                             where , exception = item
+                            cls.emergency_log(where, exception)
                         except (ValueError, TypeError) as e:
 
                             print(f"{e}")
