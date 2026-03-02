@@ -408,7 +408,7 @@ class Move():
                     self.priority_moves.clear()
                     self.priority_moves.append(move)
                     priority_counter = data["priority"]
-                if data["priority"] == priority_counter:
+                if data["priority"] == priority_counter and data["priority"] > 0:
                     self.priority_moves.append(move)
         except Exception as e:
             EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter, 40))
@@ -428,11 +428,11 @@ class Move():
                     priority_opperturnities.append(move)
             if len(priority_opperturnities) > 0:
                 next_move = random.choice(priority_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed priority move", self.turn_counter, 40))
+                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed priority move", self.turn_counter, 20))
                 return {"move": next_move}
             if len(safe_opperturnities) > 0:
                 next_move = random.choice(safe_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed safe move", self.turn_counter, 40))
+                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed safe move", self.turn_counter, 20))
                 return {"move": next_move}
             next_move = random.choice(EMERGENCY_MOVES)
             EmergencyLogger.loger_queue.put(("random_choice", "Choosed emergency move", self.turn_counter, 40))
