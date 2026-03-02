@@ -3,6 +3,7 @@ import typing
 
 from keywords import Keywords
 from emergency_logger import EmergencyLogger
+from emergency_system import EmergencySystem
 from future_safety_tree import FutureSafetyTree
 
 class FutureSafety():
@@ -10,6 +11,7 @@ class FutureSafety():
     def __init__(self, move):
          
         self.keywords = Keywords()
+        self.emergency_system = EmergencySystem()
 
         self.move = move
 
@@ -142,6 +144,24 @@ class FutureSafety():
                 
             return True
     
+    def fallback_future_safety(self, calls, game_state, body, move, head, my_length, neck):
+
+        if calls < 1:
+            raise RuntimeError("Mindestens 1 call erforderlich!")
+        
+        while calls > 0:
+            result = self.emergency_system.emergency_system(self.call_future_safety, calls, game_state=game_state, body=body, move=move, head=head, my_length=my_length, neck=neck)
+            if self.emergency_system.is_emergency(result):
+                return result
+            if not isinstance(result, bool):
+                result = False
+            if result == True:
+                return result
+            if result == False:
+                calls = calls - 1
+
+        return result
+
     def log_data(self, where, data):
 
         EmergencyLogger.loger_queue.put((where, data, self.move.turn_counter, 10))

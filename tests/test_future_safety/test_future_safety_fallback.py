@@ -3,11 +3,13 @@ import unittest
 from unittest.mock import patch
 from future_safety import FutureSafety
 from move import Move
+from future_safety import FutureSafety
 
 class TestFutureSafetyFallback(unittest.TestCase):
 
     def setUp(self):
         self.bot = Move()
+        self.future_safety = FutureSafety()
         
         self.patchers = []
         self.mocks = {}  
@@ -58,7 +60,7 @@ class TestFutureSafetyFallback(unittest.TestCase):
         head = "..."
         my_length = "..."
         neck = "..."
-        result = self.bot.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
+        result = self.future_safety.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
 
         self.assertTrue(result)
 
@@ -80,7 +82,7 @@ class TestFutureSafetyFallback(unittest.TestCase):
             head = "..."
             my_length = "..."
             neck = "..."
-            result = self.bot.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
+            result = self.future_safety.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
 
             if run_counter == 0:
                 self.assertTrue(result)
@@ -101,7 +103,7 @@ class TestFutureSafetyFallback(unittest.TestCase):
         head = "..."
         my_length = "..."
         neck = "..."
-        result = self.bot.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
+        result = self.future_safety.fallback_future_safety(calls, game_state, body, move, head, my_length, neck)
 
         self.assertFalse(result)
 
