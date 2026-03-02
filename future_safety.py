@@ -38,10 +38,10 @@ class FutureSafety():
                 
                 id = e["id"]
                 head , body , neck , my_length = self.extract_data_from_tree(id)
-                self.log_data("future_safety", {"head": head, "body": body, "neck": neck, "my_length": my_length})
+                self.log_data("future_safety", {"process": "extract_data_from_tree", "head": head, "body": body, "neck": neck, "my_length": my_length})
 
                 move_left , move_right , move_down , move_up = self.create_moves(head)
-                self.log_data("future_safety", {"left": move_left, "right": move_right, "down": move_down, "up": move_up})
+                self.log_data("future_safety", {"process": "calculate_possible_moves", "left": move_left, "right": move_right, "down": move_down, "up": move_up})
                 possible_moves = [move_left, move_right, move_down, move_up]
                 
 
@@ -52,10 +52,10 @@ class FutureSafety():
 
                     if self.move.is_growing(head=possible_move, game_state=game_state) == True:
                         new_body , new_neck , my_length = self.create_data_from__head_is_growing(possible_move, body, my_length)
-                        self.log_data("future_safety", {"head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
+                        self.log_data("future_safety", {"process": "calculate_possible_move_is_growing", "head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
                     else:
                         new_body , new_neck , my_length = self.create_data_from_head(possible_move, body, my_length)
-                        self.log_data("future_safety", {"head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
+                        self.log_data("future_safety", {"process": "calculate_possible_move_is_not_growing", "head": possible_move, "body": new_body, "neck": new_neck, "length": my_length})
 
                     self.move.check_moves(self.safe_moves, head=possible_move, game_state=game_state, body=new_body, neck=new_neck, my_length=my_length)
                     for move , data in self.safe_moves.items():
@@ -63,8 +63,8 @@ class FutureSafety():
                             safe_move_left = True
                             move_possitions = self.get_move(move, possible_move)
                             data = {"head": move_possitions, "body": new_body, "neck": new_neck, "my_length": my_length}
-                            self.log_data("future_safety", data)
                             child_id = self.future_safety_tree.add_node(data, id)
+                            self.log_data("future_safety", {"process": "calculate_safe_moves", "head": move_possitions, "body": new_body, "neck": new_neck, "my_length": my_length})
                             relevant_positions.append(child_id)
 
                 relevant_positions.remove(e)
