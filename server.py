@@ -14,13 +14,15 @@ import os
 
 class Server():
 
-    def __init__(self, handlers: typing.Dict, port):
+    def __init__(self, handlers: typing.Dict, port, logger_name, logger_file, debug):
 
         self.app = Flask("Battlesnake")
         
         self.handlers = handlers
-
         self.port = port
+        self.logger_name = logger_name
+        self.logger_file = logger_file
+        self.debug = debug
 
         self.setup_routes()
 
@@ -40,7 +42,7 @@ class Server():
             game_state = request.get_json()
             if validate_game_state(game_state):
                 try:
-                    self.handlers["start"](game_state)
+                    self.handlers["start"](game_state, self.logger_name, self.logger_file, self.debug)
                     return jsonify({"status": "ok"})
                 except Exception as e:
                     print(f"Error: {e}")

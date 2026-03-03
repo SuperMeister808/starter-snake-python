@@ -39,10 +39,11 @@ class ServerHandler():
         print(game_state)
 
     # start is called when your Battlesnake begins a game
-    def start(self, game_state: typing.Dict):
+    def start(self, game_state: typing.Dict, logger_name, logger_file, debug):
     
         
         try:
+            EmergencyLogger.setup_runtime_logger(logger_name, logger_file, debug)
             EmergencyLogger.flags["is_running"] = True
             thread = threading.Thread(target=EmergencyLogger.log_worker)
             thread.start()
@@ -89,6 +90,6 @@ if __name__ == "__main__":
     from server import Server
 
     server_handler = ServerHandler()
-    app = Server({"info": server_handler.info, "start": server_handler.start, "move": server_handler.move, "end": server_handler.end, "push": server_handler.push}, 8000)
+    app = Server({"info": server_handler.info, "start": server_handler.start, "move": server_handler.move, "end": server_handler.end, "push": server_handler.push}, 8000, "RuntimeLogger", "runtime.log", True)
 
     app.run_server()

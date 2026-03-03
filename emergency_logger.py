@@ -13,8 +13,12 @@ from runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
 class EmergencyLogger():
 
-    RuntimeLogger.setup("RuntimeLogger", "runtime.log", True)
-    runtime_logger = logging.getLogger("RuntimeLogger")
+    runtime_logger = None
+    @classmethod
+    def setup_runtime_logger(cls, logger_name, logger_file, debug):
+
+        RuntimeLogger.setup(logger_name, logger_file, debug)
+        cls.runtime_logger = logging.getLogger(logger_name)
     
     loger_queue = queue.Queue()  
 
@@ -29,6 +33,10 @@ class EmergencyLogger():
     @classmethod
     def emergency_log(cls, where, exception, level=None, turn=None):
 
+        if cls.runtime_logger is None:
+
+            raise RuntimeError("Logger nicht erstellt!")
+        
         if level is None:
             level = 40
         if turn is None:
