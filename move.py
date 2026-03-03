@@ -35,6 +35,7 @@ class Move():
 
         self.priority_moves = []
 
+
     def not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
@@ -197,14 +198,14 @@ class Move():
         return False
 
     def calculate_opponents_positions(self, **kwargs):
-
-        positions = {}
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "add_positions", "positions": positions})
         
         NEEDED_KEYWORDS = ["game_state", "my_length"]
 
         game_state , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         self.future_safety.log_data("calculate_opponents_positions", {"process": "extract_kwargs", "game_state": game_state, "my_length": my_length})
+        
+        self.reset_opponents_positions()
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "reset_calculate_opponents_positions", "opponent_positions": self.opponents_positions})
         
         snakes = game_state["board"]["snakes"]
         you = game_state["you"]
@@ -222,9 +223,9 @@ class Move():
             if you["id"] == snake["id"]:
                 continue
 
-            positions [snake["id"]] = {"unsafe": [],"priority": []}
+            self.opponents_positions [snake["id"]] = {"unsafe": [],"priority": []}
             self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": positions})
-            positions [snake["id"]]["unsafe"].append(snake["head"])
+            self.opponents_positions [snake["id"]]["unsafe"].append(snake["head"])
             self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": positions})
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
@@ -233,11 +234,11 @@ class Move():
             fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}      
             moves = [first_move, second_move, third_move, fourth_move]      
 
-            positions[snake["id"]]["priority"].extend(moves)
+            self.opponents_positions[snake["id"]]["priority"].extend(moves)
             my_length = game_state["you"]["length"]
             opponent_length = snake["length"]
             if opponent_length >= my_length:
-                positions[snake["id"]]["unsafe"].extend(moves)
+                self.opponents_positions [snake["id"]]["unsafe"].extend(moves)
 
             for i , body_part in enumerate(snake["body"]):
 
@@ -245,11 +246,11 @@ class Move():
                     
                     if self.is_growing(snake=snake, game_state=game_state):
 
-                        positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                        self.opponents_positions[snake["id"]]["unsafe"].append(snake["body"][-1])
                 else:
-                    positions[snake["id"]]["unsafe"].append(body_part)
+                    self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
 
-        return positions
+
 
     def calculate_food(self, is_move_safe, **kwargs):
         
@@ -292,7 +293,6 @@ class Move():
         result = self.emergency_system.emergency_system(self.calculate_opponents_positions, game_state=game_state, my_length=my_length)
         if self.emergency_system.is_emergency(result):
             return result
-        self.opponents_positions = result
 
         checks = [
                   self.not_backward, 
@@ -313,6 +313,14 @@ class Move():
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
+        
+    def reset_opponents_positions(self):
+
+        self.opponents_positions = {}
+
+    def reset_priority_moves(self):
+
+        self.priority_moves = []
     
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
@@ -416,6 +424,8 @@ class Move():
     
     def check_priority_moves(self):
 
+        self.reset_priority_moves()
+        
         try:
             priority_counter = 0
             for move , data in self.is_move_safe.items():
