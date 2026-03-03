@@ -201,11 +201,14 @@ class Move():
         NEEDED_KEYWORDS = ["game_state", "my_length"]
 
         game_state , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "extract_kwargs", "game_state": game_state, "my_length": my_length})
         
         positions = {}
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "add_positions", "positions": positions})
         
         snakes = game_state["board"]["snakes"]
         you = game_state["you"]
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "get snakes + you", "snakes": snakes, "you": you})
         
         for snake in snakes:
 
@@ -220,7 +223,9 @@ class Move():
                 continue
 
             positions [snake["id"]] = {"unsafe": [],"priority": []}
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": positions})
             positions [snake["id"]]["unsafe"].append(snake["head"])
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": positions})
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
             second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
