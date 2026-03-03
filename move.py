@@ -198,13 +198,13 @@ class Move():
 
     def calculate_opponents_positions(self, **kwargs):
 
+        positions = {}
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "add_positions", "positions": positions})
+        
         NEEDED_KEYWORDS = ["game_state", "my_length"]
 
         game_state , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
         self.future_safety.log_data("calculate_opponents_positions", {"process": "extract_kwargs", "game_state": game_state, "my_length": my_length})
-        
-        positions = {}
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "add_positions", "positions": positions})
         
         snakes = game_state["board"]["snakes"]
         you = game_state["you"]
