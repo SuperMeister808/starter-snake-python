@@ -205,7 +205,8 @@ class Move():
         self.future_safety.log_data("calculate_opponents_positions", {"process": "extract_kwargs", "game_state": game_state, "my_length": my_length})
         
         self.reset_opponents_positions()
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "reset_calculate_opponents_positions", "opponent_positions": self.opponents_positions})
+        copy_opponent_positions = deepcopy(self.opponents_positions)
+        self.future_safety.log_data("calculate_opponents_positions", {"process": "reset_calculate_opponents_positions", "opponent_positions": copy_opponent_positions})
         
         snakes = game_state["board"]["snakes"]
         you = game_state["you"]
