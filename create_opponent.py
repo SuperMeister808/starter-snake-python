@@ -1,7 +1,9 @@
 
-from server import run_server
-import main
+from server import Server
+from main import ServerHandler
 
 if __name__ == "__main__":
 
-    run_server({"info": main.info, "start": main.start, "end": main.end, "move": main.move}, 8001)
+    handler = ServerHandler()
+    app = Server({"info": handler.info, "start": handler.start, "end": handler.end, "move": handler.move, "push": handler.push}, 5000)
+    app.run_server()
