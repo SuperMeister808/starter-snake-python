@@ -2,12 +2,16 @@
 import unittest
 from unittest.mock import patch
 
-class TestFutureSafety(unittest.TestCase):
+class TestFutureSafety():
 
-    def test_safe_moves_left(self):
+    def test_safe_move_left(self):
 
-        game_state = {"you": {"head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 1}, {"x": 1, "y": 1}, {"x": 1, "y": 2}, {"x": 1, "y": 3}, {"x": 1, "y": 4}, {"x": 2, "y": 4}, {"x": 3, "y": 4}, {"x": 3, "y": 3}]}}
+        pass
 
-    def test_no_safe_moves_left(self):
+    def test_no_safe_move_at_second_level(self):
+
+        pass
+
+    def test_no_safe_move_left(self):
 
         pass
