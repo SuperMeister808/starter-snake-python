@@ -225,9 +225,9 @@ class Move():
                 continue
 
             self.opponents_positions [snake["id"]] = {"unsafe": [],"priority": []}
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": positions})
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": self.opponents_positions})
             self.opponents_positions [snake["id"]]["unsafe"].append(snake["head"])
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": positions})
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": self.opponents_positions})
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
             second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
