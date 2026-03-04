@@ -245,7 +245,7 @@ class Move():
 
                 if i == len(snake["body"]) - 1:
                     
-                    if self.is_growing(snake=snake, game_state=game_state):
+                    if self.is_growing(head=snake["head"], game_state=game_state):
 
                         self.opponents_positions[snake["id"]]["unsafe"].append(snake["body"][-1])
                 else:
