@@ -225,9 +225,11 @@ class Move():
                 continue
 
             self.opponents_positions [snake["id"]] = {"unsafe": [],"priority": []}
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": self.opponents_positions})
+            copy = deepcopy(self.opponents_positions)
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": copy})
             self.opponents_positions [snake["id"]]["unsafe"].append(snake["head"])
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": self.opponents_positions})
+            copy = deepcopy(self.opponents_positions)
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": copy})
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
             second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
@@ -240,6 +242,8 @@ class Move():
             opponent_length = snake["length"]
             if opponent_length >= my_length:
                 self.opponents_positions [snake["id"]]["unsafe"].extend(moves)
+            copy = deepcopy(self.opponents_positions)
+            self.future_safety.log_data("calculate_opponents_positions", {"process": "appended moves", "positions": copy})
 
             for i , body_part in enumerate(snake["body"]):
 
@@ -248,8 +252,12 @@ class Move():
                     if self.is_growing(head=snake["head"], game_state=game_state):
 
                         self.opponents_positions[snake["id"]]["unsafe"].append(snake["body"][-1])
+                        copy = deepcopy(self.opponents_positions)
+                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail because is_growing=True", "positions": copy})
                 else:
                     self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
+                    copy = deepcopy(self.opponents_positions)
+                    self.future_safety.log_data("calculate_opponents_positions", {"process": "append body part", "positions": copy})
 
 
 
