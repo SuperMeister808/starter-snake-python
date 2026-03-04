@@ -227,9 +227,31 @@ class Move():
             self.opponents_positions [snake["id"]] = {"unsafe": [],"priority": []}
             copy = deepcopy(self.opponents_positions)
             self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": copy})
-            self.opponents_positions [snake["id"]]["unsafe"].append(snake["head"])
-            copy = deepcopy(self.opponents_positions)
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "for snake positions appends head", "head": snake["head"], "positions": copy})
+            
+            my_length = you["length"]
+            opponent_length = snake["length"]
+            for i , body_part in enumerate(snake["body"]):
+                
+                if i == 0:
+                    priority_positions = self.opponents_positions [snake["id"]] ["priority"]
+                    priority_positions.append(body_part)
+                    if my_length <= opponent_length:
+                        unsafe_positions = self.opponents_positions [snake["id"]] ["unsafe"]
+                        unsafe_positions.append(body_part)
+                    copy = deepcopy(self.opponents_positions)
+                    self.future_safety.log_data("calculate_opponents_positions", {"positions": copy})
+                    continue
+                if i == len(snake["body"]) - 1:
+                    if self.is_growing(head=snake["head"], game_state=game_state):
+                        unsafe_positions = self.opponents_positions[snake["id"]] ["unsafe"]
+                        unsafe_positions.append(body_part)
+                        copy = deepcopy(self.opponents_positions)
+                        self.future_safety.log_data("calculate_opponents_positions", {"positions": copy})
+                        continue
+
+                self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
+                copy = deepcopy(self.opponents_positions)
+                self.future_safety.log_data("calculate_opponents_positions", {"process": "append body part", "positions": copy})       
                           
             first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
             second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
@@ -238,31 +260,10 @@ class Move():
             moves = [first_move, second_move, third_move, fourth_move]      
 
             self.opponents_positions[snake["id"]]["priority"].extend(moves)
-            my_length = game_state["you"]["length"]
-            opponent_length = snake["length"]
             if opponent_length >= my_length:
                 self.opponents_positions [snake["id"]]["unsafe"].extend(moves)
             copy = deepcopy(self.opponents_positions)
             self.future_safety.log_data("calculate_opponents_positions", {"process": "appended moves", "positions": copy})
-
-            for i , body_part in enumerate(snake["body"]):
-
-                if i == len(snake["body"]) - 1:
-                    
-                    if self.is_growing(head=snake["head"], game_state=game_state):
-
-                        self.opponents_positions[snake["id"]]["unsafe"].append(snake["body"][-1])
-                        copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=True", "positions": copy})
-                    else:
-                        copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"process": "added tail, is_growing=False", "positions": copy})
-                else:
-                    self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
-                    copy = deepcopy(self.opponents_positions)
-                    self.future_safety.log_data("calculate_opponents_positions", {"process": "append body part", "positions": copy})
-
-
 
     def calculate_food(self, is_move_safe, **kwargs):
         
