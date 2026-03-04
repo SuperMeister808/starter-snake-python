@@ -233,20 +233,21 @@ class Move():
             for i , body_part in enumerate(snake["body"]):
                 
                 if i == 0:
-                    priority_positions = self.opponents_positions [snake["id"]] ["priority"]
-                    priority_positions.append(body_part)
-                    if my_length <= opponent_length:
-                        unsafe_positions = self.opponents_positions [snake["id"]] ["unsafe"]
-                        unsafe_positions.append(body_part)
+                    unsafe_positions = self.opponents_positions [snake["id"]] ["unsafe"]
+                    unsafe_positions.append(body_part)
                     copy = deepcopy(self.opponents_positions)
-                    self.future_safety.log_data("calculate_opponents_positions", {"positions": copy})
+                    self.future_safety.log_data("calculate_opponents_positions", {"process": "append head", "positions": copy})
                     continue
                 if i == len(snake["body"]) - 1:
                     if self.is_growing(head=snake["head"], game_state=game_state):
                         unsafe_positions = self.opponents_positions[snake["id"]] ["unsafe"]
                         unsafe_positions.append(body_part)
                         copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"positions": copy})
+                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=True", "positions": copy})
+                        continue
+                    else:
+                        copy = deepcopy(self.opponents_positions)
+                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=False", "positions": copy})
                         continue
 
                 self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
