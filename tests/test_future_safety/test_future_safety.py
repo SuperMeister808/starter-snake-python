@@ -3,19 +3,29 @@ import unittest
 from unittest.mock import patch , MagicMock
 
 from future_safety import FutureSafety
+from move import Move
 
 class TestFutureSafety(unittest.TestCase):
 
     def setUp(self):
 
-        self.patchers = [
-            patch.object(FutureSafety, "log_data")
-        ]
+        self.patchers = []
         self.mocks = {}
 
-        self.start_patchers()
         self.addCleanup(self.stop_patchers)
         
+    def setup_patchers(self, new_opponents_positions):
+
+        patcher_opponents_positions = self.create_patcher_opponents_positions(new_opponents_positions)
+        self.patchers.append(patcher_opponents_positions)
+
+        self.start_patchers()
+    
+    def create_patcher_opponents_positions(self, new):
+
+        patcher = patch.object(Move, "opponents_positions", new=new)
+        return patcher
+    
     def start_patchers(self):
 
         for i , patcher in enumerate(self.patchers):
