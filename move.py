@@ -330,6 +330,11 @@ class Move():
     def reset_priority_moves(self):
 
         self.priority_moves = []
+
+    @classmethod
+    def reset_turn_counter(cls):
+
+        cls.turn_counter = 0
     
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         

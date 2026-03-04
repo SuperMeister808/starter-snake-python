@@ -43,6 +43,7 @@ class ServerHandler():
     
         
         try:
+            Move.reset_turn_counter()
             EmergencyLogger.setup_runtime_logger(logger_name, logger_file, debug)
             EmergencyLogger.flags["is_running"] = True
             thread = threading.Thread(target=EmergencyLogger.log_worker)
