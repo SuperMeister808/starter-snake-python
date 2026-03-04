@@ -253,7 +253,10 @@ class Move():
 
                         self.opponents_positions[snake["id"]]["unsafe"].append(snake["body"][-1])
                         copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail because is_growing=True", "positions": copy})
+                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=True", "positions": copy})
+                    else:
+                        copy = deepcopy(self.opponents_positions)
+                        self.future_safety.log_data("calculate_opponents_positions", {"process": "added tail, is_growing=False", "positions": copy})
                 else:
                     self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
                     copy = deepcopy(self.opponents_positions)
