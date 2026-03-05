@@ -13,6 +13,12 @@ class TestFutureSafety(unittest.TestCase):
 
         self.bot = Move()
         self.future_safety = FutureSafety(self.bot)
+
+        self.head = "head"
+        self.game_state = "game_state"
+        self.body = "body"
+        self.neck = "neck"
+        self.my_length = "my_length"
         
         self.child_id = 0
         self.patchers = [
@@ -80,24 +86,15 @@ class TestFutureSafety(unittest.TestCase):
         safe_moves = {"left": {"is_safe": True}, "right": {"is_safe": True}, "up": {"is_safe": True}, "down": {"is_safe": True}}
         self.setup_patchers(safe_moves)
 
-        head = "head"
-        game_state = "game_state"
-        body = "body"
-        neck = "neck"
-        my_length = "my_length"
-        safe_move_left , node_ids = self.future_safety.future_safety(head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+
+        safe_move_left , node_ids = self.future_safety.future_safety(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
         self.check_calls()
 
         self.assertTrue(safe_move_left)
         self.assertEqual(node_ids, [0, 1, 2, 3])
 
-    def test_no_safe_move_at_second_level(self):
-
-        pass
-
     def test_no_safe_move_left(self):
         
-
         pass
 
 if __name__ == "__main__":
