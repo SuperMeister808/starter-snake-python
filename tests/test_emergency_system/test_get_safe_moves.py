@@ -32,7 +32,7 @@ class TestGetSafeMoves(unittest.TestCase):
             patcher.stop()
     
 
-    def test_correct_is_move_safe(self):
+    def test_multiple_safe_moves(self):
 
         bot = Move()
         
@@ -45,6 +45,10 @@ class TestGetSafeMoves(unittest.TestCase):
            
            expected = {"right": 2, "down": 0}
            self.assertEqual(result, expected)
+
+    def test_one_safe_move(self):
+
+        pass
 
     def test_exception_is_move_safe(self):
 
