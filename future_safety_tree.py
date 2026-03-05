@@ -1,11 +1,11 @@
 
+import copy
+
 class FutureSafetyTree():
 
-    def __init__(self, data):
+    def __init__(self):
         
-        self.data = data
-        
-        self.root = {"id": [0], "data": self.data, "children": []}
+        self.root = {"id": [0], "data": None, "children": []}
 
     def add_node(self, data, parent_id):
 
@@ -62,9 +62,14 @@ class FutureSafetyTree():
                 
             raise RuntimeError("Kein Parent gefunden!")
     
+    def create_root(self, data):
+
+        children = copy.deepcopy(self.root["children"])
+        self.root = {"id": [0], "data": data, "children": children}
+
     def reset_tree(self):
 
-        self.root = {"id": [0], "data": self.data, "children": []}
+        self.root = {"id": [0], "data": None, "children": []}
 
 
 

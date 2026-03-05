@@ -13,6 +13,7 @@ class FutureSafety():
         self.move = move
         self.keywords = Keywords()
         self.emergency_system = EmergencySystem(self.move)
+        self.future_safety_tree = FutureSafetyTree()
 
         self.safe_moves = {"left": {"is_safe": True, "priority": 0}, "right": {"is_safe": True, "priority": 0}, "up": {"is_safe": True, "priority": 0}, "down": {"is_safe": True, "priority": 0}}
         
@@ -107,7 +108,7 @@ class FutureSafety():
     
     def create_future_safety_tree(self, data):
 
-        self.future_safety_tree = FutureSafetyTree(data)
+        self.future_safety_tree.create_root(data)
         root = self.future_safety_tree.root
 
         return root["id"]
