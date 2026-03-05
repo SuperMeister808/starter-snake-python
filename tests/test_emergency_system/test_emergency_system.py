@@ -67,6 +67,29 @@ class TestEmergencySystem(unittest.TestCase):
         self.assertIn(result_move, emergency_moves)
         self.assertEqual(result_id, "Emergency!")
 
+    @patch("random.choice")
+    def test_hard_fallback(self, mock_choice):
+
+        func = MagicMock()
+        func.__name__ = "test_func"
+        exc = RuntimeError("side effect")
+        func.side_effect = exc
+        arg = "Testing..."
+        kwarg = True
+
+        mock_choice.side_effect = exc
+
+        result = self.emergency_system.emergency_system(func, arg, kwarg=kwarg)
+
+        func.assert_called_once_with(arg, kwarg=kwarg)
+        self.assertEqual(self.mock_loger_queue.put.call_count, 2)
+        self.mock_loger_queue.put.assert_called_with((func.__name__, exc, self.bot.turn_counter, 40))
+
+        result_move = result ["move"]
+        result_id = result ["id"]
+        self.assertEqual(result_move, "down")
+        self.assertEqual(result_id, "Emergency!")
+
 if __name__ == "__main__":
 
     unittest.main()
