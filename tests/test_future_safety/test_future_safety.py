@@ -16,14 +16,14 @@ class TestFutureSafety(unittest.TestCase):
         
         self.child_id = 0
         self.patchers = [
-            patch.object(FutureSafety, "log_data"),
+            patch.object(self.future_safety, "log_data"),
             patch.object(Move, "check_moves"),
             patch.object(Keywords, "extract_keywords", return_value=("head", "game_state", "body", "neck", "my_length")),
-            patch.object(FutureSafety, "create_future_safety_tree", return_value="root id"),
-            patch.object(FutureSafety, "reset_safe_moves"),
-            patch.object(FutureSafety, "extract_data_from_tree", return_value=("head", "body", "neck", "my_length")),
-            patch.object(FutureSafety, "get_move", return_value="move possition"),
-            patch.object(FutureSafety.future_safety_tree, "add_node", side_effect=self.fake_add_node),
+            patch.object(self.future_safety, "create_future_safety_tree", return_value="root id"),
+            patch.object(self.future_safety, "reset_safe_moves"),
+            patch.object(self.future_safety, "extract_data_from_tree", return_value=("head", "body", "neck", "my_length")),
+            patch.object(self.future_safety, "get_move", return_value="move possition"),
+            patch.object(self.future_safety.future_safety_tree, "add_node", side_effect=self.fake_add_node),
             patch.object(Move, "call_get_body", return_value=("head", "body")),
             patch.object(Move, "get_neck", return_value=("body"))
         ]
