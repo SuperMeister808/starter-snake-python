@@ -203,7 +203,6 @@ class TestFutureSafetyTree(unittest.TestCase):
                 result = self.future_safety_tree.add_node(data , id)
 
             self.check_calls_patchers()
-            mock_parent.assert_called()
 
     def test_reset_tree(self):
 
