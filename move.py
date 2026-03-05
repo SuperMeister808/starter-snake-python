@@ -459,7 +459,7 @@ class Move():
                     self.priority_moves.append(move)
                     continue
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_priority_moves", f"{e}", self.turn_counter, 40))
+            EmergencyLogger.loger_queue.put(("check_priority_moves", e, self.turn_counter, 40))
             self.priority_moves = []
 
     def random_choice(self):
