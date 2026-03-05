@@ -7,10 +7,12 @@ from emergency_logger import EmergencyLogger
 
 class TestGetSafeMoves(unittest.TestCase):
     
+    bot = Move()
     def setUp(self):
         
         self.patchers = [
-            patch.object(EmergencyLogger, "loger_queue")
+            patch.object(EmergencyLogger, "loger_queue"),
+            patch.object(self.bot.future_safety, "call_future_safety", return_)
         ]
 
         mocks = {}
@@ -31,7 +33,7 @@ class TestGetSafeMoves(unittest.TestCase):
 
             patcher.stop()
     
-
+    @patch.object(TestGetSafeMoves.bot, "is_move_safe")
     def test_multiple_safe_moves(self):
 
         bot = Move()
