@@ -38,6 +38,18 @@ class TestFutureSafety(unittest.TestCase):
 
         return child_id
     
+    def setup_patchers(self, new_safe_moves):
+
+        patcher_safe_moves = self.create_patcher_safe_moves(new_safe_moves)
+        self.patchers.append(patcher_safe_moves)
+
+        self.start_patchers()
+    
+    def create_patcher_safe_moves(self, new):
+
+        patcher = patch.object(self.future_safety, "safe_moves", new=new)
+        return patcher
+    
     def start_patchers(self):
 
         for i , patcher in enumerate(self.patchers):
@@ -65,8 +77,8 @@ class TestFutureSafety(unittest.TestCase):
     
     def test_safe_move_left(self):
 
-        safe_moves = {"left": True, "right": True, "up": True, "down": True}
-        self.start_patchers()
+        safe_moves = {"left": {"is_safe": True}, "right": {"is_safe": True}, "up": {"is_safe": True}, "down": {"is_safe": True}}
+        self.setup_patchers(safe_moves)
 
         head = "head"
         game_state = "game_state"
