@@ -63,8 +63,9 @@ class TestEmergencySystem(unittest.TestCase):
         self.mock_loger_queue.put.assert_called_once_with((func.__name__, exc, self.bot.turn_counter, 40))
         
         result_move = result["move"]
+        result_id = result ["id"]
         self.assertIn(result_move, emergency_moves)
-
+        self.assertEqual(result_id, "Emergency!")
 
 if __name__ == "__main__":
 
