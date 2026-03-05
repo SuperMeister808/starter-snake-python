@@ -86,7 +86,6 @@ class TestFutureSafety(unittest.TestCase):
         safe_moves = {"left": {"is_safe": True}, "right": {"is_safe": True}, "up": {"is_safe": True}, "down": {"is_safe": True}}
         self.setup_patchers(safe_moves)
 
-
         safe_move_left , node_ids = self.future_safety.future_safety(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
         self.check_calls()
 
@@ -95,7 +94,14 @@ class TestFutureSafety(unittest.TestCase):
 
     def test_no_safe_move_left(self):
         
-        pass
+        safe_moves = {"left": {"is_safe": False}, "right": {"is_safe": False}, "down": {"is_safe": False}, "up": {"is_safe": False}}
+        self.setup_patchers(safe_moves)
+
+        safe_move_left , node_ids = self.future_safety.future_safety(head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+        #no call assertions because they``ve been checked before
+
+        self.assertFalse(safe_move_left)
+        self.assertEqual(node_ids, [])
 
 if __name__ == "__main__":
 
