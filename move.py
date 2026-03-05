@@ -118,8 +118,10 @@ class Move():
         
         NEEDED_KEYWORDS = ["head", "game_state"]
 
-        head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        if self.opponents_positions is None:
+            self.opponents_positions = {}
 
+        head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         first_move = {"x": head["x"] + 1, "y": head["y"]}
 
