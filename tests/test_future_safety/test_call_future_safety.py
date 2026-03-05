@@ -13,7 +13,10 @@ class TestCallFutureSafety(unittest.TestCase):
         self.future_safety = FutureSafety(self.move)
 
         self.patchers = [
-            patch.object(self.future_safety, "log_data")
+            patch.object(self.future_safety, "log_data"),
+            patch.object(Move, "call_get_body", return_value="new_body"),
+            patch.object(Move, "get_neck", return_value="new_neck"),
+            patch.object(self.future_safety, "future_safety")
         ]
         self.mocks = {}
     
@@ -24,7 +27,7 @@ class TestCallFutureSafety(unittest.TestCase):
     
     def create_patcher_extract_keywords(self, move):
 
-        patcher = patch.object(self.future_safety.keywords, "extract_keywords", return_value=("game_state", "body", move, "head", "my_length", "neck"))
+        patcher = patch.object(self.future_safety.keywords, "extract_keywords", return_value=("game_state", "body", move, {"x": 2, "y": 2}, "my_length", "neck"))
         return patcher
     
     def start_patchers(self):
