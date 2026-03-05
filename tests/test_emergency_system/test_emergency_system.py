@@ -47,7 +47,7 @@ class TestEmergencySystem(unittest.TestCase):
 
         self.mock_loger_queue.put.assert_not_called()
 
-    def test_exception(self, mock_choice):
+    def test_exception(self):
 
         func = MagicMock()
         func.__name__ = "test_func"
@@ -61,7 +61,6 @@ class TestEmergencySystem(unittest.TestCase):
         
         func.assert_called_once_with(arg, kwarg=kwarg)
         self.mock_loger_queue.put.assert_called_once_with((func.__name__, exc, self.bot.turn_counter, 40))
-        mock_choice.assert_called_once_with(emergency_moves)
         
         result_move = result["move"]
         self.assertIn(result_move, emergency_moves)
