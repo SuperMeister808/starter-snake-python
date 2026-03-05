@@ -96,7 +96,11 @@ class TestCallFutureSafety(unittest.TestCase):
 
     def test_1_call_move_up(self):
 
-        pass
+        self.setup_patchers("up", False)
+        result = self.future_safety.call_future_safety(1, game_state=self.game_state, body=self.body, move=self.move, head=self.head, my_length=self.my_length, neck=self.neck)
+        self.check_calls()
+
+        self.assertFalse(result)
 
     def test_1_call_move_left(self):
 
