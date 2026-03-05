@@ -15,7 +15,7 @@ class FutureSafetyTree():
             neck = data["neck"]
             length = data["my_length"]
         except KeyError:
-            raise KeyError("head, body oder neck nicht in data vorhanden")
+            raise KeyError("head, body, neck oder my_length nicht in data vorhanden")
         
         try:
             parent = self.find_parent(parent_id)

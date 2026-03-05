@@ -8,7 +8,7 @@ class TestFutureSafetyTree(unittest.TestCase):
 
     def setUp(self):
         
-        self.future_safety_tree = FutureSafetyTree("...")
+        self.future_safety_tree = FutureSafetyTree()
 
         self.patchers = []
 
@@ -49,10 +49,12 @@ class TestFutureSafetyTree(unittest.TestCase):
 
             try:
                 mock.assert_called_once()
-            except Exception:
-                pass
+            except AttributeError:
+                if not isinstance(mock, MagicMock):
+                    pass
+                else:
+                    raise
 
-    
     def test_find_parent(self):
         
             test_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": []}, {"id": [0 , 2], "data": "...", "children": []}]}
@@ -158,14 +160,14 @@ class TestFutureSafetyTree(unittest.TestCase):
 
         self.setup_patchers(test_root)
 
-        data = {"head": "head", "body": "body", "neck": "neck"}
+        data = {"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"}
         id = [0 , 1]
 
         result = self.future_safety_tree.add_node(data , id)
         expected = [0 , 1 , 1]
         self.assertEqual(result , expected)
         
-        expected_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": {"head": "head", "body": "body", "neck": "neck"}, "children": []}]}]}
+        expected_root = {"id": [0], "data": "...", "children": [{"id": [0 , 1], "data": "...", "children": [{"id": [0 , 1 , 1], "data": {"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"}, "children": []}]}]}
         self.assertEqual(self.future_safety_tree.root, expected_root)
 
         self.check_calls_patchers()
