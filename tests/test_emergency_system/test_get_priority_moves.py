@@ -48,15 +48,16 @@ class TestGetPriorityMoves(unittest.TestCase):
 
     def test_multiple_priority_moves(self):
 
-        game_state = {"testing...": "testing..."}
-        safe_moves = {"left": 2, "right": 1, "up": 0, "down": 2}
+        new_is_move_safe = {"left": {"priority": 1}, "right": {"priority": 0}, "up": {"priority": 1}, "down": {"priority": 1}}
 
-        result = self.bot.get_priority_moves(game_state, safe_moves)
+        with patch.object(self.bot, "is_move_safe", new=new_is_move_safe):
+            
+            self.bot.check_priority_moves()
 
-        self.mock_loger_queue.put.assert_not_called()
+            self.mock_loger_queue.put.assert_not_called()
 
-        expected = ["left", "down"]
-        self.assertEqual(result, expected)
+            expected = ["left", "up", "down"]
+            self.assertEqual(self.bot.priority_moves, expected)
 
     def test_exception(self):
 
