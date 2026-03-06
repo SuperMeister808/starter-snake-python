@@ -7,31 +7,52 @@ from emergency_logger import EmergencyLogger
 
 class TestRandomChoice(unittest.TestCase):
 
+    bot = Move()
     def setUp(self):
+
+        self.patchers = []
+        self.mocks = {}
         
-        self.bot = Move()
-
-        self.patchers = [
-            patch.object(EmergencyLogger, "loger_queue")
-        ]
-
-        mocks = {}
-
-        for patcher in self.patchers:
-
-            mock = patcher.start()
-            mocks ["mock_loger_queue"] = mock
-
-        self.mock_loger_queue = mocks ["mock_loger_queue"]
-        self.mock_loger_queue.put = MagicMock()
+        self.patcher_loger_queue = patch.object(EmergencyLogger, "loger_queue")
+        self.mock_loger_queue = None
         
         self.addCleanup(self.stop_patchers)
 
+    def start_patchers(self):
+
+        self.start_patcher_loger_queue()
+        self.setup_mock_loger_queue()
+        
+        for i , patcher in enumerate(self.patchers):
+            mock = patcher.start()
+            try:
+                self.mocks [mock._mock_name] = mock
+            except AttributeError:
+                if not isinstance(mock, MagicMock):
+                    self.mocks [i] = mock
+                else:
+                    raise
+
+    def start_patcher_loger_queue(self):
+
+        mock = self.patcher_loger_queue.start()
+        self.mocks ["mock_loger_queue"] = mock
+
+    def setup_mock_loger_queue(self):
+
+        self.mock_loger_queue = self.mocks ["mock_loger_queue"]
+        self.mock_loger_queue.put = MagicMock()
+    
     def stop_patchers(self):
 
         for patcher in self.patchers:
 
             patcher.stop()
+
+    def check_calls(self):
+
+        for name, mock in self.mocks.items():
+            mock.assert_called_once()
     
     def test_random_choice_memory_moves(self):
 
