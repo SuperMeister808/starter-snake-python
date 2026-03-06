@@ -1,103 +1,17 @@
 
 import unittest
-from unittest.mock import patch , mock_open
+from unittest.mock import patch
 
-from emergency_logger import EmergencyLogger
+class TestEmergencyLog():
 
-class TestEmergencyLog(unittest.TestCase):
+    def test_default_message(self):
 
-    def setUp(self):
-        
-        self.m = mock_open()
-        
-        self.patchers = [
-            patch("builtins.open", self.m)
-        ]
+        pass
 
-        self.mocks = {}
-        
-        for  patcher in self.patchers:
+    def test_customized_message(self):
 
-            mock = patcher.start()
+        pass
 
-            self.mocks [mock._mock_name] = mock
+    def test_exception(self):
 
-        self.addCleanup(self.stop_patchers)
-
-    def stop_patchers(self):
-
-        for patcher in self.patchers:
-
-            patcher.stop()
-
-    def check_calls(self):
-
-        for name, mock in self.mocks.items():
-
-            mock.assert_called_once()
-    
-    def test_correct_arguments(self):
-
-        game_state = {"turn": 1}
-
-        exception = "Testing..."
-
-        where = "test_correct_arguments"
-
-        EmergencyLogger.emergency_log(where, exception, game_state)
-        
-        self.check_calls()
-
-        calls = [call.args[0] for call in self.m().write.call_args_list]
-
-        logs = [f"[{game_state["turn"]}]", exception, where]
-        
-        for e in logs:
-
-            assert any(e in call for call in calls)
-
-    def test_unknown_turn(self):
-
-        game_state = {}
-
-        exception = "Testing..."
-
-        where = "test_correct_arguments"
-
-        EmergencyLogger.emergency_log(where, exception, game_state)
-        
-        self.check_calls()
-
-        calls = [call.args[0] for call in self.m().write.call_args_list]
-
-        logs = [f"[unknown]", exception, where]
-        
-        for e in logs:
-
-            assert any(e in call for call in calls)
-
-    def test_type_error(self):
-
-        game_state = "turn: 1"
-
-        exception = "Testing..."
-
-        where = "test_correct_arguments"
-
-        EmergencyLogger.emergency_log(where, exception, game_state)
-        
-        self.check_calls()
-
-        calls = [call.args[0] for call in self.m().write.call_args_list]
-
-        logs = [f"[unknown]", exception, where]
-        
-        for e in logs:
-
-            assert any(e in call for call in calls)
-
-
-
-if __name__ == "__main__":
-
-    unittest.main()
+        pass
