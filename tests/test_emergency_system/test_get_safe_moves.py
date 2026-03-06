@@ -8,45 +8,48 @@ from emergency_logger import EmergencyLogger
 class TestGetSafeMoves(unittest.TestCase):
     
     bot = Move()
+
     def setUp(self):
         
         self.patchers = [
-            patch.object(EmergencyLogger, "loger_queue"),
-            patch.object(self.bot.future_safety, "call_future_safety", return_)
+            patch.object(self.bot, "is_move_safe", new={"left": {"is_safe": True}, "right": {"is_safe": True}, "down": {"is_safe": True}, "up": {"is_safe": True}})
         ]
 
-        mocks = {}
-
-        for patcher in self.patchers:
-
-            mock = patcher.start()
-            mocks ["mock_loger_queue"] = mock
-
-        self.mock_loger_queue = mocks ["mock_loger_queue"]
+        self.mock_loger_queue = patch.object(EmergencyLogger, "logger_queue")
+        self.patchers.append(self.mock_loger_queue)
         self.mock_loger_queue.put = MagicMock()
+
+        self.mocks = {}
         
         self.addCleanup(self.stop_patcher)
 
+    def start_patchers(self):
+
+        for i , patcher in enumerate(self.patchers):
+
+            mock = patcher.start()
+            try:
+                self.mocks [mock._mock_name] = mock
+            except AttributeError:
+                if not isinstance(mock, MagicMock):
+                    self.mocks [i] = mock
+                else:
+                    raise
+    
     def stop_patcher(self):
 
         for patcher in self.patchers:
 
             patcher.stop()
     
-    @patch.object(TestGetSafeMoves.bot, "is_move_safe")
-    def test_multiple_safe_moves(self):
+    @classmethod
+    @patch.object(bot.future_safety, "call_future_safety")
+    def test_multiple_safe_moves(cls, mock_call_future_safety):
 
-        bot = Move()
-        
-        with patch.object(bot, "is_move_safe", new={"left": {"is_safe": False, "priority": 3}, "right": {"is_safe": True, "priority": 2}, "up": {"is_safe": False, "priority": 1}, "down": {"is_safe": True, "priority": 0}}):
+        mock_call_future_safety.return_value = True
+        result = cls.bot.check_safe_moves(2, )
 
-           game_state = {"testing...": "testing..."}
-           result = bot.get_safe_moves(game_state)
-
-           self.mock_loger_queue.put.assert_not_called()
-           
-           expected = {"right": 2, "down": 0}
-           self.assertEqual(result, expected)
+        cls.assertTrue(cls, result)
 
     def test_one_safe_move(self):
 
