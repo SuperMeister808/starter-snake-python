@@ -52,7 +52,7 @@ class TestEmergencyLog(unittest.TestCase):
 
         self.start_patchers()
 
-        where_expected = "anywhere"
+        where_expected = "wherever"
         exception_expected = "Testing..."
 
         log = EmergencyLogger.emergency_log(where_expected, exception_expected)
@@ -71,7 +71,23 @@ class TestEmergencyLog(unittest.TestCase):
 
     def test_customized_message(self):
 
-        pass
+        self.start_patchers()
+
+        where_expected = "wherever"
+        exception_expected = "Testing..."
+        level_expected = 20
+        turn_expected = 0
+
+        log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
+
+        level , message , extra = log
+        turn = extra ["turn"]
+        where_result , exception_result = message
+
+        self.assertEqual(level, level_expected)
+        self.assertEqual(turn, turn_expected)
+        self.assertEqual(where_result, where_expected)
+        self.assertEqual(exception_result, exception_expected)
 
     def test_exception(self):
 
