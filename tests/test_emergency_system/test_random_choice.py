@@ -70,43 +70,35 @@ class TestRandomChoice(unittest.TestCase):
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
+    @patch.object(bot, "is_move_safe", new={"left": {"is_safe": False}, "right": {"is_safe": True}, "up": {"is_safe": True}, "down": {"is_safe": False}})
+    @patch.object(bot, "priority_moves", new=[])
     def test_random_choice_safe_moves(self):
 
-        game_state = {"testing...": "testing..."}
-
-        memory_moves = []
+        self.start_patchers()
         
-        safe_moves = {"left": 0, "right": 2, "up": 1}
+        result = self.bot.random_choice()
 
-        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
-
-        self.mock_loger_queue.put.assert_called_once_with(("random_choice", "Cannot choose from an empty sequence", game_state))
+        self.mock_loger_queue.put.assert_called_once_with(("random_choice",  "Successfully choosed safe move", self.bot.turn_counter, 20))
 
         next_move = result ["move"]
-        expected = ["left", "right", "up"]
+        expected = ["right", "up"]
 
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
+    @patch.object(bot, "is_move_safe", new={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}})
+    @patch.object(bot, "priority_moves", new=[])
     def test_random_choice_emergency_moves(self):
 
-        game_state = {"testing...": "testing..."}
+        self.start_patchers()
 
-        memory_moves = []
-
-        safe_moves = MagicMock()
-        safe_moves.items = MagicMock()
-        safe_moves.items.side_effect = RuntimeError("side effect")
-
-        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
+        result = self.bot.random_choice()
 
         expected_calls = [
-            call(("random_choice", "Cannot choose from an empty sequence", game_state)),
-            call(("random_choice", "side effect", game_state))
+            call(("random_choice", "Choosed emergency move", self.bot.turn_counter, 40))
         ]
         
         self.mock_loger_queue.put.assert_has_calls(expected_calls)
-        safe_moves.items.assert_called_once()
 
         next_move = result ["move"]
         expected = ["left", "right", "up", "down"]
