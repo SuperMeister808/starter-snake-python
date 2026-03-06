@@ -13,8 +13,8 @@ class TestEmergencyLog(unittest.TestCase):
         
         self.mocks = {}
         self.patchers = [
-            patch.object(EmergencyLogger, "create_message", return_value=lambda cls, where, exception: (where, exception)),
-            patch.object(EmergencyLogger.runtime_logger, "log", return_value=lambda level, message, extra: (level, message, extra))
+            patch.object(EmergencyLogger, "create_message", side_effect=lambda cls, where, exception: (where, exception)),
+            patch.object(EmergencyLogger.runtime_logger, "log", side_effect=lambda level, message, extra: (level, message, extra))
         ]
 
         self.addCleanup(self.stop_patchers)
