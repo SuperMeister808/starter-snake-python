@@ -89,9 +89,19 @@ class TestEmergencyLog(unittest.TestCase):
         self.assertEqual(where_result, where_expected)
         self.assertEqual(exception_result, exception_expected)
 
-    def test_exception(self):
+    @patch.object(EmergencyLogger, "create_message")
+    def test_exception(self, mock_create_message):
 
-        pass
+        exc = RuntimeError("side effect")
+        mock_create_message.side_effect = exc
+
+        where_expected = "wherever"
+        exception_expected = "Testing..."
+        level_expected = 20
+        turn_expected = 0
+
+        with self.assertRaises(RuntimeError):
+            log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
 
     def test_no_runtime_logger(self):
 
