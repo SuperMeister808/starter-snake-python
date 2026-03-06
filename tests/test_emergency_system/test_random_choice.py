@@ -106,40 +106,25 @@ class TestRandomChoice(unittest.TestCase):
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
-    @patch("move.random.choice")
-    def test_move_down(self, mock_random):
-
-        exc = RuntimeError("side effect")
-        mock_random.side_effect = exc
-
-        game_state = {"testing...": "testing..."}
-        safe_moves = {"test0": "testing...", "test1": "testing..."}
-        memory_moves = []
+    @patch.object(bot, "is_move_safe", new={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}})
+    @patch.object(bot, "priority_moves", new=[])
+    def test_move_down(self):
         
-        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
+        self.bot.is_move_safe.items = MagicMock()
+        exc = RuntimeError("side effect")
+        self.bot.is_move_safe.items.side_effect = exc
+        self.start_patchers()
+        
+        result = self.bot.random_choice()
+        
+        self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.turn_counter, 40))
+        
         next_move = result ["move"]
         expected = ["down"]
-
-        self.assertEqual(result, {"move": "down"})
+        self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
-        keys = []
-        for key , value in safe_moves.items():
-            keys.append(key)
-
-        expected_calls_random = [call(memory_moves),
-                          call(keys),
-                          call(["left", "right", "up", "down"])]
         
-        mock_random.assert_has_calls(expected_calls_random)
-
-        expected_calls_put = [
-            call(("random_choice", "side effect", game_state)),
-            call(("random_choice", "side effect", game_state)),
-            call(("random_choice", "side effect", game_state))
-        ]
-
-        self.mock_loger_queue.put.assert_has_calls(expected_calls_put)
 
 
 
