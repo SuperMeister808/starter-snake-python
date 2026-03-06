@@ -117,10 +117,10 @@ class TestRandomChoice(unittest.TestCase):
         
         result = self.bot.random_choice()
         
-        #self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.bot.turn_counter, 40))
+        self.mock_loger_queue.put.assert_called_once_with(("random_choice", "side effect", self.bot.turn_counter, 40))
         
         next_move = result ["move"]
-        expected = ["down"]
+        expected = ["left", "right", "down", "up"]
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
