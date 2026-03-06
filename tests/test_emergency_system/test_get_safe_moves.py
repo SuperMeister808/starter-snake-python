@@ -17,12 +17,9 @@ class TestGetSafeMoves(unittest.TestCase):
     def setUp(self):
         
         self.patchers = [
-            patch.object(self.bot, "is_move_safe", new={"left": {"is_safe": True}, "right": {"is_safe": True}, "down": {"is_safe": True}, "up": {"is_safe": True}})
+            patch.object(self.bot, "is_move_safe", new={"left": {"is_safe": True}, "right": {"is_safe": True}, "down": {"is_safe": True}, "up": {"is_safe": True}}),
+            patch.object(EmergencyLogger.loger_queue, "put")
         ]
-
-        self.mock_loger_queue = patch.object(EmergencyLogger, "loger_queue")
-        self.patchers.append(self.mock_loger_queue)
-        self.mock_loger_queue.put = MagicMock()
 
         self.mocks = {}
         
@@ -46,6 +43,17 @@ class TestGetSafeMoves(unittest.TestCase):
         for patcher in self.patchers:
 
             patcher.stop()
+
+    def check_calls(self):
+
+        for move , data in self.mocks.items():
+            try:
+                data.assert_called()
+            except AttributeError:
+                if not isinstance(data, MagicMock):
+                    pass
+                else:
+                    raise
     
     @patch.object(bot.future_safety, "call_future_safety")
     def test_multiple_safe_moves(self, mock_call_future_safety):
@@ -69,23 +77,24 @@ class TestGetSafeMoves(unittest.TestCase):
         for move , data in self.bot.is_move_safe.items():
             self.assertFalse(data["is_safe"])
 
-    def test_exception_is_move_safe(self):
+    @patch("move.deepcopy")
+    def test_exception_is_move_safe(self, mock_deepcopy):
 
-        bot = Move()
+        self.start_patchers()
+        
+        exc = RuntimeError("side effect")
+        mock_deepcopy.side_effect = exc
 
-        with patch.object(bot, "is_move_safe") as mock_is_move_safe:
-            
-            mock_is_move_safe.items = MagicMock()
-            exc = RuntimeError("side effect")
-            mock_is_move_safe.items.side_effect = exc
-
-            game_state = {"testing...": "testing..."}
-            result = bot.get_safe_moves(game_state)
-
-            self.mock_loger_queue.put.assert_called_once_with(("safe_moves", "side effect", game_state))
-            mock_is_move_safe.items.assert_called_once()
-            expection = {"left": 0, "right": 0, "up": 0, "down": 0}
-            self.assertEqual(result, expection)
+        self.bot.check_safe_moves(2, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+        
+        self.check_calls()
+        mock_deepcopy.assert_called()
+        
+        expection = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+        self.assertEqual(self.bot.is_move_safe, expection)
 
 if __name__ == "__main__":
 

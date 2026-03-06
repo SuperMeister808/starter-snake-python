@@ -440,7 +440,7 @@ class Move():
                 
             self.is_move_safe = copy        
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("get_safe_moves", f"{e}", self.turn_counter, 40))
+            EmergencyLogger.loger_queue.put(("get_safe_moves", e, self.turn_counter, 40))
             self.reset_is_move_safe()
     
     def check_priority_moves(self):
