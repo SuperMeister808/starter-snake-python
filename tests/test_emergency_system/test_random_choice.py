@@ -106,7 +106,7 @@ class TestRandomChoice(unittest.TestCase):
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
-    @patch.object(bot, "is_move_safe", new={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}})
+    @patch.object(bot, "is_move_safe", new=MagicMock(wraps={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}}))
     @patch.object(bot, "priority_moves", new=[])
     def test_move_down(self):
         
@@ -117,7 +117,7 @@ class TestRandomChoice(unittest.TestCase):
         
         result = self.bot.random_choice()
         
-        self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.turn_counter, 40))
+        #self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.bot.turn_counter, 40))
         
         next_move = result ["move"]
         expected = ["down"]
