@@ -108,7 +108,7 @@ class TestRandomChoice(unittest.TestCase):
 
     @patch.object(bot, "is_move_safe", new=MagicMock(wraps={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}}))
     @patch.object(bot, "priority_moves", new=[])
-    def test_move_down(self):
+    def test_fallback(self):
         
         self.bot.is_move_safe.items = MagicMock()
         exc = RuntimeError("side effect")
