@@ -58,9 +58,16 @@ class TestGetSafeMoves(unittest.TestCase):
         for move , data in self.bot.is_move_safe.items():
             self.assertTrue(data["is_safe"])
 
-    def test_one_safe_move(self):
+    @patch.object(bot.future_safety, "call_future_safety")
+    def test_no_safe_move(self, mock_call_future_safety):
 
-        pass
+        self.start_patchers()
+        
+        mock_call_future_safety.return_value = False
+        result = self.bot.check_safe_moves(2, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+
+        for move , data in self.bot.is_move_safe.items():
+            self.assertFalse(data["is_safe"])
 
     def test_exception_is_move_safe(self):
 
