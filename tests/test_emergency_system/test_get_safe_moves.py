@@ -8,6 +8,11 @@ from emergency_logger import EmergencyLogger
 class TestGetSafeMoves(unittest.TestCase):
     
     bot = Move()
+    head = {}
+    game_state = {}
+    body = []
+    neck = {}
+    my_length = 0
 
     def setUp(self):
         
@@ -15,13 +20,13 @@ class TestGetSafeMoves(unittest.TestCase):
             patch.object(self.bot, "is_move_safe", new={"left": {"is_safe": True}, "right": {"is_safe": True}, "down": {"is_safe": True}, "up": {"is_safe": True}})
         ]
 
-        self.mock_loger_queue = patch.object(EmergencyLogger, "logger_queue")
+        self.mock_loger_queue = patch.object(EmergencyLogger, "loger_queue")
         self.patchers.append(self.mock_loger_queue)
         self.mock_loger_queue.put = MagicMock()
 
         self.mocks = {}
         
-        self.addCleanup(self.stop_patcher)
+        self.addCleanup(self.stop_patchers)
 
     def start_patchers(self):
 
@@ -36,20 +41,22 @@ class TestGetSafeMoves(unittest.TestCase):
                 else:
                     raise
     
-    def stop_patcher(self):
+    def stop_patchers(self):
 
         for patcher in self.patchers:
 
             patcher.stop()
     
-    @classmethod
     @patch.object(bot.future_safety, "call_future_safety")
-    def test_multiple_safe_moves(cls, mock_call_future_safety):
+    def test_multiple_safe_moves(self, mock_call_future_safety):
 
+        self.start_patchers()
+        
         mock_call_future_safety.return_value = True
-        result = cls.bot.check_safe_moves(2, )
+        result = self.bot.check_safe_moves(2, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
 
-        cls.assertTrue(cls, result)
+        for move , data in self.bot.is_move_safe.items():
+            self.assertTrue(data["is_safe"])
 
     def test_one_safe_move(self):
 
