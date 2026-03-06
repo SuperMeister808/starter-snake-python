@@ -15,3 +15,7 @@ class TestEmergencyLog():
     def test_exception(self):
 
         pass
+
+    def test_no_runtime_logger(self):
+
+        pass
