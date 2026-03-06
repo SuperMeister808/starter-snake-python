@@ -54,17 +54,17 @@ class TestRandomChoice(unittest.TestCase):
         for name, mock in self.mocks.items():
             mock.assert_called_once()
     
+    @patch.object(bot, "is_move_safe", new={"left": {"is_safe": True}, "right": {"is_safe": True}, "up": {"is_safe": True}, "down": {"is_safe": True}})
+    @patch.object(bot, "priority_moves", new=["left", "down"])
     def test_random_choice_memory_moves(self):
+        
+        self.start_patchers()
 
-        game_state = {"testing...": "testing..."}
+        result = self.bot.random_choice()
 
-        memory_moves = ["left", "up"]
-        safe_moves = ["left", "right", "up"]
+        self.mock_loger_queue.put.assert_called_with(("random_choice", "Successfully choosed priority move", self.bot.turn_counter, 20))
 
-        result = self.bot.random_choice(game_state, safe_moves, memory_moves)
-        self.mock_loger_queue.put.assert_not_called()
-
-        expected = ["left", "up"]
+        expected = ["left", "down"]
         next_move = result["move"]
 
         self.assertEqual(result, {"move": next_move})
