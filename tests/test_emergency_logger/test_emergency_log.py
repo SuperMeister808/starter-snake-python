@@ -3,10 +3,13 @@ import unittest
 from unittest.mock import patch , MagicMock
 
 from emergency_logger import EmergencyLogger
+from runtime_logger import RuntimeLogger
 
 class TestEmergencyLog(unittest.TestCase):
 
     def setUp(self):
+        
+        EmergencyLogger.setup_runtime_logger("TestLogger", "test.log", False)
         
         self.mocks = {}
         self.patchers = [
