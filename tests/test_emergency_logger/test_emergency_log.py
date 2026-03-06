@@ -103,9 +103,16 @@ class TestEmergencyLog(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
 
+    @patch.object(EmergencyLogger, "runtime_logger", new=None)
     def test_no_runtime_logger(self):
 
-        pass
+        where_expected = "wherever"
+        exception_expected = "Testing..."
+        level_expected = 20
+        turn_expected = 0
+
+        with self.assertRaises(RuntimeError):
+            log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
 
 if __name__ == "__main__":
 
