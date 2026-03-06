@@ -44,7 +44,9 @@ class EmergencyLogger():
 
         try:
             message = cls.create_message(where, exception)
-            cls.runtime_logger.log(level, message, extra={"turn": turn})
+            log = cls.runtime_logger.log(level, message, extra={"turn": turn})
+            if log is not None:
+                return log
         except Exception as e:
             raise RuntimeError(f"Could not log in runtime log:{e}")
         

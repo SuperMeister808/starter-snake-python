@@ -47,7 +47,13 @@ class TestEmergencyLog(unittest.TestCase):
 
     def test_default_message(self):
 
-        pass
+        self.start_patchers()
+
+        where = "anywhere"
+        exception = "Testing..."
+
+        EmergencyLogger.emergency_log(where, exception)
+
 
     def test_customized_message(self):
 
