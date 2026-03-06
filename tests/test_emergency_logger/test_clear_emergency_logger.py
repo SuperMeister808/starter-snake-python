@@ -15,5 +15,12 @@ class TestClearEmergencyLogger(unittest.TestCase):
 
         EmergencyLogger.clear_emergency_logger()
 
+        self.assertEqual(EmergencyLogger.flags, {"is_running": False, "worker_thread": None})
+        mock_close_file_handlers.assert_called_once_with(EmergencyLogger.runtime_logger)
+        mock_print_collector_clear_messages.assert_called_once()
+
+if __name__ == "__main__":
+
+    unittest.main()
 
 
