@@ -23,6 +23,7 @@ class TestLogWorker(unittest.TestCase):
         
         #FILO
         self.addCleanup(self.stop_patchers)
+        self.addCleanup(self.teardown)
 
 
     def start_patchers(self):
@@ -73,43 +74,76 @@ class TestLogWorker(unittest.TestCase):
 
         EmergencyLogger.flags ["is_running"] = True
         log_worker_thread = threading.Thread(target=EmergencyLogger.log_worker) 
-        EmergencyLogger.flags ["worker_thread"] = log_worker_thread
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        log_worker_thread.start()
+        if isinstance(log_worker_thread, threading.Thread):
+            EmergencyLogger.flags ["worker_thread"] = log_worker_thread
+            log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+            log_worker_thread.start()
+        else:
+            raise RuntimeError("Kein thread Objekt referenziert!")
 
-    def join_thread(self):
+    def join_thread(self, timeout):
 
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if isinstance(log_worker_thread, threading.Thread):
-            log_worker_thread.join()
-        
+            log_worker_thread.join(timeout)
+        else:
+            raise RuntimeError("Kein thread Objekt referenziert!")
+
+    def teardown(self):
+
+        EmergencyLogger.flags ["is_running"] = False
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if isinstance(log_worker_thread, threading.Thread):
+            log_worker_thread.join(timeout=2)
+        else:
+            raise RuntimeError("Kein Thread Objekt referenziert!")
+
     def test_coorect_queue(self):
 
         self.start_patchers()
         self.start_thread()
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if not isinstance(log_worker_thread, threading.Thread):
+            raise RuntimeError("Kein thread Objekt referenziert!")
         
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
-        
         EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
 
         EmergencyLogger.flags ["is_running"] = False
-        
-        self.join_thread()
+        self.join_thread(2)
+        self.assertFalse(log_worker_thread.is_alive())
 
         self.assertTrue(EmergencyLogger.loger_queue.empty())
         expected_calls = [
             call("wherever", "exception", level="level", turn="turn"),
             call("whereever2", "exception2", level="level2", turn="turn2")
         ]
-
         EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
-
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        self.assertFalse(log_worker_thread.is_alive())
 
     def test_thread_dependency_to_flag_is_running(self):
 
-        pass
+        self.start_patchers()
+        self.start_thread()
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if not isinstance(log_worker_thread, threading.Thread):
+            raise RuntimeError("Kein thread Objekt referenziert!")
+
+        EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
+        EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
+
+        self.join_thread(2)
+        self.assertTrue(log_worker_thread.is_alive())
+
+        self.assertTrue(EmergencyLogger.loger_queue.empty())
+        expected_calls = [
+            call("wherever", "exception", level="level", turn="turn"),
+            call("whereever2", "exception2", level="level2", turn="turn2")
+        ]
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
+   
+        EmergencyLogger.flags ["is_running"] = False
+        self.join_thread(2)
+        self.assertFalse(log_worker_thread.is_alive())
     
     def test_queue_3_elements(self):
 
