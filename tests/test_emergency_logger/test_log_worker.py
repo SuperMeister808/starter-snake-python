@@ -12,8 +12,11 @@ class TestLogWorker(unittest.TestCase):
 
     def setUp(self):
         
+        EmergencyLogger.setup_runtime_logger("TestLogger", "test.log", False)
+        
         self.patchers = [
             patch.object(EmergencyLogger, "emergency_log", new=lambda where, exception, level, turn: (where, exception, level, turn)),
+            patch.object(EmergencyLogger.runtime_logger, "log")
         ]
 
         self.start_patchers()
@@ -36,7 +39,7 @@ class TestLogWorker(unittest.TestCase):
     def test_coorect_queue(self):
 
         q = queue.Queue()
-        q.put(("where", "exception", "game_state"))
+        q.put(("where", "exception", "turn_counter", "level"))
         
         with patch.object(EmergencyLogger, "loger_queue", new=q):
 
