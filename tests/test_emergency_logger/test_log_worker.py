@@ -14,10 +14,21 @@ class TestLogWorker(unittest.TestCase):
         
         EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
         
+        self.where = "wherever"
+        self.exception = "exception"
+        self.turn = "turn"
+        self.level = "level"
+        self.where_2 = "wherever2"
+        self.exception_2 = "exception2"
+        self.turn_2 = "turn2"
+        self.level_2 = "level_2"
+        
         self.patchers = [
-            patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log")),
+            patch.object(EmergencyLogger, "emergency_log", new=MagicMock(wraps=EmergencyLogger.emergency_log)),
             patch.object(EmergencyLogger, "flags", new={"is_running": False, "worker_thread": None}),
-            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue())
+            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue()),
+            patch.object(EmergencyLogger.runtime_logger, "log"),
+            patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception))
         ]
         self.mocks = {}
         
@@ -106,19 +117,29 @@ class TestLogWorker(unittest.TestCase):
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
         
-        EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
-        EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
+       
+        
+        EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn, self.level))
+        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2, self.level_2))
 
         EmergencyLogger.flags ["is_running"] = False
         self.join_thread(2)
+
         self.assertFalse(log_worker_thread.is_alive())
 
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls = [
-            call("wherever", "exception", level="level", turn="turn"),
-            call("whereever2", "exception2", level="level2", turn="turn2")
+        expected_calls_emergency_log = [
+            call(self.where, self.exception, level=self.level, turn=self.turn),
+            call(self.where_2, self.exception_2, level=self.level_2, turn=self.turn_2)
         ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
+        expected_calls_log = [
+            call(self.level, (self.where, self.exception), extra={"turn": self.turn}),
+            call(self.level_2, (self.where_2, self.exception_2), extra={"turn": self.turn_2})
+        ]
+        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+
+
 
     def test_thread_dependency_to_flag_is_running(self):
 
@@ -128,18 +149,23 @@ class TestLogWorker(unittest.TestCase):
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
 
-        EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
-        EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
+        EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn, self.level))
+        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2, self.level_2))
 
         self.join_thread(2)
         self.assertTrue(log_worker_thread.is_alive())
 
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls = [
-            call("wherever", "exception", level="level", turn="turn"),
-            call("whereever2", "exception2", level="level2", turn="turn2")
+        expected_calls_emergency_log = [
+            call(self.where, self.exception, level=self.level, turn=self.turn),
+            call(self.where_2, self.exception_2, level=self.level_2, turn=self.turn_2)
         ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
+        expected_calls_log = [
+            call(self.level, (self.where, self.exception), extra={"turn": self.turn}),
+            call(self.level_2, (self.where_2, self.exception_2), extra={"turn": self.turn_2})
+        ]
+        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
    
         EmergencyLogger.flags ["is_running"] = False
         self.join_thread(2)
@@ -147,7 +173,26 @@ class TestLogWorker(unittest.TestCase):
     
     def test_queue_3_elements(self):
 
-        pass
+        self.start_patchers()
+        self.start_thread()
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if not isinstance(log_worker_thread, threading.Thread):
+            raise RuntimeError("Kein thread Objekt referenziert!")
+        
+        EmergencyLogger.loger_queue.put(("wherever", "exception", "turn"))
+        EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2"))
+
+        EmergencyLogger.flags ["is_running"] = False
+        self.join_thread(2)
+
+        self.assertFalse(log_worker_thread.is_alive())
+
+        self.assertTrue(EmergencyLogger.loger_queue.empty())
+        expected_calls = [
+            call("wherever", "exception", level="level", turn="turn"),
+            call("whereever2", "exception2", level="level2", turn="turn2")
+        ]
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
 
     def test_queue_2_elements(self):
 
