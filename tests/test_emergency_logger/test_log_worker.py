@@ -25,6 +25,10 @@ class TestLogWorker(unittest.TestCase):
         
         self.addCleanup(self.stop_patchers)
 
+    def seetup_EmergencyLogger_logger_queue_get(self):
+
+        self.patcher_EmergencyLogger_logger_queue_get = patch.object(EmergencyLogger.loger_queue, "get")
+
     def start_patchers(self):
 
         for patcher in self.patchers:
@@ -54,7 +58,13 @@ class TestLogWorker(unittest.TestCase):
     def test_coorect_queue(self):
 
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
-        EmergencyLogger.log_worker()
+        log = EmergencyLogger.log_worker()
+        
+        self.check_calls()
+        self.assertEqual(log, ("wherever", "exception", "level", "turn"))
+
+
+
 
 
 
