@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch , MagicMock , call
+from unittest.mock import patch , MagicMock , call , ANY
 
 from emergency_logger import EmergencyLogger
 
@@ -31,8 +31,6 @@ class TestLogWorker(unittest.TestCase):
             patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception))
         ]
         self.mocks = {}
-
-        self.start_patchers()
         
         #FILO
         self.addCleanup(self.stop_patchers)
@@ -113,7 +111,9 @@ class TestLogWorker(unittest.TestCase):
 
     def test_coorect_queue(self):
 
+        self.start_patchers()
         self.start_thread()
+        
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
@@ -142,7 +142,9 @@ class TestLogWorker(unittest.TestCase):
 
     def test_thread_dependency_to_flag_is_running(self):
 
+        self.start_patchers()
         self.start_thread()
+        
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
@@ -171,7 +173,9 @@ class TestLogWorker(unittest.TestCase):
     
     def test_queue_3_elements(self):
 
+        self.start_patchers()
         self.start_thread()
+        
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
@@ -198,7 +202,9 @@ class TestLogWorker(unittest.TestCase):
 
     def test_queue_2_elements(self):
 
+        self.start_patchers()
         self.start_thread()
+        
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
@@ -225,7 +231,26 @@ class TestLogWorker(unittest.TestCase):
 
     def test_fallback(self):
 
-        pass
+        self.start_patchers()
+        self.start_thread()
+
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if not isinstance(log_worker_thread, threading.Thread):
+            raise RuntimeError("Kein thread Objekt referenziert!")
+        
+        EmergencyLogger.loger_queue.put((self.where))
+        EmergencyLogger.loger_queue.put((self.where_2))
+
+        EmergencyLogger.flags ["is_running"] = False
+        self.join_thread(2)
+        self.assertFalse(log_worker_thread.is_alive())
+
+        self.assertTrue(EmergencyLogger.loger_queue.empty())
+        expected_calls_emergency_log = [
+            call("log_worker_fallback", ANY),
+            call("log_worker_fallback", ANY)
+        ]
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
 
     def test_flag_is_running_False(self):
 

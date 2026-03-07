@@ -100,7 +100,7 @@ class EmergencyLogger():
                             cls.emergency_log(where, exception)
                         except (ValueError, TypeError) as e:
 
-                            cls.emergency_log("log_worker", e)
+                            cls.emergency_log("log_worker_fallback", e)
                 finally:
                     cls.loger_queue.task_done()
 
