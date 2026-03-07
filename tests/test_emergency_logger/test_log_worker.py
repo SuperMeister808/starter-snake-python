@@ -69,6 +69,7 @@ class TestLogWorker(unittest.TestCase):
     
     def start_thread(self):
 
+        EmergencyLogger.flags ["is_running"] = True
         log_worker_thread = threading.Thread(target=EmergencyLogger.log_worker) 
         EmergencyLogger.flags ["worker_thread"] = log_worker_thread
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
@@ -83,7 +84,11 @@ class TestLogWorker(unittest.TestCase):
     def test_coorect_queue(self):
 
         self.start_patchers()
-        self.start_thread()
+        EmergencyLogger.flags ["is_running"] = True
+        log_worker_thread = threading.Thread(target=EmergencyLogger.log_worker) 
+        EmergencyLogger.flags ["worker_thread"] = log_worker_thread
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        log_worker_thread.start()
         
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
         
@@ -91,15 +96,15 @@ class TestLogWorker(unittest.TestCase):
 
         EmergencyLogger.flags ["is_running"] = False
         
-        self.join_thread(timeout=2)
+        self.join_thread()
 
         self.assertTrue(EmergencyLogger.loger_queue.empty())
         expected_calls = [
-            call(("wherever", "exception", "turn", "level")),
-            call(("whereever2", "exception2", "turn2", "level2"))
+            call("wherever", "exception", level="level", turn="turn"),
+            call("whereever2", "exception2", level="level2", turn="turn2")
         ]
-        mock_emergency_log = self.mocks ["emergency_log"]
-        mock_emergency_log.assert_has_calls(expected_calls)
+
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
 
     def test_queue_3_elements(self):
 
