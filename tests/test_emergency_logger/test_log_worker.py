@@ -104,6 +104,9 @@ class TestLogWorker(unittest.TestCase):
 
         EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
 
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        self.assertFalse(log_worker_thread.is_alive())
+
     def test_queue_3_elements(self):
 
         pass
