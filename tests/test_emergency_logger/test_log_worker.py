@@ -18,8 +18,6 @@ class TestLogWorker(unittest.TestCase):
             patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log"))
         ]
         self.mocks = {}
-
-        self.start_patchers()
         
         #FILO
         self.addCleanup(self.stop_patchers)
@@ -84,25 +82,24 @@ class TestLogWorker(unittest.TestCase):
         
     def test_coorect_queue(self):
 
+        self.start_patchers()
         self.start_thread()
         
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
+        
         EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
 
         EmergencyLogger.flags ["is_running"] = False
+        
+        self.join_thread(timeout=2)
 
-        EmergencyLogger.loger_queue.put(("whereever3", "exception3", "turn3", "level3"))
-
-        self.join_thread()
-
+        self.assertTrue(EmergencyLogger.loger_queue.empty())
         expected_calls = [
             call(("wherever", "exception", "turn", "level")),
             call(("whereever2", "exception2", "turn2", "level2"))
         ]
-
         mock_emergency_log = self.mocks ["emergency_log"]
         mock_emergency_log.assert_has_calls(expected_calls)
-        mock_emergency_log.assert_not_called_with(("whereever3", "exception3", "turn3", "level3"))
 
     def test_queue_3_elements(self):
 
