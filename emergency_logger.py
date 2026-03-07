@@ -10,7 +10,6 @@ import logging
 from print_collector import PrintCollector
 from runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
-
 class EmergencyLogger():
 
     runtime_logger = None
@@ -101,7 +100,7 @@ class EmergencyLogger():
                             cls.emergency_log(where, exception)
                         except (ValueError, TypeError) as e:
 
-                            print(f"{e}")
+                            cls.emergency_log("log_worker", e)
                 finally:
                     cls.loger_queue.task_done()
 
