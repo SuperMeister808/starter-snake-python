@@ -15,9 +15,7 @@ class TestLogWorker(unittest.TestCase):
         EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
         
         self.patchers = [
-            patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log")),
-            patch.object(EmergencyLogger.loger_queue, "get", new=MagicMock(wraps=EmergencyLogger.loger_queue.get, name="get")),
-            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done, name="taks_done"))
+            patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log"))
         ]
         self.mocks = {}
 
@@ -102,8 +100,9 @@ class TestLogWorker(unittest.TestCase):
             call(("whereever2", "exception2", "turn2", "level2"))
         ]
 
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
-        EmergencyLogger.emergency_log.assert_not_called_with(("whereever3", "exception3", "turn3", "level3"))
+        mock_emergency_log = self.mocks ["emergency_log"]
+        mock_emergency_log.assert_has_calls(expected_calls)
+        mock_emergency_log.assert_not_called_with(("whereever3", "exception3", "turn3", "level3"))
 
     def test_queue_3_elements(self):
 
