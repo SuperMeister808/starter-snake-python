@@ -15,7 +15,6 @@ class TestLogWorker(unittest.TestCase):
         EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
         
         self.patchers = [
-            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue()),
             patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log")),
             patch.object(EmergencyLogger.loger_queue, "get", new=MagicMock(wraps=EmergencyLogger.loger_queue.get, name="get")),
             patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done, name="taks_done"))
@@ -85,8 +84,6 @@ class TestLogWorker(unittest.TestCase):
         if isinstance(log_worker_thread, threading.Thread):
             log_worker_thread.join()
         
-    
-    @patch.object(EmergencyLogger, "flags", new={"is_running": True, "worker_thread": None})
     def test_coorect_queue(self):
 
         self.start_thread()
