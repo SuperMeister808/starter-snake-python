@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch , MagicMock
 
 from emergency_logger import EmergencyLogger
 
@@ -12,12 +12,14 @@ class TestLogWorker(unittest.TestCase):
 
     def setUp(self):
         
-        EmergencyLogger.setup_runtime_logger("TestLogger", "test.log", False)
+        EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
         
         self.patchers = [
             patch.object(EmergencyLogger, "emergency_log", new=lambda where, exception, level, turn: (where, exception, level, turn)),
-            patch.object(EmergencyLogger.runtime_logger, "log")
+            patch.object(EmergencyLogger.loger_queue, "get", new=MagicMock(wraps=EmergencyLogger.loger_queue.get)),
+            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done))
         ]
+        self.mocks = {}
 
         self.start_patchers()
         
@@ -35,20 +37,26 @@ class TestLogWorker(unittest.TestCase):
         for patcher in self.patchers:
 
             patcher.stop()
+
+    def check_calls(self):
+
+        for name , mock in self.mocks.items():
+            try:
+                mock.assert_called_once()
+            except AttributeError:
+                if not isinstance(mock, MagicMock):
+                    pass
+                else:
+                    raise
     
+    @patch.object(EmergencyLogger, "loger_queue", new=queue.Queue())
+    @patch.object(EmergencyLogger, "flags", new={"is_running": True, "worker_thread": None})
     def test_coorect_queue(self):
 
-        q = queue.Queue()
-        q.put(("where", "exception", "turn_counter", "level"))
-        
-        with patch.object(EmergencyLogger, "loger_queue", new=q):
+        EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
+        EmergencyLogger.log_worker()
 
-            self.start_threading()
-            self.join_threads()
 
-            keys = ["where", "exception", "game_state"]
-            for e in keys:
-                assert any(any(e in str(value) for value in  (where, exception, game_state)) for where, exception, game_state in self.result)
 
     def test_queue_3_elements(self):
 

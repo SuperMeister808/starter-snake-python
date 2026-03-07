@@ -89,18 +89,26 @@ class EmergencyLogger():
                     continue
                 try:
                     where, exception, turn, level = item
-                    cls.emergency_log(where, exception, level=level, turn=turn)
+                    log = cls.emergency_log(where, exception, level=level, turn=turn)
+                    if log is not None:
+                        return log
                 except (ValueError, TypeError) as e:
                     try:
                         where , exception , turn = item
-                        cls.emergency_log(where, exception, turn=turn)
+                        log = cls.emergency_log(where, exception, turn=turn)
+                        if log is not None:
+                            return log
                     except (ValueError, TypeError) as e:
                         try:
                             where , exception = item
-                            cls.emergency_log(where, exception)
+                            log = cls.emergency_log(where, exception)
+                            if log is not None:
+                                return log
                         except (ValueError, TypeError) as e:
 
-                            cls.emergency_log("log_worker", e)
+                            log = cls.emergency_log("log_worker", e)
+                            if log is not None:
+                                return log
                 finally:
                     cls.loger_queue.task_done()
 
