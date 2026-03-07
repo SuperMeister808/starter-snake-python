@@ -31,6 +31,8 @@ class TestLogWorker(unittest.TestCase):
             patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception))
         ]
         self.mocks = {}
+
+        self.start_patchers()
         
         #FILO
         self.addCleanup(self.stop_patchers)
@@ -111,13 +113,10 @@ class TestLogWorker(unittest.TestCase):
 
     def test_coorect_queue(self):
 
-        self.start_patchers()
         self.start_thread()
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
             raise RuntimeError("Kein thread Objekt referenziert!")
-        
-       
         
         EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn, self.level))
         EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2, self.level_2))
@@ -143,7 +142,6 @@ class TestLogWorker(unittest.TestCase):
 
     def test_thread_dependency_to_flag_is_running(self):
 
-        self.start_patchers()
         self.start_thread()
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
@@ -173,7 +171,6 @@ class TestLogWorker(unittest.TestCase):
     
     def test_queue_3_elements(self):
 
-        self.start_patchers()
         self.start_thread()
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
@@ -201,7 +198,6 @@ class TestLogWorker(unittest.TestCase):
 
     def test_queue_2_elements(self):
 
-        self.start_patchers()
         self.start_thread()
         log_worker_thread = EmergencyLogger.flags ["worker_thread"]
         if not isinstance(log_worker_thread, threading.Thread):
@@ -226,10 +222,6 @@ class TestLogWorker(unittest.TestCase):
             call(40, (self.where_2, self.exception_2), extra={"turn": "unknown"})
         ]
         EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
-
-    def test_empty_queue(self):
-
-       pass
 
     def test_fallback(self):
 
