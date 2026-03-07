@@ -17,17 +17,13 @@ class TestLogWorker(unittest.TestCase):
         self.patchers = [
             patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log")),
             patch.object(EmergencyLogger.loger_queue, "get", new=MagicMock(wraps=EmergencyLogger.loger_queue.get, name="get")),
-            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_don, name="taks_done"))
+            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done, name="taks_done"))
         ]
         self.mocks = {}
 
         self.start_patchers()
         
         self.addCleanup(self.stop_patchers)
-
-    def seetup_EmergencyLogger_logger_queue_get(self):
-
-        self.patcher_EmergencyLogger_logger_queue_get = patch.object(EmergencyLogger.loger_queue, "get")
 
     def start_patchers(self):
 
