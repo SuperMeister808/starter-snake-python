@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch , MagicMock
+from unittest.mock import patch , MagicMock , call
 
 from emergency_logger import EmergencyLogger
 
@@ -25,7 +25,7 @@ class TestLogWorker(unittest.TestCase):
         
         #FILO
         self.addCleanup(self.stop_patchers)
-        self.addCleanup(self.join_thread)
+
 
     def start_patchers(self):
 
@@ -89,21 +89,21 @@ class TestLogWorker(unittest.TestCase):
         self.start_thread()
         
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
-        self.check_calls()
-        mock_emergency_log = self.mocks ["emergency_log"]
-        mock_emergency_log.assert_called_once_with(("wherever", "exception", "turn", "level"))
-
         EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
-        self.check_calls()
-        mock_emergency_log = self.mocks ["emergency_log"]
-        mock_emergency_log.assert_called_with(("whereever2", "exception2", "turn2", "level2"))
 
         EmergencyLogger.flags ["is_running"] = False
 
         EmergencyLogger.loger_queue.put(("whereever3", "exception3", "turn3", "level3"))
-        self.check_no_calls()
-        mock_emergency_log = self.mocks ["emergency_log"]
-        mock_emergency_log.assert_not_called()
+
+        self.join_thread()
+
+        expected_calls = [
+            call(("wherever", "exception", "turn", "level")),
+            call(("whereever2", "exception2", "turn2", "level2"))
+        ]
+
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls)
+        EmergencyLogger.emergency_log.assert_not_called_with(("whereever3", "exception3", "turn3", "level3"))
 
     def test_queue_3_elements(self):
 
