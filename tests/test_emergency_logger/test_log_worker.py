@@ -15,16 +15,18 @@ class TestLogWorker(unittest.TestCase):
         EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
         
         self.patchers = [
+            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue()),
             patch.object(EmergencyLogger, "emergency_log", new=MagicMock(name="emergency_log")),
             patch.object(EmergencyLogger.loger_queue, "get", new=MagicMock(wraps=EmergencyLogger.loger_queue.get, name="get")),
-            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done, name="taks_done")),
-            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue())
+            patch.object(EmergencyLogger.loger_queue, "task_done", new=MagicMock(wraps=EmergencyLogger.loger_queue.task_done, name="taks_done"))
         ]
         self.mocks = {}
 
         self.start_patchers()
         
+        #FILO
         self.addCleanup(self.stop_patchers)
+        self.addCleanup(self.join_thread)
 
     def start_patchers(self):
 
@@ -70,17 +72,31 @@ class TestLogWorker(unittest.TestCase):
                 else:
                     raise
     
+    def start_thread(self):
+
+        log_worker_thread = threading.Thread(target=EmergencyLogger.log_worker) 
+        EmergencyLogger.flags ["worker_thread"] = log_worker_thread
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        log_worker_thread.start()
+
+    def join_thread(self):
+
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if isinstance(log_worker_thread, threading.Thread):
+            log_worker_thread.join()
+        
+    
     @patch.object(EmergencyLogger, "flags", new={"is_running": True, "worker_thread": None})
     def test_coorect_queue(self):
 
-        EmergencyLogger.log_worker()
+        self.start_thread()
         
         EmergencyLogger.loger_queue.put(("wherever", "exception", "turn", "level"))
         self.check_calls()
         mock_emergency_log = self.mocks ["emergency_log"]
         mock_emergency_log.assert_called_once_with(("wherever", "exception", "turn", "level"))
 
-        EmergencyLogger.loger_queue.put("whereever2", "exception2", "turn2", "level2")
+        EmergencyLogger.loger_queue.put(("whereever2", "exception2", "turn2", "level2"))
         self.check_calls()
         mock_emergency_log = self.mocks ["emergency_log"]
         mock_emergency_log.assert_called_with(("whereever2", "exception2", "turn2", "level2"))
