@@ -44,7 +44,18 @@ class TestExtractKeywords(unittest.TestCase):
     
     def test_correct_needed_keywords(self):
 
-        pass
+        needed_keywords = ["head", "body", "neck", "my_length"]
+        result = self.keywords.extract_keywords(needed_keywords, testing="testing...")
+        
+        self.check_calls()
+        self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
+
+        self.assertEqual(result, ["head", "body", "neck", "my_length"])
+        head , body , neck , my_length = result
+        self.assertEqual(head, "head")
+        self.assertEqual(body, "body")
+        self.assertEqual(neck, "neck")
+        self.assertEqual("my_length", my_length)
 
     def test_unnecessary_keywords(self):
 
@@ -57,3 +68,6 @@ class TestExtractKeywords(unittest.TestCase):
     def test_needed_keywords_missing_and_unnecessary_keywords(self):
 
         pass
+
+if __name__ == "__main__":
+    unittest.main()
