@@ -41,7 +41,12 @@ class TestGetAllowedKeywords(unittest.TestCase):
 
     def test_only_unallowed_keywords(self):
 
-        pass
+        result = self.keywords.get_allowed_keywords(anything="anything", wherever="wherever")
+        anything = result.get("anything", "unknown")
+        wherever = result.get("wherever", "unknown")
+
+        self.assertEqual(anything, "unknown")
+        self.assertEqual(wherever, "unknown")
 
 if __name__ == "__main__":
     unittest.main()
