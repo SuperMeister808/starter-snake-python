@@ -8,7 +8,19 @@ class TestGetAllowedKeywords(unittest.TestCase):
 
     keywords = Keywords()
 
-    @patch.object(keywords, "ALLOWED_KEYWORDS", new=["head", "body", "neck", "my_length"])
+    def setUp(self):
+        
+        self.patchers = [
+            patch.object(self.keywords, "ALLOWED_KEYWORDS", new=["head", "body", "neck", "my_length"])
+        ]
+
+        self.start_patchers()
+
+    def start_patchers(self):
+
+        for patcher in self.patchers:
+            patcher.start()
+    
     def test_only_allowed_keywords(self):
 
         result = self.keywords.get_allowed_keywords(head="head", body="body", neck="neck", my_length="my_length")
