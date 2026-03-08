@@ -35,10 +35,19 @@ class TestBadRequest(unittest.TestCase):
         mock_validate_game_state.assert_called_once_with(data)
 
         self.assertEqual(response.json, {"Success": "Called move"})
+        self.assertEqual(response.status_code, 200)
 
-    def test_bad_request(self):
+    @patch("server.validate_game_state", return_value=False)
+    def test_bad_request(self, mock_validate_game_state):
 
-        pass
+        data = {"testing": "testing..."}
+        test_client = self.server.app.test_client()
+        response = test_client.post("/move", json=data)
+        
+        mock_validate_game_state.assert_called_once_with(data)
+
+        self.assertEqual(response.json, {"Error": "Game State Validation Failed!"})
+        self.assertEqual(response.status_code, 400)
 
 if __name__ == "__main__":
 
