@@ -15,11 +15,17 @@ class TestGetAllowedKeywords(unittest.TestCase):
         ]
 
         self.start_patchers()
+        self.addCleanup(self.stop_patchers)
 
     def start_patchers(self):
 
         for patcher in self.patchers:
             patcher.start()
+
+    def stop_patchers(self):
+
+        for patcher in self.patchers:
+            patcher.stop()
     
     def test_only_allowed_keywords(self):
 
