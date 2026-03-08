@@ -6,29 +6,40 @@ from validate_game_state import validate_game_state
 
 class TestValidateGameState(unittest.TestCase):
 
-    def test_correct_game_state(self):
+    def test_correct_key_and_correct_type(self):
 
-        game_state = {"game": {}, "ruleset": {}, "squad": {}, "turn": 1, "board": {}, "you": {}}
+        data = {"game": {}}
+        result = validate_game_state(data)
+        
+        self.assertTrue(result)
 
-        self.assertTrue(validate_game_state(game_state))
+    def test_incorrect_key(self):
 
-    def test_wrong_key(self):
+        data = {"incorrect_key": {}}
+        result = validate_game_state(data)
+        
+        self.assertFalse(result)
 
-        game_state = {"game": {}, "rules": {}, "squad": {}, "turn": 1, "board": {}, "you": {}}
+    def test_incorrect_type(self):
 
-        self.assertFalse(validate_game_state(game_state))
+        data = {"game": 0}
+        result = validate_game_state(data)
 
-    def test_wrong_data(self):
+        self.assertFalse(result)
 
-        game_state = {"game": {}, "ruleset": {}, "squad": {}, "turn": {}, "board": {}, "you": {}}
+    def test_incorrect_key_and_key_with_incorrect_type(self):
 
-        self.assertFalse(validate_game_state(game_state))
+        data = {"game": 0, "incorrect_key": {}}
+        result = validate_game_state(data)
 
-    def test_wrong_key_and_wrong_data(self):
+        self.assertFalse(result)
 
-        game_state = {"gamer": {}, "ruleset": 1, "squad": {}, "turn": 1, "board": {}, "you": {}}
+    def test_correct_type_key_turn(self):
 
-        self.assertFalse(validate_game_state(game_state))
+        data = {"turn": 0}
+        result = validate_game_state(data)
+
+        self.assertTrue(result)
 
 if __name__ == "__main__":
 
