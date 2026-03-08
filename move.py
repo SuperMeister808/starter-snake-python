@@ -273,7 +273,6 @@ class Move():
         NEEDED_KEYWORDS = ["head", "game_state"]
 
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
         
         food_list = game_state["board"]["food"]
 
@@ -486,7 +485,7 @@ class Move():
             EmergencyLogger.loger_queue.put(("random_choice", "Choosed emergency move", self.turn_counter, 40))
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", f"{e}", self.turn_counter, 40))
+            EmergencyLogger.loger_queue.put(("random_choice", e, self.turn_counter, 40))
             next_move = random.choice(EMERGENCY_MOVES)
             return {"move": next_move}
     
