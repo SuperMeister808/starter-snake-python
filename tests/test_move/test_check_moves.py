@@ -6,9 +6,8 @@ from move import Move
 
 class TestCheckMoves(unittest.TestCase):
 
+    bot = Move()
     def setUp(self):
-        
-        self.bot = Move()
         
         self.is_move_safe = {}
         self.head = {}
@@ -64,9 +63,20 @@ class TestCheckMoves(unittest.TestCase):
         self.assert_calls_calculate_opponents_positions(self.game_state, self.my_length)
         self.assert_calls_check_moves(self.is_move_safe, self.head, self.game_state, self.body, self.neck)
 
-    def test_fallback_calculate_opponents_position(self):
+    @patch.object(bot, "calculate_opponents_positions", side_effect=RuntimeError("side effect"))
+    def test_fallback_calculate_opponents_position(self, mock_calculate_oppoenets_positions):
 
-        pass
+        mock_calculate_oppoenets_positions.__name__ = "calculate_opponents_positions"
+
+        result = self.bot.check_moves(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+        
+        result_id = result.get("id", "unknown")
+        result_move = result.get("move", "unknown")
+        self.assertEqual(result_id, "Emergency!")
+        expected_moves = ["left", "right", "down", "up"]
+        self.assertIn(result_move, expected_moves)
+
+        mock_calculate_oppoenets_positions.assert_called_with(game_state=self.game_state, my_length=self.my_length)
 
     def test_fallback_checks(self):
 
