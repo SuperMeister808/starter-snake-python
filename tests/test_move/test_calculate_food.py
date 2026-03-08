@@ -61,7 +61,15 @@ class TestCalculateFood(unittest.TestCase):
 
     def test_food_on_multiple_moves(self):
 
-        pass
+        game_state = {"board": {"food": [{"x": 2, "y": 2}, {"x": 3, "y": 3}]}}
+        head = {"x": 2, "y": 3}
+
+        self.bot.calculate_food(self.is_move_safe, head=head, game_state=game_state)
+
+        self.assertEqual(self.is_move_safe["left"]["priority"], 0)
+        self.assertEqual(self.is_move_safe["right"]["priority"], 1)
+        self.assertEqual(self.is_move_safe["up"]["priority"], 0)
+        self.assertEqual(self.is_move_safe["down"]["priority"], 1)
 
     def test_food_out_of_range(self):
 
