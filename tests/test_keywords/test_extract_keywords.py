@@ -10,6 +10,7 @@ class TestExtractKeywords(unittest.TestCase):
     def setUp(self):
         
         self.patchers = [
+            patch.object(self.keywords, "get_allowed_keywords", return_value={"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"}, name="mock_get_allowed_keywords"),
             patch.object(self.keywords, "check_datatype", name="mock_check_datatype")
         ]
         self.mocks = {}
