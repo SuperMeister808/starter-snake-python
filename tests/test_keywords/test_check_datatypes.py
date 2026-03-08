@@ -55,7 +55,9 @@ class TestCheckDatatypes(unittest.TestCase):
 
     def test_wrong_integer_key(self):
 
-        pass
+        keywords = {"dictionary": {}, "list": [], "string": "", "integer": {}, "float": 0.5}
+        with self.assertRaises(TypeError):
+            self.keywords.check_datatype(keywords)
 
     def test_wrong_float_key(self):
 
