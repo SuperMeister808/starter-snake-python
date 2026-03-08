@@ -3,12 +3,21 @@ import typing
 
 class Keywords():
 
+    def __init__(self):
+
+        self.ALLOWED_KEYWORDS =  ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves", "my_length"]
+        self.DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves", "snake"]
+        self.LIST_KEYS = ["body", "memory_moves"]
+        self.STRING_KEYS = ["move"]
+        self.INTEGER_KEYS = ["calls", "my_length"]
+        self.FLOAT_KEYS = []
+    
     def get_allowed_keywords(self, **kwargs):
 
         ALLOWED_KEYWORDS = ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves", "my_length"]
         keywords = {}
 
-        for allowed_keyword in ALLOWED_KEYWORDS:
+        for allowed_keyword in self.ALLOWED_KEYWORDS:
             try:
                 keyword = kwargs[allowed_keyword]
                 keywords[allowed_keyword] = keyword
@@ -29,27 +38,27 @@ class Keywords():
             
             listed = False
             
-            if key in DICTIONARY_KEYS:
+            if key in self.DICTIONARY_KEYS:
                 listed = True
                 if not isinstance(keyword, dict):
                     raise TypeError(f"{key} als Dictionary erforderlich!")
                 
-            if key in LIST_KEYS:
+            if key in self.LIST_KEYS:
                 listed = True
                 if not isinstance(keyword, list):
                     raise TypeError(f"{key} als Liste erforderlich!")
                 
-            if key in STRING_KEYS:
+            if key in self.STRING_KEYS:
                 listed = True
                 if not isinstance(keyword, str):
                     raise TypeError(f"{key} als String erforderlich!")
                 
-            if key in INTEGER_KEYS:
+            if key in self.INTEGER_KEYS:
                 listed = True
                 if not isinstance(keyword, int):
                     raise TypeError(f"{key} als Integer erforderlich!")
                 
-            if key in FLOAT_KEYS:
+            if key in self.FLOAT_KEYS:
                 listed = True
                 if not isinstance(keyword, float):
                     raise TypeError(f"{key} als Float erforderlich!")
