@@ -80,9 +80,14 @@ class TestExtractKeywords(unittest.TestCase):
         self.check_calls()
         self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
 
-    def test_needed_keywords_missing_and_unnecessary_keywords(self):
+    def test_missing_and_unnecessary_keywords(self):
 
-        pass
+        needed_keywords = ["head", "body", "neck", "missing"]
+        with self.assertRaises(KeyError):
+            self.keywords.extract_keywords(needed_keywords, testing="testing...")
+        
+        self.check_calls()
+        self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
 
 if __name__ == "__main__":
     unittest.main()
