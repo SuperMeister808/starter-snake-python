@@ -25,7 +25,15 @@ class TestCalculateFood(unittest.TestCase):
 
     def test_food_move_right(self):
 
-        pass
+        game_state = {"board": {"food": [{"x": 2, "y": 2}]}}
+        head = {"x": 1, "y": 2}
+
+        self.bot.calculate_food(self.is_move_safe, head=head, game_state=game_state)
+
+        self.assertEqual(self.is_move_safe["left"]["priority"], 0)
+        self.assertEqual(self.is_move_safe["right"]["priority"], 1)
+        self.assertEqual(self.is_move_safe["up"]["priority"], 0)
+        self.assertEqual(self.is_move_safe["down"]["priority"], 0)
 
     def test_food_move_up(self):
 
