@@ -10,6 +10,13 @@ class TestCheckMoves(unittest.TestCase):
         
         self.bot = Move()
         
+        self.is_move_safe = {}
+        self.head = {}
+        self.game_state = {}
+        self.body = []
+        self.neck = {}
+        self.my_length = 0
+        
         self.patchers = [
             patch.object(self.bot, "calculate_opponents_positions", name="mock_calculate_opponents_positions"),
             patch.object(self.bot, "not_backward", name="mock_not_backward"),
@@ -26,16 +33,13 @@ class TestCheckMoves(unittest.TestCase):
         for patcher in self.patchers:
             mock = patcher.start()
             if isinstance(mock, MagicMock):
-                try:
-                    self.mocks [mock.name] = mock
-                except AttributeError:
-                    self.mocks [mock._mock_name] = mock 
+                self.mocks [mock._mock_name] = mock 
 
     def stop_patchers(self):
         for patcher in self.patchers:
             patcher.stop()
 
-    def check_calls_calculate_opponents_positions(self, game_state, my_length):
+    def assert_calls_calculate_opponents_positions(self, game_state, my_length):
 
         for name, mock in self.mocks.items():
             if name == "mock_calculate_opponents_positions":
@@ -43,7 +47,7 @@ class TestCheckMoves(unittest.TestCase):
             else:
                 continue
     
-    def check_calls_checks(self, is_move_safe, head, game_state, body, neck):
+    def assert_calls_check_moves(self, is_move_safe, head, game_state, body, neck):
 
         for name, mock in self.mocks.items():
 
@@ -53,13 +57,18 @@ class TestCheckMoves(unittest.TestCase):
     
     def test_correct_check_moves(self):
 
+        self.start_patchers()
+
+        self.bot.check_moves(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+
+        self.assert_calls_calculate_opponents_positions(self.game_state, self.my_length)
+        self.assert_calls_check_moves(self.is_move_safe, self.head, self.game_state, self.body, self.neck)
+
+    def test_fallback_calculate_opponents_position(self):
+
         pass
 
-    def fallback_calculate_opponents_position(self):
-
-        pass
-
-    def fallback_checks(self):
+    def test_fallback_checks(self):
 
         pass
 
