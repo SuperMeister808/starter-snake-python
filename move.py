@@ -514,10 +514,7 @@ class Move():
             return {"move": result["move"]}
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
 
-        result = self.check_safe_moves(2, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
-        if self.emergency_system.is_emergency(result):
-            Move.turn_counter += 1
-            return {"move": result["move"]}
+        self.check_safe_moves(2, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
         self.check_priority_moves()
         
