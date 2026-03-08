@@ -274,6 +274,34 @@ class TestLogWorker(unittest.TestCase):
         EmergencyLogger.emergency_log.assert_not_called()
         EmergencyLogger.runtime_logger.log.assert_not_called()
 
+    def test_queue_put_during_flag_is_running_False(self):
+
+        self.start_patchers()
+        self.start_thread()
+        
+        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
+        if not isinstance(log_worker_thread, threading.Thread):
+            raise RuntimeError("Kein thread Objekt referenziert!")
+        
+        EmergencyLogger.flags ["is_running"] = False
+        EmergencyLogger.loger_queue.put((self.where, self.exception))
+        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2))
+
+        self.join_thread(2)
+
+        self.assertTrue(EmergencyLogger.loger_queue.empty())
+        self.assertFalse(log_worker_thread.is_alive())
+        expected_calls_emergency_log = [
+            call(self.where, self.exception),
+            call(self.where_2, self.exception_2)
+        ]
+        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
+        expected_calls_log = [
+            call(40, (self.where, self.exception), extra={"turn": "unknown"}),
+            call(40, (self.where_2, self.exception_2), extra={"turn": "unknown"})
+        ]
+        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+
 
 if __name__ == "__main__":
 
