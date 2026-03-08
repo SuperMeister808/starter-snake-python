@@ -13,7 +13,7 @@ class TestBadRequest(unittest.TestCase):
         
         self.server = Server("Testing...", "Testing...", "Testing...", False, 8000)
     
-    def test_not_bad_request_move(self):
+    def test_correct_key_and_correct_type(self):
 
         data = {"game": {}}
 
