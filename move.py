@@ -305,9 +305,7 @@ class Move():
 
         head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        result = self.emergency_system.emergency_system(self.calculate_opponents_positions, game_state=game_state, my_length=my_length)
-        if self.emergency_system.is_emergency(result):
-            return result
+        self.calculate_opponents_positions(game_state=game_state, my_length=my_length)
 
         checks = [
                   self.not_backward, 
@@ -318,9 +316,8 @@ class Move():
 
         for check in checks:
 
-            result = check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
-            if self.emergency_system.is_emergency(result):
-                return result
+            check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+
             
     def reset_is_move_safe(self):
         

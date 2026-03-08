@@ -66,21 +66,21 @@ class TestCheckMoves(unittest.TestCase):
     @patch.object(bot, "calculate_opponents_positions", side_effect=RuntimeError("side effect"))
     def test_fallback_calculate_opponents_position(self, mock_calculate_oppoenets_positions):
 
-        mock_calculate_oppoenets_positions.__name__ = "calculate_opponents_positions"
-
-        result = self.bot.check_moves(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
-        
-        result_id = result.get("id", "unknown")
-        result_move = result.get("move", "unknown")
-        self.assertEqual(result_id, "Emergency!")
-        expected_moves = ["left", "right", "down", "up"]
-        self.assertIn(result_move, expected_moves)
+        with self.assertRaises(RuntimeError):
+            self.bot.check_moves(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
 
         mock_calculate_oppoenets_positions.assert_called_with(game_state=self.game_state, my_length=self.my_length)
 
-    def test_fallback_checks(self):
+    @patch.object(bot, "calculate_opponents_positions")
+    @patch.object(bot, "not_backward", side_effect=RuntimeError("side effect"))
+    def test_fallback_checks(self, mock_not_backward, mock_calculate_opponents_positions):
 
-        pass
+        with self.assertRaises(RuntimeError):
+            self.bot.check_moves(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
+
+        mock_calculate_opponents_positions.assert_called_with(game_state=self.game_state, my_length=self.my_length)
+        mock_not_backward.assert_called_with(self.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck)
+
 
 if __name__ == "__main__":
     unittest.main()
