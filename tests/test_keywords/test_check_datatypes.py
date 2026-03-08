@@ -79,7 +79,9 @@ class TestCheckDatatypes(unittest.TestCase):
 
     def test_multiple_wrong_types(self):
 
-        pass
+        keywords = {"dictionary": {}, "list": [], "string": {}, "integer": 0, "float": {}}
+        with self.assertRaises(TypeError):
+            self.keywords.check_datatype(keywords)
 
 
 if __name__ == "__main__":
