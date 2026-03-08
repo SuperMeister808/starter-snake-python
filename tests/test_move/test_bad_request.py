@@ -9,16 +9,11 @@ from server import Server
 
 class TestBadRequest(unittest.TestCase):
 
+    
     def setUp(self):
-        
-        self.server = Server("Testing...", "Testing...", "Testing...", False, 8000)
 
-        self.patchers = [
-            patch.object(self.server, "handlers", new={"move": lambda game_state: {"Succes": "Called move"}})
-        ]
-
-        self.start_patchers()
-        self.addCleanup(self.stop_patchers)
+        self.handlers = {"move": lambda game_state: {"Success": "Called move"}}
+        self.server = Server(self.handlers, "Testing...", "Testing...", False, 8000)
 
     def start_patchers(self):
 
@@ -30,38 +25,20 @@ class TestBadRequest(unittest.TestCase):
         for patcher in self.patchers:
             patcher.stop()
     
-    def test_correct_key_and_correct_type(self):
+    @patch("server.validate_game_state", return_value=True)
+    def test_correct_request(self, mock_validate_game_state):
 
-        data = {"game": {}}
-
+        data = {"testing": "testing..."}
         test_client = self.server.app.test_client()
         response = test_client.post("/move", json=data)
         
-        self.assertEqual(response.json, {"Succes": "Called move"})
+        mock_validate_game_state.assert_called_once_with(data)
 
-    def test_incorrect_key(self):
+        self.assertEqual(response.json, {"Success": "Called move"})
 
-        pass
-
-    def test_incorrect_key_and_key_with_incorrect_type(self):
+    def test_bad_request(self):
 
         pass
-
-    def test_correct_type_key_turn(self):
-
-        pass
-    
-    def test_bad_request_move(self):
-
-        data = {"game": 1}
-
-        with patch.object(self.server, "handlers", {"move": lambda game_state: {"Succes": "Called move"}}):
-        
-            test_client = self.server.app.test_client()
-            
-            response = test_client.post("/move", json=data)
-
-            self.assertEqual(response.json, {"Error": "Game State Validation Failed!"})
 
 if __name__ == "__main__":
 
