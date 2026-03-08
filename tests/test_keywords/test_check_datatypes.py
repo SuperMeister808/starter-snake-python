@@ -67,7 +67,20 @@ class TestCheckDatatypes(unittest.TestCase):
 
     def test_unlisted_key(self):
 
+        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": 0.5, "unlisted": ""}
+        with self.assertRaises(RuntimeError):
+            self.keywords.check_datatype(keywords)
+
+    def test_unlisted_and_wrong_type(self):
+
+        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": {}, "unlisted": ""}
+        with self.assertRaises(TypeError):
+            self.keywords.check_datatype(keywords)
+
+    def test_multiple_wrong_types(self):
+
         pass
+
 
 if __name__ == "__main__":
     unittest.main()
