@@ -24,7 +24,20 @@ class TestGetAllowedKeywords(unittest.TestCase):
 
     def test_sort_unallowed_keywords_out(self):
 
-        pass
+        result = self.keywords.get_allowed_keywords(head="head", body="body", neck="neck", my_length="my_length", anything="anything", wherever="wherever")
+        head = result["head"]
+        body = result["body"]
+        neck = result["neck"]
+        my_length = result["my_length"]
+        anything = result.get("anything", "unknown")
+        wherever = result.get("wherever", "unknown")
+
+        self.assertEqual(head, "head")
+        self.assertEqual(body, "body")
+        self.assertEqual(neck, "neck")
+        self.assertEqual(my_length, "my_length")
+        self.assertEqual(anything, "unknown")
+        self.assertEqual(wherever, "unknown")
 
     def test_only_unallowed_keywords(self):
 
