@@ -114,6 +114,7 @@ class TestChooseMove(unittest.TestCase):
         for name , mock in mocks_to_assert.items():
             if not isinstance(mock, MagicMock):
                 raise TypeError(f"Objekt: {name} nicht als MagicMock vorhanden")
+        mock_get_neck.__name__ = "get_neck"
 
         with self.assertRaises(RuntimeError):
             result = self.bot.choose_move(self.game_state)
@@ -123,9 +124,35 @@ class TestChooseMove(unittest.TestCase):
         mock_edit_body.assert_called_once_with(self.body)
         mock_get_neck.assert_not_called()
 
-    def test_fallback_get_neck(self):
+    @patch.object(bot, "check_moves", side_effect=RuntimeError("side effect"))
+    @patch.object(bot, "get_neck", side_effect=RuntimeError("side effect"))
+    @patch.object(bot, "edit_body", return_value=body)
+    def test_fallback_get_neck(self, mock_edit_body, mock_get_neck, mock_check_moves):
 
-        pass
+        mock_reset_is_move_safe = self.mocks.get("reset_is_move_safe", "unknown")
+        mock_log_data = self.mocks.get("log_data", "unknown")
+        mocks_to_assert = {"mock_reset_is_move_safe": mock_reset_is_move_safe, "mock_log_data": mock_log_data}
+        for name , mock in mocks_to_assert.items():
+            if not isinstance(mock, MagicMock):
+                raise TypeError(f"Objekt: {name} ist kein MagicMock")
+        mock_get_neck.__name__ = "get_neck"
+        mock_check_moves.__name__ = "check_moves"
+
+        
+        result = self.bot.choose_move(self.game_state)
+        result_move = result.get("move", "unknown")
+        expected_moves = ["left", "right", "up", "down"]
+        result_id = result.get("id", "unknown")
+        self.assertIn(result_move, expected_moves)
+        self.assertEqual(result_id, "unknown")
+        
+        mock_reset_is_move_safe.assert_called_once()
+        mock_log_data.assert_called_with("choose_move", {"head": self.head, "body": self.body, "my_length": self.my_length})
+        self.assertEqual(mock_log_data.call_count, 2)
+        mock_edit_body.assert_called_once_with(self.body)
+        mock_get_neck.assert_called_once_with(body=self.body, game_state=self.game_state)
+        mock_check_moves.assert_not_called()
+        
 
     def test_fallback_check_moves(self):
 
