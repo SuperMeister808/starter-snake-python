@@ -7,9 +7,19 @@ from move import Move
 
 class TestIsGrowing(unittest.TestCase):
 
+  bot = Move()
+  def setUp(self):
+     
+     self.head = {"x": 2, "y": 2}
+     self.game_state = "..."
+  
   def test_is_growqing(self):
         
-      pass
+      game_state = {"board": {"food": [{"x": 2, "y": 3}]}}
+      with patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, game_state)):
+         
+         self.bot.is_growing(head=self.head, game_state=game_state)
+  
   
   def test_is_growing_multiple_times(self):
      
