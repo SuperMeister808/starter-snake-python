@@ -181,12 +181,6 @@ class TestChooseMove(unittest.TestCase):
         mock_edit_body.assert_called_once_with(self.body)
         mock_get_neck.assert_called_once_with(body=self.body, game_state=self.game_state)
         mock_check_moves.assert_called_once_with(self.bot.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
-            
-        
-        
-
-
-
 
 if __name__ == "__main__":
 
