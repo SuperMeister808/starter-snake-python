@@ -5,19 +5,30 @@ from move import Move
 
 class TestNotBackward(unittest.TestCase):
 
-    def test_not_backward_width(self):
+    bot = Move()
+    def setUp(self):
+        
+        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
+                             "down": {"is_safe": True, "priority": 0}, 
+                             "left": {"is_safe": True, "priority": 0}, 
+                             "right": {"is_safe": True, "priority": 0}}
+        
+        self.head = {}
+        self.neck = {}
+    
+    def test_neck_over_head(self):
         
         pass
     
-    def test_not_backward_height(self):
+    def test_neck_under_head(self):
         
         pass
     
-    def test_not_backward_corner(self):
+    def test_neck_next_to_head_left(self):
         
         pass
     
-    def test_not_backward_middle(self):
+    def test_neck_next_to_head_right(self):
         
         pass
 
