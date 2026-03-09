@@ -90,7 +90,12 @@ class TestNoEnemyCollision(unittest.TestCase):
     
     def test_unsafe_moves_and_priority_moves(self):
         
-        pass
+        new_opponents_positions = {"...": {"unsafe": [{"x": 1, "y": 2}, {"x": 2, "y": 3}], "priority": [{"x": 2, "y": 3}, {"x": 3, "y": 2}]}}
+        with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
+            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.move_assertions(False, 0, True, 2, True, 0, False, 2)
+
+            self.assert_call_extract_keywords()
     
     def test_no_unsafe_and_no_priority_moves(self):
         
