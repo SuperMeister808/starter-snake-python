@@ -35,7 +35,12 @@ class TestIsGrowing(unittest.TestCase):
   
   def test_is_not_growing(self):
      
-     pass
+     game_state = {"board": {"food": []}}
+     with patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, game_state)) as mock_extract_keywords:
+        result = self.bot.is_growing(head=self.head, game_state=game_state)
+        self.assertFalse(result)
+
+        mock_extract_keywords.assert_called_once()
 
 if __name__ == "__main__":
 
