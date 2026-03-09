@@ -109,7 +109,12 @@ class TestNoEnemyCollision(unittest.TestCase):
     
     def test_spread_entries_over_multiple_snakes(self):
         
-        pass
+        new_opponents_positions = {"...": {"unsafe": [{"x": 2, "y": 3}], "priority": [{"x": 3, "y": 2}]}, "opponent": {"unsafe": [{"x": 1, "y": 2}], "priority": [{"x": 2, "y": 1}]}}
+        with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
+            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.move_assertions(False, 0, True, 2, True, 2, False, 0)
+
+            self.assert_call_extract_keywords()
     
 if __name__ == "__main__":
 
