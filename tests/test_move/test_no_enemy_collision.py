@@ -115,6 +115,18 @@ class TestNoEnemyCollision(unittest.TestCase):
             self.move_assertions(False, 0, True, 2, True, 2, False, 0)
 
             self.assert_call_extract_keywords()
+
+    #Edge-Case
+    #It´s okay because other methoids edit body correctly
+    #TODO sort double entries in Move().enemy_collision out because in game it is not possible!
+    def test_doubled_entry(self):
+        
+        new_opponents_positions = {"...": {"unsafe": [], "priority": [{"x": 1, "y": 2}, {"x": 1, "y": 2}]}}
+        with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
+            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.move_assertions(True, 4, True, 0, True, 0, True, 0)
+
+            self.assert_call_extract_keywords()
     
 if __name__ == "__main__":
 
