@@ -56,7 +56,14 @@ class TestNotBackward(unittest.TestCase):
     
     def test_neck_under_head(self):
         
-        pass
+        head = {"x": 2, "y": 2}
+        neck = {"x": 2, "y": 1}
+        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
+            self.bot.not_backward(self.is_move_safe, head=self.head, neck=self.neck)
+            self.move_assertions(True, 0, True, 0, False, 0, True, 0)
+
+            self.assert_extract_keywords(mock_extract_keywords)
+    
     
     def test_neck_next_to_head_left(self):
         
