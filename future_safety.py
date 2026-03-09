@@ -48,7 +48,10 @@ class FutureSafety():
                     if data["is_safe"] == True:
                         safe_move_left = True
                         move_possition = self.get_move(move, head)
-                        new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, my_length)
+                        if self.move.is_growing(head=move_possition, game_state=game_state):
+                            new_body, new_neck , new_length = self.create_data_from__head_is_growing(move_possition, body, my_length)
+                        else:
+                            new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, my_length)
                         data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": new_length}
                         child_id = self.future_safety_tree.add_node(data, node_id)
                         node_ids.append(child_id)
