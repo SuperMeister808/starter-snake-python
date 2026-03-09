@@ -1,6 +1,6 @@
 
 import unittest
-from unittest.mock import patch , MagicMock
+from unittest.mock import patch , MagicMock , ANY
 from move import Move
 
 class TestNoEnemyCollision(unittest.TestCase):
@@ -13,11 +13,15 @@ class TestNoEnemyCollision(unittest.TestCase):
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
         self.head = {"x": 2, "y": 2}
-        self.game_state = "..."
+        self.game_state = {"you": {"id": "Super Meister"}}
         self.patchers = [
             patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, self.game_state), name="mock_extract_keywords")
         ]
         self.mocks = {}
+
+        self.start_patchers()
+        
+        self.addCleanup(self.stop_patchers)
 
     def start_patchers(self):
         
@@ -42,7 +46,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         if not isinstance(mock_extract_keywords, MagicMock):
             raise TypeError("Object: mock_extract_keywords is not a MagicMock()")
         
-        mock_extract_keywords.assert_called_once_with(self.head, self.game_state)
+        mock_extract_keywords.assert_called_once_with(ANY, head=self.head, game_state=self.game_state)
     
     def extract_moves(self):
         
@@ -65,15 +69,14 @@ class TestNoEnemyCollision(unittest.TestCase):
         self.assertEqual(down.get("priority", "unknown"), down_priority)
         self.assertEqual(up.get("priority", "unknown"), up_priority)
 
-    
-    @patch.object(bot, "opponents_positions", new={"...": {"unsafe": [{"x": 3, "y": 2}, {""}]}})
     def test_unsafe_moves(self):
         
-        new_opponents_positions = {"...": {"unsafe": [{"x": 3, "y": 2}, {"x": 1, "y": 2}]}}
+        new_opponents_positions = {"...": {"unsafe": [{"x": 3, "y": 2}, {"x": 1, "y": 2}], "priority": []}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
             self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
-            left , right , down , up = self.extract_moves()
-            self.ass
+            self.move_assertions(False, 0, False, 0, True, 0, True, 0)
+
+            self.assert_call_extract_keywords()
 
     
     def test_priority_moves(self):
