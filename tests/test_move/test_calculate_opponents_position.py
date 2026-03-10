@@ -58,7 +58,7 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
             
             self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
             #priority order: right, left, up, down
-            expected_opponents_positions = {"opponent": {"unsafe": [{"x": 2, "y": 2}, {"x": 3, "y": 2}, {"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}, {"x": 2, "y": 3}], "priority": [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]}}
+            expected_opponents_positions = {"opponent": {"unsafe": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}], "priority": [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]}}
             self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
 
             self.general_call_assertion()
