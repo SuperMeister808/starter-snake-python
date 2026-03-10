@@ -76,7 +76,13 @@ class TestNotItselfCollision(unittest.TestCase):
     
     def test_not_itself_collision_up(self):
         
-        pass
+        body = [self.head, {"x": 2, "y": 3}]
+        with patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, body)) as mock:
+            
+            self.mock_extract_keywords = mock
+            
+            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.move_assertions(True, 0, True, 0, True, 0, False, 0)
     
     def test_not_itself_collision_down(self):
         
