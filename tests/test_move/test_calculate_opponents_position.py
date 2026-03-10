@@ -24,6 +24,10 @@ class TestCalculateOpponentsPositions():
 
         pass
 
+    def test_snake_has_wrong_type(self):
+
+        pass
+    
     #Edge-Case
     def test_only_head(self):
 
