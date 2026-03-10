@@ -53,6 +53,18 @@ class TestNotItselfCollision(unittest.TestCase):
         self.assertEqual(down.get("priority", "unknown"), down_priority)
         self.assertEqual(up.get("priority", "unknown"), up_priority)
 
+    #Edge-Case
+    #first element of body equals self.head
+    def test_head_is_not_iterated(self):
+        
+        body = [{"x": 3, "y": 2}]
+        with patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, body)) as mock:
+            
+            self.mock_extract_keywords = mock
+            
+            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.move_assertions(True, 0, True, 0, True, 0, True, 0)
+    
     def test_not_itself_collision_right(self):
         
         body = [self.head, {"x": 3, "y": 2}]
