@@ -69,7 +69,7 @@ class Move():
 
             is_move_safe["right"]["is_safe"] = False
 
-        if head["x"] >= 0:
+        if head["x"] <= 0:
 
             is_move_safe["left"]["is_safe"] = False
 
@@ -77,7 +77,7 @@ class Move():
 
             is_move_safe["up"]["is_safe"] = False
 
-        if head["y"] >= 0:
+        if head["y"] <= 0:
 
             is_move_safe["down"]["is_safe"] = False
 
