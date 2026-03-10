@@ -36,7 +36,7 @@ class TestNotWallCollision(unittest.TestCase):
         self.assertEqual(down.get("priority", "unknown"), down_priority)
         self.assertEqual(up.get("priority", "unknown"), up_priority)
     
-    def test_not_wall_collision_width(self):
+    def test_not_wall_collision_right(self):
         
         head = {"x": 10, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as mock_extract_keywords:
@@ -44,7 +44,7 @@ class TestNotWallCollision(unittest.TestCase):
             self.bot.not_wall_collision(self.is_move_safe, head=head, game_state=self.game_state)
             self.move_assertions(True, 0, False, 0, True, 0, True, 0)
     
-    def test_not_wall_collision_down(self):
+    def test_not_wall_collision_left(self):
 
         head = {"x": 0, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as mock_extract_keywords:
@@ -52,7 +52,7 @@ class TestNotWallCollision(unittest.TestCase):
             self.bot.not_wall_collision(self.is_move_safe, head=head, game_state=self.game_state)
             self.move_assertions(False, 0, True, 0, True, 0, True, 0)
     
-    def test_not_wall_collision_heigth(self):
+    def test_not_wall_collision_down(self):
         
         head = {"x": 2, "y": 0}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as mock_extract_keywords:
