@@ -46,7 +46,12 @@ class TestNotWallCollision(unittest.TestCase):
     
     def test_not_wall_collision_heigth(self):
         
-        pass
+        head = {"x": 2, "y": 0}
+        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as mock_extract_keywords:
+
+            self.bot.not_wall_collision(self.is_move_safe, head=head, game_state=self.game_state)
+            self.move_assertions(True, 0, True, 0, False, 0, True, 0)
+
     
     def test_not_wall_collision_corner(self):
         
