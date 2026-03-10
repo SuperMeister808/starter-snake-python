@@ -55,7 +55,7 @@ class TestNotItselfCollision(unittest.TestCase):
 
     def test_not_itself_collision_right(self):
         
-        body = [{"x": 3, "y": 2}]
+        body = [self.head, {"x": 3, "y": 2}]
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, body)) as mock:
             
             self.mock_extract_keywords = mock
