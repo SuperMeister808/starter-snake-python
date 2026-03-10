@@ -230,7 +230,6 @@ class Move():
             copy = deepcopy(self.opponents_positions)
             self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": copy})
             
-            my_length = you["length"]
             opponent_length = snake["length"]
             for i , body_part in enumerate(snake["body"]):
                 
