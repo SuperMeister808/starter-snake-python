@@ -150,9 +150,23 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
             self.general_call_assertion()
             mock_is_growing.assert_not_called()
 
+    def test_has_not_required_keys(self):
 
+        game_state = {"you": {"id": "you"}, "board": {"snakes": {"id": "opponent", "head": {"x": 2, "y": 2}, "length": 3}}}
+        my_length = 4
+        with patch.object(self.bot, "is_growing", return_value=False) as mock_is_growing:
+            self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
+            expected_opponents_positions = {}
+            self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
+
+            #log is called before iteration
+            self.general_call_assertion()
+            mock_is_growing.assert_not_called()
     
     #Edge-Case
+    #only one entry in self.opponents_position because for ever iteration only one entry possible
+    #strict seperation between head, body, tail
+    #it´s okay because every battlesnake game_state has them at the beginning
     def test_only_head(self):
 
         game_state = {"you": {"id": "you"}, "board": {"snakes": [{"id": "opponent", "head": {"x": 2, "y": 2}, "length": 3, "body": [{"x": 2, "y": 2}]}]}}
