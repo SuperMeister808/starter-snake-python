@@ -91,6 +91,6 @@ if __name__ == "__main__":
     from server import Server
 
     server_handler = ServerHandler()
-    app = Server({"info": server_handler.info, "start": server_handler.start, "move": server_handler.move, "end": server_handler.end, "push": server_handler.push}, 8000, "RuntimeLogger", "runtime.log", True)
+    app = Server({"info": server_handler.info, "start": server_handler.start, "move": server_handler.move, "end": server_handler.end, "push": server_handler.push}, 8000, "RuntimeLogger", "runtime.log", False)
 
     app.run_server()
