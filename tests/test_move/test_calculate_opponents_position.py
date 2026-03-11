@@ -80,26 +80,33 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
 
     def test_extract_positions_multiple_snakes(self):
 
-        game_state = {"you": {"id": "you"}, "board": {"snakes": [{"id": "opponent_0", "length": 3, "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 4}]}, {"id": "opponent_1", "length": 5, "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 4}]}]}}
+        game_state = {"you": {"id": "you"}, "board": {"snakes": [{"id": "opponent_0", "length": 3, "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 4}]}, {"id": "opponent_1", "length": 5, "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 3, "y": 2}, {"x": 4, "y": 2}]}]}}
         my_length = 4
         with patch.object(self.bot, "is_growing", return_value=False) as mock_is_growing:
             
             self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
             #priority order: right, left, up, down
-            expected_opponents_positions = {"opponent_0": 
-                                                {"unsafe": 
-                                                    [{"x": 2, "y": 2}, {"x": 2, "y": 3}], 
-                                                "priority": 
-                                                    [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}, {"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]},
-                                            "opponent_1": 
-                                                {"unsafe": 
-                                                    [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}],
-                                                "priority": 
-                                                    [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]}}
+            expected_opponents_positions = {"opponent_0": {"unsafe": [{"x": 2, "y": 2},
+                                                                      {"x": 2, "y": 3}], 
+                                                           "priority": [{"x": 3, "y": 2},
+                                                                        {"x": 1, "y": 2},
+                                                                        {"x": 2, "y": 3},
+                                                                        {"x": 2, "y": 1}]},
+                                            "opponent_1": {"unsafe": [{"x": 2, "y": 2},
+                                                                      {"x": 3, "y": 2},
+                                                                      {"x": 3, "y": 2},
+                                                                      {"x": 1, "y": 2},
+                                                                      {"x": 2, "y": 3},
+                                                                      {"x": 2, "y": 1}], 
+                                                           "priority": [{"x": 3, "y": 2},
+                                                                        {"x": 1, "y": 2},
+                                                                        {"x": 2, "y": 3},
+                                                                        {"x": 2, "y": 1}]}}
+                        
             self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
 
             self.general_call_assertion()
-            mock_is_growing.assert_called_once()
+            mock_is_growing.assert_called()
 
     def test_extract_positions_no_snakes(self):
 

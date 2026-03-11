@@ -255,10 +255,10 @@ class Move():
                 copy = deepcopy(self.opponents_positions)
                 self.future_safety.log_data("calculate_opponents_positions", {"process": "append body part", "positions": copy})       
                           
-            first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]}
-            second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]}
-            third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1}
-            fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1}      
+            first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]} #right
+            second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]} #left
+            third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1} #up
+            fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1} #down      
             moves = [first_move, second_move, third_move, fourth_move]      
 
             self.opponents_positions[snake["id"]]["priority"].extend(moves)
