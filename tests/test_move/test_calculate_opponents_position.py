@@ -127,7 +127,15 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
 
     def test_missing_body_parts_between_head_and_tail(self):
 
-        pass
+        game_state = {"you": {"id": "you"}, "board": {"snakes": [{"head": {"x": 2, "y": 2}, "id": "opponent", "length": 3, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}]}]}}
+        my_length = 4
+        with patch.object(self.bot, "is_growing", return_value=False) as mock_is_growing:
+            self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
+            expected_opponents_positions = {"opponent": {"unsafe": [{"x": 2, "y": 2}], "priority": [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]}}
+            self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
+
+            self.general_call_assertion()
+            mock_is_growing.assert_called_once()
 
     def test_snake_has_wrong_type(self):
 
