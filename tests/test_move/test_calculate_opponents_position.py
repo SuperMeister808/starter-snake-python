@@ -139,7 +139,18 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
 
     def test_snake_has_wrong_type(self):
 
-        pass
+        game_state = {"you": {"id": "you"}, "board": {"snakes": ["opponent"]}}
+        my_length = 4
+        with patch.object(self.bot, "is_growing", return_value=False) as mock_is_growing:
+            self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
+            expected_opponents_positions = {}
+            self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
+
+            #log is called before iteration
+            self.general_call_assertion()
+            mock_is_growing.assert_not_called()
+
+
     
     #Edge-Case
     def test_only_head(self):
