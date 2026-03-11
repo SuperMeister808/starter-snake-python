@@ -155,7 +155,16 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
     #Edge-Case
     def test_only_head(self):
 
-        pass
+        game_state = {"you": {"id": "you"}, "board": {"snakes": [{"id": "opponent", "head": {"x": 2, "y": 2}, "length": 3, "body": [{"x": 2, "y": 2}]}]}}
+        my_length = 4
+        with patch.object(self.bot, "is_growing", return_value=True) as mock_is_growing:
+            self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
+            expected_opponents_positions = {"opponent": {"unsafe": [{"x": 2, "y": 2}], "priority": [{"x": 3, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 1}]}}
+            self.assertEqual(self.bot.opponents_positions, expected_opponents_positions)
+
+            self.general_call_assertion()
+            mock_is_growing.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()
