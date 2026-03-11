@@ -355,9 +355,9 @@ class Move():
         
         NEEDED_KEYWORDS = ["head", "body"]
         
-        head, body = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        head, body= self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        new_body = []
+        new_body = None
         
         calls = 0
 

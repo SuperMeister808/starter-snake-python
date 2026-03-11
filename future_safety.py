@@ -1,5 +1,6 @@
 
 import typing
+from copy import deepcopy
 
 from keywords import Keywords
 from emergency_logger import EmergencyLogger
@@ -45,13 +46,15 @@ class FutureSafety():
                 self.log_data("future_safety", {"process": "check_moves", "head": head, "body": body, "neck": neck, "my_length": my_length})
 
                 for move , data in self.safe_moves.items():
+                    new_body = body.copy()
                     if data["is_safe"] == True:
+                        
                         safe_move_left = True
                         move_possition = self.get_move(move, head)
                         if self.move.is_growing(head=move_possition, game_state=game_state):
-                            new_body, new_neck , new_length = self.create_data_from__head_is_growing(move_possition, body, my_length)
+                            new_body, new_neck , new_length = self.create_data_from__head_is_growing(move_possition, new_body, my_length)
                         else:
-                            new_body , new_neck , new_length = self.create_data_from_head(move_possition, body, my_length)
+                            new_body , new_neck , new_length = self.create_data_from_head(move_possition, new_body, my_length)
                         data = {"head": move_possition, "body": new_body, "neck": new_neck, "my_length": new_length}
                         child_id = self.future_safety_tree.add_node(data, node_id)
                         node_ids.append(child_id)
