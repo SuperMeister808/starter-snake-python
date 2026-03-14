@@ -6,7 +6,9 @@ class LogAnalyzer():
 
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
         
-        with open(file) as f:
+        if not isinstance(file, str):
+            raise RuntimeError(f"Unsupportded file handler")
+        with open(file, "r") as f:
             for i, line in enumerate(f):
                 words = line.split()
                 content = self.create_contents(words, i, level_index, turn_index, log_index)
