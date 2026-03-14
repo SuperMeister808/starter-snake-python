@@ -1,33 +1,32 @@
-import io
+
 class LogAnalyzer():
 
     def __init__(self):
-        self.contents = {}
+        self.contents = []
 
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
         
         with open(file) as f:
             for i, line in enumerate(f):
-                words = []
-                for word in line.split():
-                    words.append(word)
-                content = self.create_contents(words, level_index, turn_index, log_index)
-                self.contents [i] = content
+                words = line.split()
+                content = self.create_contents(words, i, level_index, turn_index, log_index)
+                self.contents.append(content)
 
-    def create_contents(self, words, level_index, turn_index, log_index):
-        if level_index is None:
+    def create_contents(self, words, line_number, level_index, turn_index, log_index):
+        line_number = line_number
+        if level_index is None or level_index > len(words) - 1:
             level = "unknown"
         else:
             level = words[level_index]
-        if turn_index is None:
+        if turn_index is None or turn_index > len(words) - 1:
             turn = "unknown"
         else:
             turn = words[turn_index]
-        if log_index is None:
+        if log_index is None or log_index > len(words) - 1:
             log = "unknown"
         else:
             log = words[log_index]
-        content = {"level": level, "turn": turn, "log": log}
+        content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
     def analyse_errors(self, output_format):
@@ -35,20 +34,25 @@ class LogAnalyzer():
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         if output_format not in ALLOWED_OUTPUT_FORMATS:
             raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
-        if self.contents == {}:
+        if len(self.contents) == 0:
             raise RuntimeError("Log not read!")
         
         ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
 
-        for i , content in self.contents.items():
-            level = content.get("level", "unknwon")
-            log = content.get("log", "unknwon")
-            self.validate_level(level)
-            self.validate_log(log)
+        for content in self.contents:
+            line_number = content.get("line_number", "unknown")
+            level = content.get("level", "unknown")
+            log = content.get("log", "unknown")
+            try:
+                self.validate_level(level)
+                self.validate_log(log)
+            except KeyError as e:
+                output = {"line_number": line_number, "WARNING": "Line can not be analyzed", "exception": e}
+                self.output_handler(output_format, output)
 
             if level == "ERROR":
                 if log not in ALLOWED_ERRORS:
-                    output = {"line_number": i, "level": level, "log": log}
+                    output = {"line_number": line_number, "level": level, "log": log}
                     self.output_handler(output_format, output)
 
     
@@ -71,8 +75,10 @@ class LogAnalyzer():
             raise RuntimeError(f"Log analyzer does not support the output format: {output_format}")
         
         if output_format == "file":
-            if isinstance(file_handler, io.IOBase):
-                with open(file_handler) as f:
-                    f.write(output)
+            if isinstance(file_handler, str):
+                with open(file_handler, "a") as f:
+                    f.write(str(output) + "\n")
+            else:
+                raise RuntimeError("Unsupported file_handler!")
         if output_format == "console":
             print(output)
