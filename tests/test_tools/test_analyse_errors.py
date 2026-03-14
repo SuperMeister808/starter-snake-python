@@ -119,7 +119,15 @@ class TestAnalyseErrors(TestCase):
 
     def test_unallowed_output_format(self):
 
-        pass
+        output_format = "..."
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.analyse_errors(output_format)
+        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
+        mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
+        mock_output_handler.assert_not_called()
+        mock_validate_level.assert_not_called()
+        mock_validate_log.assert_not_called()
+
 
 if __name__ == "__main__":
     main()
