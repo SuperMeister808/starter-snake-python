@@ -101,13 +101,20 @@ class TestAnalyseErrors(TestCase):
                 exc = output ["exception"]
                 self.assertIsInstance(exc, KeyError)
 
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
-        mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
+        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_log"]
+        mock_output_handler, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
         expected_calls = [
             call(output_format, ANY),
             call(output_format, ANY)
         ]
         mock_output_handler.assert_has_calls(expected_calls)
+        expected_calls = [
+            call("ERROR"),
+            call("unknown")
+        ]
+        mock_validate_level.assert_has_calls(expected_calls)
+        mock_validate_log.assert_not_called()
+
 
 
     def test_unallowed_output_format(self):
