@@ -115,8 +115,9 @@ class TestAnalyseErrors(TestCase):
         mock_validate_level.assert_has_calls(expected_calls)
         mock_validate_log.assert_not_called()
 
-
-
+    new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
+                    {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
+    @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_output_format(self):
 
         output_format = "..."
@@ -127,6 +128,10 @@ class TestAnalyseErrors(TestCase):
         mock_output_handler.assert_not_called()
         mock_validate_level.assert_not_called()
         mock_validate_log.assert_not_called()
+
+    def test_log_not_read(self):
+
+        pass
 
 
 if __name__ == "__main__":
