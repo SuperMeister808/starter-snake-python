@@ -129,9 +129,18 @@ class TestAnalyseErrors(TestCase):
         mock_validate_level.assert_not_called()
         mock_validate_log.assert_not_called()
 
+    new_contents = []
+    @patch.object(log_analyzer, "contents", new=new_contents)
     def test_log_not_read(self):
 
-        pass
+        output_format = "console"
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.analyse_errors(output_format)
+        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
+        mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
+        mock_output_handler.assert_not_called()
+        mock_validate_level.assert_not_called()
+        mock_validate_log.assert_not_called()
 
 
 if __name__ == "__main__":
