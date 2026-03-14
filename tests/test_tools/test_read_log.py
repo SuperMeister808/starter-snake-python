@@ -46,7 +46,13 @@ class TestReadLog(TestCase):
 
     def test_read_log_unsupported_file_handler(self):
 
-        pass
+        file_handler = 0
+        mock_file = mock_open(read_data="HELLO WORLD !")
+        with patch("builtins.open", mock_file):
+            with self.assertRaises(RuntimeError):
+                result = self.log_analyzer.read_log(file_handler)
+                mock_create_contents = self.mocks ["mock_create_contents"]
+                mock_create_contents.assert_not_called()
 
 if __name__ == "__main__":
     main()
