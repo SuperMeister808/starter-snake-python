@@ -14,8 +14,11 @@ class LogAnalyzer():
                 content = self.create_contents(words, i, level_index, turn_index, log_index)
                 self.contents.append(content)
 
-    def create_contents(self, words, line_number, level_index, turn_index, log_index):
-        line_number = line_number
+    def create_contents(self, words, line_number=None, level_index=None, turn_index=None, log_index=None):
+        if line_number is None or not isinstance(line_number, int):
+            line_number = "unknown"
+        else:
+            line_number = line_number
         if level_index is None or level_index > len(words) - 1:
             level = "unknown"
         else:
