@@ -34,7 +34,7 @@ class LogAnalyzer():
         content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
-    def analyse_errors(self, output_format):
+    def analyse_errors(self, output_format, file_handler=None):
 
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         if output_format not in ALLOWED_OUTPUT_FORMATS:
@@ -53,16 +53,16 @@ class LogAnalyzer():
                 self.validate_log(log)
             except KeyError as e:
                 output = {"line_number": line_number, "WARNING": "Line can not be analyzed", "exception": e}
-                self.output_handler(output_format, output)
+                self.output_handler(output_format, output, file_handler)
                 continue
 
             if level == "ERROR":
                 if log not in ALLOWED_ERRORS:
                     output = {"line_number": line_number, "level": level, "log": log}
-                    self.output_handler(output_format, output)
+                    self.output_handler(output_format, output, file_handler)
 
         output = "Analyse_errors complete!"
-        self.output_handler(output_format, output)
+        self.output_handler(output_format, output, file_handler)
 
     
     def validate_level(self, level):
