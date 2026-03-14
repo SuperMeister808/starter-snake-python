@@ -96,6 +96,10 @@ class TestAnalyseErrors(TestCase):
         result = self.log_analyzer.analyse_errors(output_format)
         expected_outputs = [{"line_number": 0, "WARNING": "Line can not be analyzed", "exception": ANY}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
         self.assertEqual(self.capture_output, expected_outputs)
+        for output in self.capture_output:
+            if isinstance(output, dict):
+                exc = output ["exception"]
+                self.assertIsInstance(exc, KeyError)
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
         mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
