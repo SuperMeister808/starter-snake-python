@@ -1,3 +1,4 @@
+import io
 class LogAnalyzer():
 
     def __init__(self):
@@ -29,11 +30,15 @@ class LogAnalyzer():
         content = {"level": level, "turn": turn, "log": log}
         return content
     
-    def analyse_errors(self):
-        
-        ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
+    def analyse_errors(self, output_format):
+
+        ALLOWED_OUTPUT_FORMATS = ["file", "console"]
+        if output_format not in ALLOWED_OUTPUT_FORMATS:
+            raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
         if self.contents == {}:
             raise RuntimeError("Log not read!")
+        
+        ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
 
         for i , content in self.contents.items():
             level = content.get("level", "unknwon")
@@ -41,8 +46,11 @@ class LogAnalyzer():
             self.validate_level(level)
             self.validate_log(log)
 
-        if level == "ERROR":
-            pass
+            if level == "ERROR":
+                if log not in ALLOWED_ERRORS:
+                    output = {"line_number": i, "level": level, "log": log}
+                    self.output_handler(output_format, output)
+
     
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -57,6 +65,14 @@ class LogAnalyzer():
         if not isinstance(turn, int):
             raise KeyError("To execute the called analyzation the log needs clear turns!")
 
-    def print_found_errors(self, found_errors):
-        for error in found_errors:
-            print(error)
+    def output_handler(self, output_format, output, file_handler=None):
+        ALLOWED_OUTPUT_FORMATS = ["file", "console"]
+        if output_format not in ALLOWED_OUTPUT_FORMATS:
+            raise RuntimeError(f"Log analyzer does not support the output format: {output_format}")
+        
+        if output_format == "file":
+            if isinstance(file_handler, io.IOBase):
+                with open(file_handler) as f:
+                    f.write(output)
+        if output_format == "console":
+            print(output)
