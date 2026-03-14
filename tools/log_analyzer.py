@@ -82,3 +82,6 @@ class LogAnalyzer():
                 raise RuntimeError("Unsupported file_handler!")
         if output_format == "console":
             print(output)
+
+    def reset_contents(self):
+        self.contents = []
