@@ -22,6 +22,10 @@ class TestAnalyseErrors(TestCase):
     def fake_output_handler(self, output_format, output):
         self.capture_output.append(output)
 
+    def fake_validate_level(self, level):
+        if level == "unknown":
+            raise self.exc
+
     def start_patchers(self):
         for patcher in self.patchers:
             mock = patcher.start()
@@ -81,9 +85,26 @@ class TestAnalyseErrors(TestCase):
         self.assertEqual(mock_validate_level.call_count, 2)
         self.assertEqual(mock_validate_log.call_count, 2)
 
-    def test_validation_failed(self):
+    new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
+                    {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
+    exc = KeyError("side effect")
+    @patch.object(log_analyzer, "contents", new=new_contents)
+    @patch.object(log_analyzer, "validate_level", side_effect=exc)
+    def test_validation_failed(self, mock_validate_level):
 
-        pass
+        output_format = "console"
+        result = self.log_analyzer.analyse_errors(output_format)
+        expected_outputs = [{"line_number": 0, "level": "ERROR", "log": "random_choice: Failed!"}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
+        self.assertEqual(self.capture_output, expected_outputs)
+
+        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
+        mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
+        expected_calls = [
+            call(output_format, ANY),
+            call(output_format, ANY)
+        ]
+        mock_output_handler.assert_has_calls(expected_calls)
+
 
     def test_unallowed_output_format(self):
 

@@ -54,6 +54,7 @@ class LogAnalyzer():
             except KeyError as e:
                 output = {"line_number": line_number, "WARNING": "Line can not be analyzed", "exception": e}
                 self.output_handler(output_format, output)
+                continue
 
             if level == "ERROR":
                 if log not in ALLOWED_ERRORS:
