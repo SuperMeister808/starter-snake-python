@@ -18,7 +18,11 @@ class TestCreateContents(TestCase):
 
     def test_args(self):
 
-        pass
+        words = ["somelevel", "someturn", "somelog"]
+        line_number = 0
+        result = self.log_analyzer.create_contents(words, line_number, 0, 1, 2)
+        expected = {"line_number": 0, "level": "somelevel", "turn": "someturn", "log": "somelog"}
+        self.assertEqual(result, expected)
 
     def test_too_high_index(self):
 
