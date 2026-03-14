@@ -36,7 +36,13 @@ class TestReadLog(TestCase):
 
     def test_read_log_custom_args(self):
 
-        pass
+        file_handler = "..."
+        mock_file = mock_open(read_data="HELLO WORLD !")
+        with patch("builtins.open", mock_file):
+            result = self.log_analyzer.read_log(file_handler, 0, 1, 2)
+            mock_create_contents = self.mocks ["mock_create_contents"]
+            expected_words = ["HELLO", "WORLD", "!"]
+            mock_create_contents.assert_called_once_with(expected_words, 0, 0, 1, 2)
 
     def test_read_log_unsupported_file_handler(self):
 
