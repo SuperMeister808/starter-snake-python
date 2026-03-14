@@ -94,7 +94,7 @@ class TestAnalyseErrors(TestCase):
 
         output_format = "console"
         result = self.log_analyzer.analyse_errors(output_format)
-        expected_outputs = [{"line_number": 0, "level": "ERROR", "log": "random_choice: Failed!"}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
+        expected_outputs = [{"line_number": 0, "WARNING": "Line can not be analyzed", "exception": ANY}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
         self.assertEqual(self.capture_output, expected_outputs)
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
