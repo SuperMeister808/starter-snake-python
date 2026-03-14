@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import patch , MagicMock , ANY
+from unittest.mock import patch , MagicMock , ANY , call
 from unittest import main
 from tools.log_analyzer import LogAnalyzer
 class TestAnalyseErrors(TestCase):
@@ -15,6 +15,8 @@ class TestAnalyseErrors(TestCase):
         self.mocks = {}
 
         self.start_patchers()
+        #LIFO
+        self.addCleanup(self.reset_capture_output)
         self.addCleanup(self.stop_patchers)
     
     def fake_output_handler(self, output_format, output):
@@ -37,6 +39,10 @@ class TestAnalyseErrors(TestCase):
             found_mocks.append(mock)
 
         return found_mocks
+    
+    def reset_capture_output(self):
+
+        self.capture_output = []
 
     new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Choosed emergency move"},
                     {"line_number": 1, "level": "INFO", "turn": 0, "log": "random_choice: Success!"}]
@@ -54,9 +60,26 @@ class TestAnalyseErrors(TestCase):
         self.assertEqual(mock_validate_level.call_count, 2)
         self.assertEqual(mock_validate_log.call_count, 2)
 
+    new_contents = [{"line_number": 1, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
+                    {"line_number": 0, "level": "INFO", "turn": 0, "log": "random_choice: Success!"}]
+    @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_errors(self):
 
-        pass
+        output_format = "console"
+        result = self.log_analyzer.analyse_errors(output_format)
+        expected_outputs = [{"line_number": 1, "level": "ERROR", "log": "random_choice: Failed!"}, "Analyse_errors complete!"]
+        self.assertEqual(self.capture_output, expected_outputs)
+
+        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
+        mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
+        expected_calls = [
+            call(output_format, ANY),
+            call(output_format, ANY)
+        ]
+        mock_output_handler.assert_has_calls(expected_calls)
+        self.assertEqual(mock_output_handler.call_count, 2)
+        self.assertEqual(mock_validate_level.call_count, 2)
+        self.assertEqual(mock_validate_log.call_count, 2)
 
     def test_validation_failed(self):
 
