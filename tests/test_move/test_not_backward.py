@@ -21,7 +21,7 @@ class TestNotBackward(unittest.TestCase):
         if not isinstance(mock, MagicMock):
             raise TypeError(f"Object: {mock} is not MagicMock()")
         
-        mock.assert_called_once()
+        mock.assert_called_once_with()
 
     def extract_moves(self):
         
