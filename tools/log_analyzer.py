@@ -60,6 +60,9 @@ class LogAnalyzer():
                     output = {"line_number": line_number, "level": level, "log": log}
                     self.output_handler(output_format, output)
 
+        output = "Analyse_errors complete!"
+        self.output_handler(output_format, output)
+
     
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
