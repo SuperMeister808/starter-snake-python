@@ -90,8 +90,18 @@ class TestOutputFormat(TestCase):
             expected_calls = [
                 call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
             ]
+            mock_add_handler.assert_called()
             mock_log.assert_has_calls(expected_calls)
             mock_remove_handler.assert_called()
+
+    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
+    def test_only_unallowed_output_handlers(self, mock_add_handler):
+
+        output_formats = ["unallowed"]
+        output = "anything"
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.output_handler(output_formats, output)
+            mock_add_handler.assert_not_called()
 
 if __name__ == "__main__":
     main()
