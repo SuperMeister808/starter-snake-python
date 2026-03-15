@@ -1,5 +1,6 @@
 import logging
 import typing
+import os
 class LogAnalyzer():
 
     def __init__(self, file):
@@ -26,7 +27,9 @@ class LogAnalyzer():
     def setup_file_handler(self, file, formatter):
         if not isinstance(formatter, logging.Formatter):
             raise RuntimeError("Formatter object is required to be logging.Formatter()")
-        
+        if not os.path.exists(file):
+            raise RuntimeError("File path does not exist!")
+
         handler = logging.FileHandler(file)
         handler.setFormatter(formatter)
         self.handlers ["file"] = handler
