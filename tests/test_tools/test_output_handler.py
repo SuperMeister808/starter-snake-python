@@ -39,12 +39,12 @@ class TestOutputFormat(TestCase):
 
     @patch.object(log_analyzer, "file", new="...")
     @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
-    def test_incorrect_file_handler(self, mock_log_analyzer):
+    def test_incorrect_file_handler(self, mock_add_handler):
         output_formats = ["console", "file"]
         output = "anything"
         with self.assertRaises(RuntimeError):
             self.log_analyzer.output_handler(output_formats, output)
-        mock_log_analyzer.assert_not_called()
+        mock_add_handler.assert_not_called()
 
     def test_all_output_formats(self):
 
@@ -76,10 +76,14 @@ class TestOutputFormat(TestCase):
             ]
             mock_log.assert_has_calls(expected_calls)
 
+    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
+    def test_unallowed_output_format(self, mock_add_handler):
 
-    def test_unallowed_output_format(self):
-
-        pass
+        output_formats = ["console", "file", "unallowed"]
+        output = "anything"
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.output_handler(output_formats, output)
+        mock_add_handler.assert_not_called()
 
 if __name__ == "__main__":
     main()

@@ -50,7 +50,7 @@ class LogAnalyzer():
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
                 self.close_handlers()
-                raise KeyError("Handler object not found in setup handlers!")
+                continue
             self.logger.addHandler(handler)
 
     def remove_handler(self):
@@ -162,6 +162,8 @@ class LogAnalyzer():
     def output_handler(self, output_handlers, output):
         self.setup_handlers(self.file)
         self.add_handler(output_handlers)
+        if len(self.logger.handlers) == 0:
+            raise RuntimeError("Logger needs one or more handlers!")
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")
         log = output.get("log", "unknown")
