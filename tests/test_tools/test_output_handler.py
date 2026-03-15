@@ -24,6 +24,8 @@ class TestOutputFormat(TestCase):
         self.start_patchers()
 
         self.addCleanup(self.stop_patchers)
+        self.addCleanup(self.log_analyzer.remove_handler)
+        self.addCleanup(self.log_analyzer.close_handlers)
         
     def start_patchers(self):
         for patcher in self.patchers:
@@ -61,7 +63,18 @@ class TestOutputFormat(TestCase):
 
     def test_selected_output_formats(self):
 
-       pass
+        output_formats = ["console"]
+        output = {"level": "level", "turn": "turn", "log": "log", "line_number": "line_number"}
+        with patch.object(self.log_analyzer, "remove_handler") as mock_remove_handler:
+            self.log_analyzer.output_handler(output_formats, output)
+            self.assertEqual(len(self.log_analyzer.logger.handlers), 1)
+            self.assertFalse(any(isinstance(handler, logging.FileHandler) for handler in self.log_analyzer.logger.handlers))
+            self.assertTrue(any(isinstance(handler, logging.StreamHandler) for handler in self.log_analyzer.logger.handlers))
+            mock_log = self.mocks ["mock_log"]
+            expected_calls = [
+                call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
+            ]
+            mock_log.assert_has_calls(expected_calls)
 
 
     def test_unallowed_output_format(self):
