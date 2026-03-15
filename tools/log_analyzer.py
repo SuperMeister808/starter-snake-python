@@ -1,4 +1,5 @@
 import logging
+import typing
 class LogAnalyzer():
 
     def __init__(self, file):
@@ -30,11 +31,28 @@ class LogAnalyzer():
     
     def setup_stream_handler(self, formatter):
         if not isinstance(formatter, logging.Formatter):
-            raise RuntimeError("Formatter object is required to be logging.Formatter()")
+            raise TypeError("Formatter object is required to be logging.Formatter()")
         
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
         self.handlers ["console"] = handler
+
+    def add_handler(self, handlers:typing.List[str]):
+        for handler_name in handlers:
+            handler = self.handlers.get(handler_name, "unknown")
+            if not isinstance(handler, logging.Handler):
+                raise TypeError("Handler object requires to be a logging.Handler()")
+            self.logger.addHandler(handler)
+
+    def remove_handler(self, handlers:typing.List[str]):
+        for handler_name in handlers:
+            handler = self.handlers.get(handler_name, "unknown")
+            if not isinstance(handler, logging.Handler):
+                raise TypeError("Handler object requires to be a logging.Handler()")
+            if handler not in self.logger.handlers:
+                continue
+            self.logger.removeHandler(handler)
+            handler.close()
     
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
         
