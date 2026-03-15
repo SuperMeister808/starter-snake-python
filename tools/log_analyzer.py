@@ -17,7 +17,7 @@ class LogAnalyzer():
         self.setup_stream_handler(formatter)
 
     def setup_formatter(self):
-        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - LOG %(log)s", 
+        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - MESSAGE %(message)s", 
                                       datefmt="%Y-$m-%d %H:%M:%S")
         return formatter
     
@@ -62,7 +62,7 @@ class LogAnalyzer():
             handler.close()
     
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
-        
+        self.reset_contents()
         if not isinstance(file, str):
             raise RuntimeError(f"Unsupportded file handler")
         with open(file, "r") as f:
@@ -92,11 +92,12 @@ class LogAnalyzer():
         "n": turn, "log": log}
         return content
     
-    def analyse_errors(self, output_format, file_handler=None):
+    def analyse_errors(self, output_formats, file_handler=None):
 
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
-        if output_format not in ALLOWED_OUTPUT_FORMATS:
-            raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
+        for output_format in output_formats:
+            if output_format not in ALLOWED_OUTPUT_FORMATS:
+                raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
         if len(self.contents) == 0:
             raise RuntimeError("Log not read!")
         
@@ -104,29 +105,41 @@ class LogAnalyzer():
 
         for content in self.contents:
             line_number = content.get("line_number", "unknown")
+            turn = content.get("turn", "unknown")
             level = content.get("level", "unknown")
             log = content.get("log", "unknown")
             try:
-                self.validate_level(level)
+                level_index = self.get_level(level)
                 self.validate_log(log)
             except KeyError as e:
-                output = {"line_number": line_number, "WARNING": "Line can not be analyzed", "exception": e}
-                self.output_handler(output_format, output, file_handler)
+                output = {"line_number": line_number, "level": "WARNING", "turn": turn, "log": f"Line can not be analyzed: {e}"}
+                self.output_handler(output_format, output)
                 continue
 
-            if level == "ERROR":
+            if level_index == 30:
                 if log not in ALLOWED_ERRORS:
-                    output = {"line_number": line_number, "level": level, "log": log}
-                    self.output_handler(output_format, output, file_handler)
+                    output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
+                    self.output_handler(output_format, output)
 
-        output = "Analyse_errors complete!"
-        self.output_handler(output_format, output, file_handler)
+        output = {"line_number": "unknown", "level": "unknown", "log": "Analyse errors completed!", "turn": "unknown"}
+        self.output_handler(output_format, output)
 
-    
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if level not in ALLOWED_LEVELS:
-            raise KeyError("To execute the called analyzation the log needs clear levels!")
+            raise KeyError("No allowed log leve in contents found")
+        level_int = 0
+        if level == "DEBUG":
+            level_int = 10
+        if level == "INFO":
+            level_int = 20
+        if level == "WARNING":
+            level_int = 30
+        if level == "ERROR":
+            level_int = 40
+        if level == "CRITICAL":
+            level_int = 50
+        return level_int
         
     def validate_log(self, log):
         if log == "unknown":
@@ -135,11 +148,15 @@ class LogAnalyzer():
     def validate_turn(self, turn):
         if not isinstance(turn, int):
             raise KeyError("To execute the called analyzation the log needs clear turns!")
+        
+    def validate_line_number(self, line_number):
+        if not isinstance(line_number, int):
+            raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
         self.close_handlers()
         self.add_handler(output_handlers)
+        self.logger.log
         
-
     def reset_contents(self):
         self.contents = []
