@@ -2,19 +2,10 @@ from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY
 from unittest import main
 from tools.log_analyzer import LogAnalyzer
-import tempfile
-import os
 class TestCreateContents(TestCase):
 
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"...")
-        file = tmp.name  
-        log_analyzer = LogAnalyzer(file)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.tmp.close()
-        os.remove(cls.file)
+    file = "..."
+    log_analyzer = LogAnalyzer(file)
     
     def setUp(self):
         
