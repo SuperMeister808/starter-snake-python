@@ -4,12 +4,13 @@ from unittest import main
 from tools.log_analyzer import LogAnalyzer
 import io
 import tempfile
+import os
 class TestAnalyseErrors(TestCase):
 
-    with tempfile.NamedTemporaryFile(delete=True) as tmp:
+    with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"...")
         file = tmp.name  
-        log_analyzer = LogAnalyzer(file)
+    log_analyzer = LogAnalyzer(file)
     def setUp(self):
         
         self.capture_output = []
@@ -99,8 +100,8 @@ class TestAnalyseErrors(TestCase):
     @patch.object(log_analyzer, "validate_level", side_effect=exc)
     def test_validation_failed(self, mock_validate_level):
 
-        output_format = "console"
-        result = self.log_analyzer.analyse_errors(output_format)
+        output_formats = ["console"]
+        result = self.log_analyzer.analyse_errors(output_formats)
         expected_outputs = [{"line_number": 0, "WARNING": "Line can not be analyzed", "exception": ANY}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
         self.assertEqual(self.capture_output, expected_outputs)
         for output in self.capture_output:
@@ -152,3 +153,4 @@ class TestAnalyseErrors(TestCase):
 
 if __name__ == "__main__":
     main()
+    os.remove(TestAnalyseErrors.file)

@@ -91,7 +91,7 @@ class LogAnalyzer():
         content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
-    def analyse_errors(self, output_formats, file_handler=None):
+    def analyse_errors(self, output_formats):
 
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
@@ -108,7 +108,7 @@ class LogAnalyzer():
             level = content.get("level", "unknown")
             log = content.get("log", "unknown")
             try:
-                level_index = self.get_level(level)
+                level_index = self.validate_level_level(level)
                 self.validate_log(log)
             except KeyError as e:
                 output = {"line_number": line_number, "level": "WARNING", "turn": turn, "log": f"Line can not be analyzed: {e}"}
