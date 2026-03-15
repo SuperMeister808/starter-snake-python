@@ -41,15 +41,22 @@ class LogAnalyzer():
         for handler_name in handlers:
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
-                raise TypeError("Handler object requires to be a logging.Handler()")
+                raise KeyError("Handler object not found in setup handlers!")
             self.logger.addHandler(handler)
 
     def remove_handler(self, handlers:typing.List[str]):
         for handler_name in handlers:
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
-                raise TypeError("Handler object requires to be a logging.Handler()")
+                raise KeyError("Handler object not found in logger.handlers")
             if handler not in self.logger.handlers:
+                continue
+            self.logger.removeHandler(handler)
+            handler.close()
+
+    def close_handlers(self):
+        for handler in self.logger.handlers:
+            if not isinstance(handler, logging.Handler):
                 continue
             self.logger.removeHandler(handler)
             handler.close()
@@ -129,19 +136,10 @@ class LogAnalyzer():
         if not isinstance(turn, int):
             raise KeyError("To execute the called analyzation the log needs clear turns!")
 
-    def output_handler(self, output_format, output, file_handler=None):
-        ALLOWED_OUTPUT_FORMATS = ["file", "console"]
-        if output_format not in ALLOWED_OUTPUT_FORMATS:
-            raise RuntimeError(f"Log analyzer does not support the output format: {output_format}")
+    def output_handler(self, output_handlers, output):
+        self.close_handlers()
+        self.add_handler(output_handlers)
         
-        if output_format == "file":
-            if isinstance(file_handler, str):
-                with open(file_handler, "a") as f:
-                    f.write(str(output) + "\n")
-            else:
-                raise RuntimeError("Unsupported file_handler!")
-        if output_format == "console":
-            print(output)
 
     def reset_contents(self):
         self.contents = []
