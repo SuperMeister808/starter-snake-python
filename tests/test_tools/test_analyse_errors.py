@@ -2,22 +2,29 @@ from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY , call
 from unittest import main
 from tools.log_analyzer import LogAnalyzer
+import io
+import tempfile
 class TestAnalyseErrors(TestCase):
 
-    log_analyzer = LogAnalyzer()
+    with tempfile.NamedTemporaryFile(delete=True) as tmp:
+        tmp.write(b"...")
+        file = tmp.name  
+        log_analyzer = LogAnalyzer(file)
     def setUp(self):
         
         self.capture_output = []
         
         self.patchers = [patch.object(self.log_analyzer, "output_handler", side_effect=self.fake_output_handler, name="mock_output_handler"),
                          patch.object(self.log_analyzer, "validate_level", wraps=self.log_analyzer.validate_level, name="mock_validate_level"),
-                         patch.object(self.log_analyzer, "validate_log", wraps=self.log_analyzer.validate_log, name="mock_validate_log")]
+                         patch.object(self.log_analyzer, "validate_log", wraps=self.log_analyzer.validate_log, name="mock_validate_log"),
+                         patch.object(self.log_analyzer, "setup_logger")]
         self.mocks = {}
 
         self.start_patchers()
         #LIFO
         self.addCleanup(self.reset_capture_output)
         self.addCleanup(self.stop_patchers)
+    
     
     def fake_output_handler(self, output_format, output):
         self.capture_output.append(output)
