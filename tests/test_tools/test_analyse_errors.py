@@ -6,11 +6,17 @@ import io
 import tempfile
 import os
 class TestAnalyseErrors(TestCase):
-
+        
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"...")
         file = tmp.name  
-    log_analyzer = LogAnalyzer(file)
+        log_analyzer = LogAnalyzer(file)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tmp.close()
+        os.remove(cls.file)
+    
     def setUp(self):
         
         self.capture_output = []
@@ -167,4 +173,3 @@ class TestAnalyseErrors(TestCase):
 
 if __name__ == "__main__":
     main()
-    os.remove(TestAnalyseErrors.file)

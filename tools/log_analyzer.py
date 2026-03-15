@@ -3,15 +3,17 @@ import typing
 class LogAnalyzer():
 
     def __init__(self, file):
+        self.file = file
         self.contents = []
         self.logger = None
         self.handlers = {}
         self.setup_logger(file)
 
-
     def setup_logger(self, file):
         self.logger = logging.getLogger("log_analyzer")
         self.logger.setLevel(logging.INFO)
+        
+    def setup_handlers(self, file):
         formatter = self.setup_formatter()
         self.setup_file_handler(file, formatter)
         self.setup_stream_handler(formatter)
@@ -44,21 +46,16 @@ class LogAnalyzer():
                 raise KeyError("Handler object not found in setup handlers!")
             self.logger.addHandler(handler)
 
-    def remove_handler(self, handlers:typing.List[str]):
-        for handler_name in handlers:
-            handler = self.handlers.get(handler_name, "unknown")
-            if not isinstance(handler, logging.Handler):
-                raise KeyError("Handler object not found in logger.handlers")
-            if handler not in self.logger.handlers:
-                continue
-            self.logger.removeHandler(handler)
-            handler.close()
-
-    def close_handlers(self):
+    def remove_handler(self):
         for handler in self.logger.handlers:
             if not isinstance(handler, logging.Handler):
                 continue
             self.logger.removeHandler(handler)
+
+    def close_handlers(self):
+        self.remove_handler()
+
+        for name, handler in self.handlers.items():
             handler.close()
     
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
@@ -92,7 +89,7 @@ class LogAnalyzer():
         return content
     
     def analyse_errors(self, output_formats):
-
+        self.setup_handlers()
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
             if output_format not in ALLOWED_OUTPUT_FORMATS:
@@ -122,6 +119,7 @@ class LogAnalyzer():
 
         output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
         self.output_handler(output_formats, output)
+        self.close_handlers()
 
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -159,7 +157,7 @@ class LogAnalyzer():
         log = output.get("log", "unknown")
         line_number = output.get("line_number", "unknown")
         self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
-        self.close_handlers()
+        self.remove_handler()
         
     def reset_contents(self):
         self.contents = []
