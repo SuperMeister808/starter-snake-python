@@ -18,12 +18,26 @@ class TestOutputFormat(TestCase):
 
     def setUp(self):
         
-        self.patchers = [patch.object(self.log_analyzer.logger, "log")]
-        
-    
-    def test_incorrect_file_handler(self):
+        self.mocks = {}
+        self.patchers = [patch.object(self.log_analyzer.logger, "log", name="mock_log")]
+        self.start_patchers()
 
-        pass
+        self.addCleanup(self.stop_patchers)
+        
+    def start_patchers(self):
+        for patcher in self.patchers:
+            mock = patcher.start()
+            if isinstance(mock, MagicMock):
+                self.mocks [mock._mock_name] = mock
+
+    def stop_patchers(self):
+        for patcher in self.patchers:
+            patcher.stop()
+
+    @patch.object(log_analyzer.file, new="...")
+    def test_incorrect_file_handler(self):
+        
+        
 
     def test_all_output_formats(self):
 
