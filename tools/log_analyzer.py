@@ -26,8 +26,10 @@ class LogAnalyzer():
     
     def setup_file_handler(self, file, formatter):
         if not isinstance(formatter, logging.Formatter):
+            self.close_handlers()
             raise RuntimeError("Formatter object is required to be logging.Formatter()")
         if not os.path.exists(file):
+            self.close_handlers()
             raise RuntimeError("File path does not exist!")
 
         handler = logging.FileHandler(file)
@@ -36,6 +38,7 @@ class LogAnalyzer():
     
     def setup_stream_handler(self, formatter):
         if not isinstance(formatter, logging.Formatter):
+            self.close_handlers()
             raise TypeError("Formatter object is required to be logging.Formatter()")
         
         handler = logging.StreamHandler()
@@ -46,6 +49,7 @@ class LogAnalyzer():
         for handler_name in handlers:
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
+                self.close_handlers()
                 raise KeyError("Handler object not found in setup handlers!")
             self.logger.addHandler(handler)
 
@@ -59,11 +63,13 @@ class LogAnalyzer():
         self.remove_handler()
 
         for name, handler in self.handlers.items():
-            handler.close()
+            if isinstance(handler, logging.Handler):
+                handler.close()
     
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
         self.reset_contents()
         if not isinstance(file, str):
+            self.close_handlers()
             raise RuntimeError(f"Unsupportded file handler")
         with open(file, "r") as f:
             for i, line in enumerate(f):
@@ -95,8 +101,10 @@ class LogAnalyzer():
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
             if output_format not in ALLOWED_OUTPUT_FORMATS:
+                self.close_handlers()
                 raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
         if len(self.contents) == 0:
+            self.close_handlers()
             raise RuntimeError("Log not read!")
         
         ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
