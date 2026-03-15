@@ -1,9 +1,10 @@
 from unittest import TestCase
-from unittest.mock import patch , MagicMock , ANY , mock_open
+from unittest.mock import patch , MagicMock , ANY , mock_open , call
 from unittest import main
 from tools.log_analyzer import LogAnalyzer
 import tempfile
 import os
+import logging
 class TestOutputFormat(TestCase):
 
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
@@ -19,7 +20,7 @@ class TestOutputFormat(TestCase):
     def setUp(self):
         
         self.mocks = {}
-        self.patchers = [patch.object(self.log_analyzer.logger, "log", side_effect=lambda output_format, output: output, name="mock_log")]
+        self.patchers = [patch.object(self.log_analyzer.logger, "log", name="mock_log")]
         self.start_patchers()
 
         self.addCleanup(self.stop_patchers)
@@ -45,11 +46,23 @@ class TestOutputFormat(TestCase):
 
     def test_all_output_formats(self):
 
-        pass
-    
+        output_formats = ["console", "file"]
+        output = {"level": "level", "turn": "turn", "log": "log", "line_number": "line_number"}
+        with patch.object(self.log_analyzer, "remove_handler") as mock_remove_handler:
+            self.log_analyzer.output_handler(output_formats, output)
+            self.assertEqual(len(self.log_analyzer.logger.handlers), 2)
+            self.assertTrue(any(isinstance(handler, logging.FileHandler) for handler in self.log_analyzer.logger.handlers))
+            self.assertTrue(any(isinstance(handler, logging.StreamHandler) for handler in self.log_analyzer.logger.handlers))
+            mock_log = self.mocks ["mock_log"]
+            expected_calls = [
+                call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
+            ]
+            mock_log.assert_has_calls(expected_calls)
+
     def test_selected_output_formats(self):
 
-        pass
+       pass
+
 
     def test_unallowed_output_format(self):
 
