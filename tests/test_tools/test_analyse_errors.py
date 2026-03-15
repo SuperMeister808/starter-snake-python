@@ -63,7 +63,7 @@ class TestAnalyseErrors(TestCase):
 
         output_formats = ["console"]
         result = self.log_analyzer.analyse_errors(output_formats)
-        expected_outputs = ["Analyse_errors complete!"]
+        expected_outputs = [{"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}]
         self.assertEqual(self.capture_output, expected_outputs)
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
