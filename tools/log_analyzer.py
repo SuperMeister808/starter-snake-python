@@ -108,7 +108,7 @@ class LogAnalyzer():
             level = content.get("level", "unknown")
             log = content.get("log", "unknown")
             try:
-                level_index = self.validate_level_level(level)
+                level_index = self.validate_level(level)
                 self.validate_log(log)
             except KeyError as e:
                 output = {"line_number": line_number, "level": "WARNING", "turn": turn, "log": f"Line can not be analyzed: {e}"}
