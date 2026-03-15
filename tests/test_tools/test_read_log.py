@@ -4,7 +4,8 @@ from unittest import main
 from tools.log_analyzer import LogAnalyzer
 class TestReadLog(TestCase):
 
-    log_analyzer = LogAnalyzer()
+    file = "..."
+    log_analyzer = LogAnalyzer(file)
     def setUp(self):
         self.patchers = [
             patch.object(self.log_analyzer, "create_contents", name="mock_create_contents")
