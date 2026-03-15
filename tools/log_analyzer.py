@@ -17,8 +17,8 @@ class LogAnalyzer():
         self.setup_stream_handler(formatter)
 
     def setup_formatter(self):
-        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - %(message)s", 
-                                      datefmt="%Y-$m-%d %H:%M:%S")
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - %(message)s", 
+                                      datefmt="%Y-%m-%d %H:%M:%S")
         return formatter
     
     def setup_file_handler(self, file, formatter):
@@ -88,8 +88,7 @@ class LogAnalyzer():
             log = "unknown"
         else:
             log = words[log_index]
-        content = {"line_number": line_number, "level": level, "tur"
-        "n": turn, "log": log}
+        content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
     def analyse_errors(self, output_formats, file_handler=None):
@@ -154,13 +153,13 @@ class LogAnalyzer():
             raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
-        self.close_handlers()
         self.add_handler(output_handlers)
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")
         log = output.get("log", "unknown")
         line_number = output.get("line_number", "unknown")
         self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
+        self.close_handlers()
         
     def reset_contents(self):
         self.contents = []
