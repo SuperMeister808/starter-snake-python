@@ -11,13 +11,13 @@ class LogAnalyzer():
 
     def setup_logger(self, file):
         self.logger = logging.getLogger("log_analyzer")
-        self.logger.setLevel(self.logger.info)
+        self.logger.setLevel(logging.INFO)
         formatter = self.setup_formatter()
         self.setup_file_handler(file, formatter)
         self.setup_stream_handler(formatter)
 
     def setup_formatter(self):
-        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - MESSAGE %(message)s", 
+        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - %(message)s", 
                                       datefmt="%Y-$m-%d %H:%M:%S")
         return formatter
     
@@ -116,12 +116,12 @@ class LogAnalyzer():
                 self.output_handler(output_format, output)
                 continue
 
-            if level_index == 30:
+            if level_index == 40:
                 if log not in ALLOWED_ERRORS:
                     output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
                     self.output_handler(output_format, output)
 
-        output = {"line_number": "unknown", "level": "unknown", "log": "Analyse errors completed!", "turn": "unknown"}
+        output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
         self.output_handler(output_format, output)
 
     def validate_level(self, level):
@@ -156,7 +156,11 @@ class LogAnalyzer():
     def output_handler(self, output_handlers, output):
         self.close_handlers()
         self.add_handler(output_handlers)
-        self.logger.log
+        level = output.get("level", 30)
+        turn = output.get("turn", "unknown")
+        log = output.get("log", "unknown")
+        line_number = output.get("line_number", "unknown")
+        self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
         
     def reset_contents(self):
         self.contents = []
