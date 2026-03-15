@@ -160,7 +160,7 @@ class LogAnalyzer():
             raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
-        self.setup_handlers()
+        self.setup_handlers(self.file)
         self.add_handler(output_handlers)
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")

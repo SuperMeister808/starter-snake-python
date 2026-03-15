@@ -19,7 +19,7 @@ class TestOutputFormat(TestCase):
     def setUp(self):
         
         self.mocks = {}
-        self.patchers = [patch.object(self.log_analyzer.logger, "log", name="mock_log")]
+        self.patchers = [patch.object(self.log_analyzer.logger, "log", side_effect=lambda output_format, output: output, name="mock_log")]
         self.start_patchers()
 
         self.addCleanup(self.stop_patchers)
@@ -34,10 +34,14 @@ class TestOutputFormat(TestCase):
         for patcher in self.patchers:
             patcher.stop()
 
-    @patch.object(log_analyzer.file, new="...")
-    def test_incorrect_file_handler(self):
-        
-        
+    @patch.object(log_analyzer, "file", new="...")
+    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
+    def test_incorrect_file_handler(self, mock_log_analyzer):
+        output_formats = ["console", "file"]
+        output = "anything"
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.output_handler(output_formats, output)
+        mock_log_analyzer.assert_not_called()
 
     def test_all_output_formats(self):
 
@@ -50,3 +54,6 @@ class TestOutputFormat(TestCase):
     def test_unallowed_output_format(self):
 
         pass
+
+if __name__ == "__main__":
+    main()
