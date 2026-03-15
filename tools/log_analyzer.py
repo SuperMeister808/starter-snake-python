@@ -1,9 +1,41 @@
-
+import logging
 class LogAnalyzer():
 
-    def __init__(self):
+    def __init__(self, file):
         self.contents = []
+        self.logger = None
+        self.handlers = {}
+        self.setup_logger(file)
 
+
+    def setup_logger(self, file):
+        self.logger = logging.getLogger("log_analyzer")
+        self.logger.setLevel(self.logger.info)
+        formatter = self.setup_formatter()
+        self.setup_file_handler(file, formatter)
+        self.setup_stream_handler(formatter)
+
+    def setup_formatter(self):
+        formatter = logging.Formatter("%(asctimes)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - LOG %(log)s", 
+                                      datefmt="%Y-$m-%d %H:%M:%S")
+        return formatter
+    
+    def setup_file_handler(self, file, formatter):
+        if not isinstance(formatter, logging.Formatter):
+            raise RuntimeError("Formatter object is required to be logging.Formatter()")
+        
+        handler = logging.FileHandler(file)
+        handler.setFormatter(formatter)
+        self.handlers ["file"] = handler
+    
+    def setup_stream_handler(self, formatter):
+        if not isinstance(formatter, logging.Formatter):
+            raise RuntimeError("Formatter object is required to be logging.Formatter()")
+        
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.handlers ["console"] = handler
+    
     def read_log(self, file, level_index=None, turn_index=None, log_index=None):
         
         if not isinstance(file, str):
@@ -31,7 +63,8 @@ class LogAnalyzer():
             log = "unknown"
         else:
             log = words[log_index]
-        content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
+        content = {"line_number": line_number, "level": level, "tur"
+        "n": turn, "log": log}
         return content
     
     def analyse_errors(self, output_format, file_handler=None):
