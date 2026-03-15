@@ -3,8 +3,11 @@ import typing
 import os
 class LogAnalyzer():
 
-    def __init__(self, file):
+    def __init__(self, file, level_index, turn_index, log_index):
         self.file = file
+        self.level_index = level_index
+        self.turn_index = turn_index
+        self.log_index = log_index
         self.contents = []
         self.logger = None
         self.handlers = {}
@@ -66,16 +69,17 @@ class LogAnalyzer():
             if isinstance(handler, logging.Handler):
                 handler.close()
     
-    def read_log(self, file, level_index=None, turn_index=None, log_index=None):
+    def read_log(self):
         self.reset_contents()
-        if not isinstance(file, str):
+        if not isinstance(self.file, str):
             self.close_handlers()
             raise RuntimeError(f"Unsupportded file handler")
-        with open(file, "r") as f:
+        with open(self.file, "r") as f:
             for i, line in enumerate(f):
                 words = line.split()
-                content = self.create_contents(words, i, level_index, turn_index, log_index)
+                content = self.create_contents(words, i, self.level_index, self.turn_index, self.log_index)
                 self.contents.append(content)
+        self.save_contents()
 
     def create_contents(self, words, line_number=None, level_index=None, turn_index=None, log_index=None):
         if line_number is None or not isinstance(line_number, int):
@@ -97,7 +101,22 @@ class LogAnalyzer():
         content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
+    def save_contents(self):
+        with open("ressources/contents.json", "w") as f:
+            f.write(self.contents)
+
+    def load_contents(self):
+        with open("ressources/contents.json", "r") as f:
+            contents = f.read()
+            try:
+                self.validate_contents(contents)
+                self.contents = contents
+            except RuntimeError:
+                self.read_log()
+    
     def analyse_errors(self, output_formats):
+        if self.contents == {}:
+            self.load_contents()
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
             if output_format not in ALLOWED_OUTPUT_FORMATS:
@@ -130,6 +149,14 @@ class LogAnalyzer():
         output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
         self.output_handler(output_formats, output)
 
+    def validate_contents(self, contents):
+        if not isinstance(contents, dict):
+            raise RuntimeError("Invalid contents!")
+        NEEDED_KEYS = ["line_number", "level", "log", "turn"]
+        for key, value in contents.items():
+            if not key in NEEDED_KEYS:#
+                raise RuntimeError("Invalid contents!")
+    
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
         if level not in ALLOWED_LEVELS:
