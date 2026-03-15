@@ -111,17 +111,17 @@ class LogAnalyzer():
                 level_index = self.validate_level(level)
                 self.validate_log(log)
             except KeyError as e:
-                output = {"line_number": line_number, "level": "WARNING", "turn": turn, "log": f"Line can not be analyzed: {e}"}
-                self.output_handler(output_format, output)
+                output = {"line_number": line_number, "level": 40, "turn": turn, "log": f"Line can not be analyzed: {e}"}
+                self.output_handler(output_formats, output)
                 continue
 
             if level_index == 40:
                 if log not in ALLOWED_ERRORS:
                     output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
-                    self.output_handler(output_format, output)
+                    self.output_handler(output_formats, output)
 
         output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
-        self.output_handler(output_format, output)
+        self.output_handler(output_formats, output)
 
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]

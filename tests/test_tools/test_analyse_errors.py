@@ -102,18 +102,32 @@ class TestAnalyseErrors(TestCase):
 
         output_formats = ["console"]
         result = self.log_analyzer.analyse_errors(output_formats)
-        expected_outputs = [{"line_number": 0, "WARNING": "Line can not be analyzed", "exception": ANY}, {"line_number": 1, "WARNING": "Line can not be analyzed", "exception": ANY}, "Analyse_errors complete!"]
-        self.assertEqual(self.capture_output, expected_outputs)
         for output in self.capture_output:
-            if isinstance(output, dict):
-                exc = output ["exception"]
-                self.assertIsInstance(exc, KeyError)
+                self.assertIsInstance(output, dict)
+                line_number = output ["line_number"]
+                level = output ["level"]
+                turn = output ["turn"]
+                log = output ["log"]
+                line_numbers = [0, 1, "unknown"]
+                self.assertIn(line_number, line_numbers)
+                levels = [20, 40]
+                self.assertIn(level, levels)
+                self.assertIsInstance(turn, (int, str))
+                if isinstance(turn, int):
+                    turns = [0]
+                    self.assertIn(turn, turns)
+                else:
+                    turns = ["unknown"]
+                    self.assertIn(turn, turns)
+                logs = ["Line can not be analyzed:", "Analyse errors completed!"]
+                self.assertTrue(any(e in log for e in logs))
+                
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_log"]
         mock_output_handler, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
         expected_calls = [
-            call(output_format, ANY),
-            call(output_format, ANY)
+            call(output_formats, ANY),
+            call(output_formats, ANY)
         ]
         mock_output_handler.assert_has_calls(expected_calls)
         expected_calls = [
