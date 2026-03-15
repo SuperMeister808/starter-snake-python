@@ -89,7 +89,6 @@ class LogAnalyzer():
         return content
     
     def analyse_errors(self, output_formats):
-        self.setup_handlers()
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
             if output_format not in ALLOWED_OUTPUT_FORMATS:
@@ -119,7 +118,6 @@ class LogAnalyzer():
 
         output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
         self.output_handler(output_formats, output)
-        self.close_handlers()
 
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -151,13 +149,14 @@ class LogAnalyzer():
             raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
+        self.setup_handlers()
         self.add_handler(output_handlers)
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")
         log = output.get("log", "unknown")
         line_number = output.get("line_number", "unknown")
         self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
-        self.remove_handler()
+        self.close_handlers()
         
     def reset_contents(self):
         self.contents = []
