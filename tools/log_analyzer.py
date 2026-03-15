@@ -28,7 +28,7 @@ class LogAnalyzer():
         if not isinstance(formatter, logging.Formatter):
             self.close_handlers()
             raise RuntimeError("Formatter object is required to be logging.Formatter()")
-        if not os.path.exists(file):
+        if not os.path.isfile(file):
             self.close_handlers()
             raise RuntimeError("File path does not exist!")
 
