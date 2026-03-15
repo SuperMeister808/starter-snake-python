@@ -61,14 +61,14 @@ class TestAnalyseErrors(TestCase):
     @patch.object(log_analyzer, "contents", new=new_contents)
     def test_only_allowed_errors(self):
 
-        output_format = "console"
-        result = self.log_analyzer.analyse_errors(output_format)
+        output_formats = ["console"]
+        result = self.log_analyzer.analyse_errors(output_formats)
         expected_outputs = ["Analyse_errors complete!"]
         self.assertEqual(self.capture_output, expected_outputs)
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
         mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        mock_output_handler.assert_called_once_with(output_format, ANY)
+        mock_output_handler.assert_called_once_with(output_formats, ANY)
         self.assertEqual(mock_validate_level.call_count, 2)
         self.assertEqual(mock_validate_log.call_count, 2)
 
@@ -77,16 +77,16 @@ class TestAnalyseErrors(TestCase):
     @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_errors(self):
 
-        output_format = "console"
-        result = self.log_analyzer.analyse_errors(output_format)
+        output_formats = ["console"]
+        result = self.log_analyzer.analyse_errors(output_formats)
         expected_outputs = [{"line_number": 1, "level": "ERROR", "log": "random_choice: Failed!"}, "Analyse_errors complete!"]
         self.assertEqual(self.capture_output, expected_outputs)
 
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
         mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
         expected_calls = [
-            call(output_format, ANY),
-            call(output_format, ANY)
+            call(output_formats, ANY),
+            call(output_formats, ANY)
         ]
         mock_output_handler.assert_has_calls(expected_calls)
         self.assertEqual(mock_output_handler.call_count, 2)
@@ -142,9 +142,9 @@ class TestAnalyseErrors(TestCase):
     @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_output_format(self):
 
-        output_format = "..."
+        output_formats = ["..."]
         with self.assertRaises(RuntimeError):
-            self.log_analyzer.analyse_errors(output_format)
+            self.log_analyzer.analyse_errors(output_formats)
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
         mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
         mock_output_handler.assert_not_called()
@@ -155,9 +155,9 @@ class TestAnalyseErrors(TestCase):
     @patch.object(log_analyzer, "contents", new=new_contents)
     def test_log_not_read(self):
 
-        output_format = "console"
+        output_formats = ["console"]
         with self.assertRaises(RuntimeError):
-            self.log_analyzer.analyse_errors(output_format)
+            self.log_analyzer.analyse_errors(output_formats)
         NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
         mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
         mock_output_handler.assert_not_called()
