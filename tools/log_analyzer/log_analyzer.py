@@ -53,7 +53,6 @@ class LogAnalyzer():
         for handler_name in handlers:
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
-                self.close_handlers()
                 continue
             self.logger.addHandler(handler)
 
@@ -127,7 +126,7 @@ class LogAnalyzer():
                 self.read_log()
     
     def analyse_errors(self, output_formats):
-        if self.contents == {}:
+        if self.contents == []:
             self.load_contents()
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
         for output_format in output_formats:
