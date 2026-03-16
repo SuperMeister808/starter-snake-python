@@ -1,6 +1,7 @@
 import logging
 import typing
 import os
+import json
 class LogAnalyzer():
 
     def __init__(self, file, level_index, turn_index, log_index):
@@ -13,13 +14,13 @@ class LogAnalyzer():
         self.handlers = {}
         self.setup_logger(file)
 
-    def setup_logger(self, file):
+    def setup_logger(self):
         self.logger = logging.getLogger("log_analyzer")
         self.logger.setLevel(logging.INFO)
         
-    def setup_handlers(self, file):
+    def setup_handlers(self):
         formatter = self.setup_formatter()
-        self.setup_file_handler(file, formatter)
+        self.setup_file_handler(self.file, formatter)
         self.setup_stream_handler(formatter)
 
     def setup_formatter(self):
@@ -103,11 +104,13 @@ class LogAnalyzer():
     
     def save_contents(self):
         with open("ressources/contents.json", "w") as f:
-            f.write(self.contents)
+            contents_json = json.dumps(self.contents)
+            f.write(contents_json)
 
     def load_contents(self):
         with open("ressources/contents.json", "r") as f:
-            contents = f.read()
+            contents_json = f.read()
+            contents = json.loads()
             try:
                 self.validate_contents(contents)
                 self.contents = contents
@@ -154,7 +157,7 @@ class LogAnalyzer():
             raise RuntimeError("Invalid contents!")
         NEEDED_KEYS = ["line_number", "level", "log", "turn"]
         for key, value in contents.items():
-            if not key in NEEDED_KEYS:#
+            if not key in NEEDED_KEYS:
                 raise RuntimeError("Invalid contents!")
     
     def validate_level(self, level):
