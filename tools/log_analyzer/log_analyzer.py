@@ -4,8 +4,9 @@ import os
 import json
 class LogAnalyzer():
 
-    def __init__(self, file, level_index, turn_index, log_index):
+    def __init__(self, file, file_handler, level_index, turn_index, log_index):
         self.file = file
+        self.file_handler = file_handler
         self.level_index = level_index
         self.turn_index = turn_index
         self.log_index = log_index
@@ -20,7 +21,7 @@ class LogAnalyzer():
         
     def setup_handlers(self):
         formatter = self.setup_formatter()
-        self.setup_file_handler(self.file, formatter)
+        self.setup_file_handler(self.file_handler, formatter)
         self.setup_stream_handler(formatter)
 
     def setup_formatter(self):
@@ -28,15 +29,12 @@ class LogAnalyzer():
                                       datefmt="%Y-%m-%d %H:%M:%S")
         return formatter
     
-    def setup_file_handler(self, file, formatter):
+    def setup_file_handler(self, file_handler, formatter):
         if not isinstance(formatter, logging.Formatter):
             self.close_handlers()
             raise RuntimeError("Formatter object is required to be logging.Formatter()")
-        if not os.path.isfile(file):
-            self.close_handlers()
-            raise RuntimeError("File path does not exist!")
 
-        handler = logging.FileHandler(file)
+        handler = logging.FileHandler(file_handler)
         handler.setFormatter(formatter)
         self.handlers ["file"] = handler
     
