@@ -196,7 +196,7 @@ class LogAnalyzer():
             raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
-        self.setup_handlers(self.file)
+        self.setup_handlers()
         self.add_handler(output_handlers)
         if len(self.logger.handlers) == 0:
             raise RuntimeError("Logger needs one or more handlers!")

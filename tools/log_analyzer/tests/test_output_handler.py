@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY , mock_open , call
 from unittest import main
-from tools.log_analyzer import LogAnalyzer
+from tools.log_analyzer.log_analyzer import LogAnalyzer
 import tempfile
 import os
 import logging
@@ -10,7 +10,10 @@ class TestOutputFormat(TestCase):
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"...")
         file = tmp.name
-    log_analyzer = LogAnalyzer(file)
+    level_index = "..."
+    turn_index = "..."
+    log_index = "..."
+    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
 
     @classmethod
     def tearDownClass(cls):

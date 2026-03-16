@@ -1,11 +1,14 @@
 from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY
 from unittest import main
-from tools.log_analyzer import LogAnalyzer
+from tools.log_analyzer.log_analyzer import LogAnalyzer
 class TestCreateContents(TestCase):
 
     file = "..."
-    log_analyzer = LogAnalyzer(file)
+    level_index = "..."
+    turn_index = "..."
+    log_index = "..."
+    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
     
     def setUp(self):
         
