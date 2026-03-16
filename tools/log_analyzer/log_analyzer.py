@@ -106,12 +106,12 @@ class LogAnalyzer():
         return content
     
     def save_contents(self):
-        with open("ressources/contents.json", "w") as f:
+        with open(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "w") as f:
             contents_json = json.dumps(self.contents)
             f.write(contents_json)
 
     def load_contents(self):
-        with open("ressources/contents.json", "r") as f:
+        with open(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "r") as f:
             contents_json = f.read()
             contents = json.loads(contents_json)
             try:
