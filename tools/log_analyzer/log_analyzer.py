@@ -164,15 +164,15 @@ class LogAnalyzer():
         if not isinstance(contents, list):
             raise RuntimeError("Invalid contents!")
         NEEDED_KEYS = ["line_number", "level", "log", "turn"]
-        found_keys = []
         for content in contents:
+            found_keys = []
             for key, value in content.items():
                 if key in NEEDED_KEYS:
                     found_keys.append(key)
                 else:
                     raise RuntimeError("Invalid contents!")
-        if len(found_keys) != len(NEEDED_KEYS):
-            raise RuntimeError("Invalid contents!")
+            if len(found_keys) != len(NEEDED_KEYS):
+                raise RuntimeError("Invalid contents!")
 
     def validate_level(self, level):
         ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
