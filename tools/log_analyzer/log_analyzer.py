@@ -75,12 +75,15 @@ class LogAnalyzer():
         if not isinstance(self.file, str):
             self.close_handlers()
             raise RuntimeError(f"Unsupportded file handler")
-        with open(self.file, "r") as f:
-            for i, line in enumerate(f):
-                words = line.split()
-                content = self.create_contents(words, i, self.level_index, self.turn_index, self.log_index)
-                self.contents.append(content)
-        self.save_contents()
+        try:
+            with open(self.file, "r") as f:
+                for i, line in enumerate(f):
+                    words = line.split()
+                    content = self.create_contents(words, i, self.level_index, self.turn_index, self.log_index)
+                    self.contents.append(content)
+            self.save_contents()
+        except FileNotFoundError:
+            raise RuntimeError("Log file not found!")
 
     def create_contents(self, words, line_number=None, level_index=None, turn_index=None, log_index=None):
         if line_number is None or not isinstance(line_number, int):
