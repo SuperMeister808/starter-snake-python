@@ -98,7 +98,9 @@ class LogAnalyzer():
             turn = "unknown"
         else:
             raw_turn = words[turn_index]
-            turn = raw_turn.isdigit()
+            for word in raw_turn:
+                if word.isdigit():
+                    turn = word
         if log_index is None or log_index > len(words) - 1:
             log = "unknown"
         else:
