@@ -153,15 +153,16 @@ class LogAnalyzer():
         self.output_handler(output_formats, output)
 
     def validate_contents(self, contents):
-        if not isinstance(contents, dict):
+        if not isinstance(contents, list):
             raise RuntimeError("Invalid contents!")
         NEEDED_KEYS = ["line_number", "level", "log", "turn"]
         found_keys = []
-        for key, value in contents.items():
-            if key in NEEDED_KEYS:
-                found_keys.append(key)
-            else:
-                raise RuntimeError("Invalid contents!")
+        for content in contents:
+            for key, value in content.items():
+                if key in NEEDED_KEYS:
+                    found_keys.append(key)
+                else:
+                    raise RuntimeError("Invalid contents!")
         if len(found_keys) != len(NEEDED_KEYS):
             raise RuntimeError("Invalid contents!")
 
