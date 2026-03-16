@@ -110,7 +110,7 @@ class LogAnalyzer():
     def load_contents(self):
         with open("ressources/contents.json", "r") as f:
             contents_json = f.read()
-            contents = json.loads()
+            contents = json.loads(contents_json)
             try:
                 self.validate_contents(contents)
                 self.contents = contents
