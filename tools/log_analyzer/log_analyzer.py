@@ -12,7 +12,7 @@ class LogAnalyzer():
         self.contents = []
         self.logger = None
         self.handlers = {}
-        self.setup_logger(file)
+        self.setup_logger()
 
     def setup_logger(self):
         self.logger = logging.getLogger("log_analyzer")

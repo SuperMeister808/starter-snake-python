@@ -2,6 +2,7 @@ from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY , mock_open
 from unittest import main
 from tools.log_analyzer.log_analyzer import LogAnalyzer
+import json
 class TestLoadContents(TestCase):
 
     file = "..."
@@ -33,16 +34,16 @@ class TestLoadContents(TestCase):
     def test_load_valide_contents(self):
 
         contents = {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}
-        read_data = str(contents)
+        read_data = json.dumps(contents)
         mock = mock_open(read_data=read_data)
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once()
             mock_read_log = self.mocks ["mock_read_log"]
-            mock_read_log.assert_called_once()
-            #self.assertEqual(self.log_analyzer.contents, {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}) 
-            #mock.assert_called_once_with("ressources/contents.json", "r")
+            mock_read_log.assert_not_called()
+            self.assertEqual(self.log_analyzer.contents, {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}) 
+            mock.assert_called_once_with("ressources/contents.json", "r")
 
     def test_load_invalid_contents_keys(self):
 
