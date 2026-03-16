@@ -5,3 +5,4 @@ game_state_example.txt
 .venv
 run_local_game.txt
 *.log
+*.json
