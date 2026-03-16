@@ -78,7 +78,7 @@ class LogAnalyzer():
         try:
             with open(self.file, "r") as f:
                 for i, line in enumerate(f):
-                    words = line.split()
+                    words = line.split("|")
                     content = self.create_contents(words, i, self.level_index, self.turn_index, self.log_index)
                     self.contents.append(content)
             self.save_contents()
@@ -97,7 +97,8 @@ class LogAnalyzer():
         if turn_index is None or turn_index > len(words) - 1:
             turn = "unknown"
         else:
-            turn = words[turn_index]
+            raw_turn = words[turn_index]
+            turn = raw_turn.isdigit()
         if log_index is None or log_index > len(words) - 1:
             log = "unknown"
         else:
