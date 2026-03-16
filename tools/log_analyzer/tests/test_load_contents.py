@@ -38,16 +38,27 @@ class TestLoadContents(TestCase):
         mock = mock_open(read_data=read_data)
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
+            self.assertEqual(self.log_analyzer.contents, {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}) 
+            mock.assert_called_once_with("ressources/contents.json", "r")
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once()
             mock_read_log = self.mocks ["mock_read_log"]
             mock_read_log.assert_not_called()
-            self.assertEqual(self.log_analyzer.contents, {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}) 
-            mock.assert_called_once_with("ressources/contents.json", "r")
-
+            
+    @patch.object(log_analyzer, "contents", new={})
     def test_load_invalid_contents_keys(self):
 
-        pass
+        contents = {"line_number": "line_number", "level": "level", "turn": "turn"}
+        read_data = json.dumps(contents)
+        mock = mock_open(read_data=read_data)
+        with patch("builtins.open", mock):
+            self.log_analyzer.load_contents()
+            #self.assertEqual(self.log_analyzer.contents, {}) 
+            mock.assert_called_once_with("ressources/contents.json", "r")
+            mock_validate_contents = self.mocks ["mock_validate_contents"]
+            mock_validate_contents.assert_called_once()
+            mock_read_log = self.mocks ["mock_read_log"]
+            mock_read_log.assert_called_once()
 
     def test_invalid_contents_type(self):
 
