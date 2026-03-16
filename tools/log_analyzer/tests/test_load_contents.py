@@ -39,7 +39,7 @@ class TestLoadContents(TestCase):
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
             self.assertEqual(self.log_analyzer.contents, contents) 
-            mock.assert_called_once_with("ressources/contents.json", "r")
+            mock.assert_called_once_with(r'C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json', "r")
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once_with(contents)
             mock_read_log = self.mocks ["mock_read_log"]
@@ -54,7 +54,7 @@ class TestLoadContents(TestCase):
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
             self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with("ressources/contents.json", "r")
+            mock.assert_called_once_with(r'C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json', "r")
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once_with(contents)
             mock_read_log = self.mocks ["mock_read_log"]
@@ -69,7 +69,7 @@ class TestLoadContents(TestCase):
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
             self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with("ressources/contents.json", "r")
+            mock.assert_called_once_with(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "r")
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once_with(contents)
             mock_read_log = self.mocks ["mock_read_log"]
@@ -84,7 +84,7 @@ class TestLoadContents(TestCase):
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
             self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with("ressources/contents.json", "r")
+            mock.assert_called_once_with(r'C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json', "r")
             mock_validate_contents = self.mocks ["mock_validate_contents"]
             mock_validate_contents.assert_called_once_with(contents)
             mock_read_log = self.mocks ["mock_read_log"]
