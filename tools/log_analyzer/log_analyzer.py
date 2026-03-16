@@ -93,18 +93,21 @@ class LogAnalyzer():
         if level_index is None or level_index > len(words) - 1:
             level = "unknown"
         else:
-            level = words[level_index]
+            raw_level = words[level_index]
+            level = raw_level.strip().strip('"').strip("'")
         if turn_index is None or turn_index > len(words) - 1:
             turn = "unknown"
         else:
             raw_turn = words[turn_index]
-            for word in raw_turn:
+            for word in raw_turn.split():
                 if word.isdigit():
-                    turn = word
+                    turn_string = word
+                    turn = int(turn_string)
         if log_index is None or log_index > len(words) - 1:
             log = "unknown"
         else:
-            log = words[log_index]
+            raw_log = words[log_index]
+            log = raw_log.strip().strip('"').strip("'")
         content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
         return content
     
