@@ -146,7 +146,7 @@ class LogAnalyzer():
                 level_index = self.validate_level(level)
                 self.validate_log(log)
             except KeyError as e:
-                output = {"line_number": line_number, "level": 40, "turn": turn, "log": f"Line can not be analyzed: {e}"}
+                output = {"line_number": line_number, "level": 30, "turn": turn, "log": f"Line can not be analyzed: {e}"}
                 self.output_handler(output_formats, output)
                 continue
 
