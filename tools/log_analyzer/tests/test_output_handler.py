@@ -71,7 +71,12 @@ class TestOutputFormat(TestCase):
 
     def test_no_handlers_added(self):
         
-        pass
+        output_formats = ["console", "file"]
+        output = {"line_number": 0, "turn": 0, "level": 40, "log": "Something went wrong"}
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.output_handler(output_formats, output)
+        mock_log = self.mocks ["mock_log"]
+        mock_log.assert_not_called()
 
 if __name__ == "__main__":
     main()
