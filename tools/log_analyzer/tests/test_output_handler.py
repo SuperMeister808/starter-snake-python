@@ -10,10 +10,11 @@ class TestOutputFormat(TestCase):
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         tmp.write(b"...")
         file = tmp.name
+    file_handler = "..."
     level_index = "..."
     turn_index = "..."
     log_index = "..."
-    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
+    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
 
     @classmethod
     def tearDownClass(cls):
@@ -27,8 +28,7 @@ class TestOutputFormat(TestCase):
         self.start_patchers()
 
         self.addCleanup(self.stop_patchers)
-        self.addCleanup(self.log_analyzer.remove_handler)
-        self.addCleanup(self.log_analyzer.close_handlers)
+        
         
     def start_patchers(self):
         for patcher in self.patchers:
@@ -40,14 +40,14 @@ class TestOutputFormat(TestCase):
         for patcher in self.patchers:
             patcher.stop()
 
-    @patch.object(log_analyzer, "file", new="...")
-    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
-    def test_incorrect_file_handler(self, mock_add_handler):
+    
+    def test_incorrect_file_handler(self):
         output_formats = ["console", "file"]
-        output = "anything"
-        with self.assertRaises(RuntimeError):
-            self.log_analyzer.output_handler(output_formats, output)
-        mock_add_handler.assert_not_called()
+        output = {"line_number": 0, "turn": 0, "level": 40, "log": "Something went wrong"}
+        self.log_analyzer.output_handler(output_formats, output)
+        mock_log = self.mocks ["mock_log"]
+        mock_log.assert_called_once_with(output)
+
 
     def test_all_output_formats(self):
 
