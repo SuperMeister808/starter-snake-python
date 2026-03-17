@@ -5,10 +5,11 @@ from tools.log_analyzer.log_analyzer import LogAnalyzer
 class TestCreateContents(TestCase):
 
     file = "..."
+    file_handler = "..."
     level_index = "..."
     turn_index = "..."
     log_index = "..."
-    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
+    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
     
     def setUp(self):
         
@@ -23,10 +24,10 @@ class TestCreateContents(TestCase):
 
     def test_args(self):
 
-        words = ["somelevel", "someturn", "somelog"]
+        words = ["somelevel", "Turn 0", "somelog"]
         line_number = 0
         result = self.log_analyzer.create_contents(words, line_number, 0, 1, 2)
-        expected = {"line_number": 0, "level": "somelevel", "turn": "someturn", "log": "somelog"}
+        expected = {"line_number": 0, "level": "somelevel", "turn": 0, "log": "somelog"}
         self.assertEqual(result, expected)
 
     def test_too_high_index(self):
