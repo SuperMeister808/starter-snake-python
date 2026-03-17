@@ -1,3 +1,7 @@
 2026-03-17 17:03:33 - ERROR - LINE 0 - TURN 0 - Something went wrong
 2026-03-17 17:03:33 - INFO - LINE unknown - TURN unknown - Analyse errors completed!
 2026-03-17 17:03:33 - INFO - LINE unknown - TURN unknown - Analyse errors completed!
+2026-03-17 18:26:38 - ERROR - LINE 0 - TURN 0 - Something went wrong
+2026-03-17 18:26:38 - ERROR - LINE 2 - TURN 2 - Unknown Error
+2026-03-17 18:26:38 - WARNING - LINE 5 - TURN 5 - Line can not be analyzed: 'No allowed log leve in contents found'
+2026-03-17 18:26:38 - INFO - LINE unknown - TURN unknown - Analyse errors completed!

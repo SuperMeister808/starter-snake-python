@@ -5,10 +5,11 @@ from tools.log_analyzer.log_analyzer import LogAnalyzer
 class TestAnalyseErrors(TestCase):
         
     file = "..."
+    file_handler = "..."
     level_index = "..."
     turn_index = "..."
     log_index = "..."
-    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
+    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
     
     def setUp(self):
         
@@ -17,7 +18,8 @@ class TestAnalyseErrors(TestCase):
         self.patchers = [patch.object(self.log_analyzer, "output_handler", side_effect=self.fake_output_handler, name="mock_output_handler"),
                          patch.object(self.log_analyzer, "validate_level", wraps=self.log_analyzer.validate_level, name="mock_validate_level"),
                          patch.object(self.log_analyzer, "validate_log", wraps=self.log_analyzer.validate_log, name="mock_validate_log"),
-                         patch.object(self.log_analyzer, "setup_logger")]
+                         patch.object(self.log_analyzer, "setup_logger"),
+                         patch.object(self.log_analyzer, "setup_file_handler")]
         self.mocks = {}
 
         self.start_patchers()
@@ -94,9 +96,8 @@ class TestAnalyseErrors(TestCase):
 
     new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
                     {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
-    exc = KeyError("side effect")
     @patch.object(log_analyzer, "contents", new=new_contents)
-    @patch.object(log_analyzer, "validate_level", side_effect=exc)
+    @patch.object(log_analyzer, "validate_level", wraps=log_analyzer.validate_level)
     def test_validation_failed(self, mock_validate_level):
 
         output_formats = ["console"]
@@ -109,7 +110,7 @@ class TestAnalyseErrors(TestCase):
                 log = output ["log"]
                 line_numbers = [0, 1, "unknown"]
                 self.assertIn(line_number, line_numbers)
-                levels = [20, 40]
+                levels = [20, 30, 40]
                 self.assertIn(level, levels)
                 self.assertIsInstance(turn, (int, str))
                 if isinstance(turn, int):
@@ -118,7 +119,7 @@ class TestAnalyseErrors(TestCase):
                 else:
                     turns = ["unknown"]
                     self.assertIn(turn, turns)
-                logs = ["Line can not be analyzed:", "Analyse errors completed!"]
+                logs = ["Line can not be analyzed:", "Analyse errors completed!", "random_choice: Failed!"]
                 self.assertTrue(any(e in log for e in logs))
                 
 
@@ -134,7 +135,10 @@ class TestAnalyseErrors(TestCase):
             call("unknown")
         ]
         mock_validate_level.assert_has_calls(expected_calls)
-        mock_validate_log.assert_not_called()
+        expected_calls = [
+            call("random_choice: Failed!")
+        ]
+        mock_validate_log.assert_has_calls(expected_calls)
 
     new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
                     {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
@@ -152,7 +156,8 @@ class TestAnalyseErrors(TestCase):
 
     new_contents = []
     @patch.object(log_analyzer, "contents", new=new_contents)
-    def test_log_not_read(self):
+    @patch.object(log_analyzer, "load_contents", side_efect=RuntimeError)
+    def test_log_not_read(self, mock_load_contents):
 
         output_formats = ["console"]
         with self.assertRaises(RuntimeError):
@@ -162,6 +167,7 @@ class TestAnalyseErrors(TestCase):
         mock_output_handler.assert_not_called()
         mock_validate_level.assert_not_called()
         mock_validate_log.assert_not_called()
+        mock_load_contents.assert_called_once()
 
 
 if __name__ == "__main__":
