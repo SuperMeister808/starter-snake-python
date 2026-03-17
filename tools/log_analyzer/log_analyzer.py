@@ -71,7 +71,7 @@ class LogAnalyzer():
         self.reset_contents()
         if not isinstance(self.file, str):
             self.close_handlers()
-            raise RuntimeError(f"Unsupportded file handler")
+            raise RuntimeError(f"Log not found")
         try:
             with open(self.file, "r") as f:
                 for i, line in enumerate(f):
@@ -157,6 +157,7 @@ class LogAnalyzer():
 
         output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
         self.output_handler(output_formats, output)
+        self.reset_contents()
 
     def validate_contents(self, contents):
         if not isinstance(contents, list):
