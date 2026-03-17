@@ -6,10 +6,11 @@ import json
 class TestSaveContents(TestCase):
 
     file = "..."
+    file_handler = "..."
     level_index = "..."
     turn_index = "..."
     log_index = "..."
-    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
+    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
     def setUp(self):
        
        pass
