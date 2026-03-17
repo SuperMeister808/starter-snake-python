@@ -40,7 +40,6 @@ class LogAnalyzer():
     
     def setup_file_handler(self, file_handler, formatter):
         if not isinstance(formatter, logging.Formatter):
-            self.close_handlers()
             raise RuntimeError("Formatter object is required to be logging.Formatter()")
 
         handler = logging.FileHandler(file_handler)
@@ -49,7 +48,6 @@ class LogAnalyzer():
     
     def setup_stream_handler(self, formatter):
         if not isinstance(formatter, logging.Formatter):
-            self.close_handlers()
             raise TypeError("Formatter object is required to be logging.Formatter()")
         
         handler = logging.StreamHandler()
