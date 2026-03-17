@@ -5,10 +5,11 @@ from tools.log_analyzer.log_analyzer import LogAnalyzer
 class TestReadLog(TestCase):
 
     file = "..."
+    file_handler = "..."
     level_index = "..."
     turn_index = "..."
     log_index = "..."
-    log_analyzer = LogAnalyzer(file, level_index, turn_index, log_index)
+    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
     def setUp(self):
         self.patchers = [
             patch.object(self.log_analyzer, "create_contents", name="mock_create_contents"),
@@ -39,7 +40,7 @@ class TestReadLog(TestCase):
         with patch("builtins.open", mock_file):
             result = self.log_analyzer.read_log()
             mock_create_contents = self.mocks ["mock_create_contents"]
-            expected_words = ["HELLO", "WORLD", "!"]
+            expected_words = ["HELLO WORLD !"]
             mock_create_contents.assert_called_once_with(expected_words, 0, 0, 1, 2)
             mock_save_contents = self.mocks ["mock_save_contents"]
             mock_save_contents.assert_called_once()
