@@ -57,9 +57,17 @@ class TestOutputFormat(TestCase):
         mock_log = self.mocks ["mock_log"]
         mock_log.assert_called_once_with(40, "Something went wrong", extra={"line_number": 0, "turn": "unknown"})
 
+
+
+    @patch.object(log_analyzer.logger, "handlers", new=["file", "console"])
     def test_invalid_output(self):
 
-        pass
+        output_formats = ["console", "file"]
+        output = []
+        with self.assertRaises(RuntimeError):
+            self.log_analyzer.output_handler(output_formats, output)
+        mock_log = self.mocks ["mock_log"]
+        mock_log.assert_not_called()
 
     def test_no_handlers_added(self):
         
