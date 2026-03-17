@@ -211,6 +211,8 @@ class LogAnalyzer():
         self.add_handler(output_handlers)
         if len(self.logger.handlers) == 0:
             raise RuntimeError("Logger needs one or more handlers!")
+        if not isinstance(output, dict):
+            raise RuntimeError("Invalid output")
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")
         log = output.get("log", "unknown")

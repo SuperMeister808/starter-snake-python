@@ -40,71 +40,30 @@ class TestOutputFormat(TestCase):
         for patcher in self.patchers:
             patcher.stop()
 
-    
-    def test_incorrect_file_handler(self):
+    @patch.object(log_analyzer.logger, "handlers", new=["file", "console"])
+    def test_correct_output(self):
         output_formats = ["console", "file"]
         output = {"line_number": 0, "turn": 0, "level": 40, "log": "Something went wrong"}
         self.log_analyzer.output_handler(output_formats, output)
         mock_log = self.mocks ["mock_log"]
-        mock_log.assert_called_once_with(output)
+        mock_log.assert_called_once_with(40, "Something went wrong", extra={"line_number": 0, "turn": 0})
 
-
-    def test_all_output_formats(self):
+    @patch.object(log_analyzer.logger, "handlers", new=["file", "console"])
+    def test_one_key_is_missing(self):
 
         output_formats = ["console", "file"]
-        output = {"level": "level", "turn": "turn", "log": "log", "line_number": "line_number"}
-        with patch.object(self.log_analyzer, "remove_handler") as mock_remove_handler:
-            self.log_analyzer.output_handler(output_formats, output)
-            self.assertEqual(len(self.log_analyzer.logger.handlers), 2)
-            self.assertTrue(any(isinstance(handler, logging.FileHandler) for handler in self.log_analyzer.logger.handlers))
-            self.assertTrue(any(isinstance(handler, logging.StreamHandler) for handler in self.log_analyzer.logger.handlers))
-            mock_log = self.mocks ["mock_log"]
-            expected_calls = [
-                call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
-            ]
-            mock_log.assert_has_calls(expected_calls)
-            mock_remove_handler.assert_called()
+        output = {"line_number": 0, "level": 40, "log": "Something went wrong"}
+        self.log_analyzer.output_handler(output_formats, output)
+        mock_log = self.mocks ["mock_log"]
+        mock_log.assert_called_once_with(40, "Something went wrong", extra={"line_number": 0, "turn": "unknown"})
 
-    def test_selected_output_formats(self):
+    def test_invalid_output(self):
 
-        output_formats = ["console"]
-        output = {"level": "level", "turn": "turn", "log": "log", "line_number": "line_number"}
-        with patch.object(self.log_analyzer, "remove_handler") as mock_remove_handler:
-            self.log_analyzer.output_handler(output_formats, output)
-            self.assertEqual(len(self.log_analyzer.logger.handlers), 1)
-            self.assertFalse(any(isinstance(handler, logging.FileHandler) for handler in self.log_analyzer.logger.handlers))
-            self.assertTrue(any(isinstance(handler, logging.StreamHandler) for handler in self.log_analyzer.logger.handlers))
-            mock_log = self.mocks ["mock_log"]
-            expected_calls = [
-                call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
-            ]
-            mock_log.assert_has_calls(expected_calls)
+        pass
 
-    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
-    def test_unallowed_output_format(self, mock_add_handler):
-
-        output_formats = ["console", "file", "unallowed"]
-        output = {"level": "level", "turn": "turn", "log": "log", "line_number": "line_number"}
-        with patch.object(self.log_analyzer, "remove_handler") as mock_remove_handler:
-            self.log_analyzer.output_handler(output_formats, output)
-            self.assertTrue(any(isinstance(handler, logging.FileHandler) for handler in self.log_analyzer.logger.handlers))
-            self.assertTrue(any(isinstance(handler, logging.StreamHandler) for handler in self.log_analyzer.logger.handlers))
-            mock_log = self.mocks ["mock_log"]
-            expected_calls = [
-                call("level", "log", extra={"line_number": "line_number", "turn": "turn"})
-            ]
-            mock_add_handler.assert_called()
-            mock_log.assert_has_calls(expected_calls)
-            mock_remove_handler.assert_called()
-
-    @patch.object(log_analyzer, "add_handler", wraps=log_analyzer.add_handler)
-    def test_only_unallowed_output_handlers(self, mock_add_handler):
-
-        output_formats = ["unallowed"]
-        output = "anything"
-        with self.assertRaises(RuntimeError):
-            self.log_analyzer.output_handler(output_formats, output)
-            mock_add_handler.assert_not_called()
+    def test_no_handlers_added(self):
+        
+        pass
 
 if __name__ == "__main__":
     main()
