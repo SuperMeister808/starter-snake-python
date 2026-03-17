@@ -12,7 +12,7 @@ def main():
     parser.add_argument("--output", nargs="+", default=["console"], help="Output formats")
 
     args = parser.parse_args()
-    analyzer = LogAnalyzer(args.file, args.level_index, args.turn_index, args.log_index)
+    analyzer = LogAnalyzer(args.file, args.file_handler, args.level_index, args.turn_index, args.log_index)
     if args.method == "analyse_errors":
         analyzer.analyse_errors(args.output)
     if args.method == "read_log":
