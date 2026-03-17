@@ -2,6 +2,7 @@ import logging
 import typing
 import os
 import json
+from contextlib import contextmanager
 class LogAnalyzer():
 
     def __init__(self, file, file_handler, level_index, turn_index, log_index):
@@ -15,6 +16,14 @@ class LogAnalyzer():
         self.handlers = {}
         self.setup_logger()
 
+    @contextmanager
+    def safe_setup_handler(self, setup_handlers):
+        try:
+            result = setup_handlers()
+            yield result
+        finally:
+            self.close_handlers()
+    
     def setup_logger(self):
         self.logger = logging.getLogger("log_analyzer")
         self.logger.setLevel(logging.INFO)
@@ -70,7 +79,6 @@ class LogAnalyzer():
     def read_log(self):
         self.reset_contents()
         if not isinstance(self.file, str):
-            self.close_handlers()
             raise RuntimeError(f"Log not found")
         try:
             with open(self.file, "r") as f:
@@ -124,40 +132,39 @@ class LogAnalyzer():
                 self.read_log()
     
     def analyse_errors(self, output_formats):
-        if self.contents == []:
-            self.load_contents()
-        ALLOWED_OUTPUT_FORMATS = ["file", "console"]
-        for output_format in output_formats:
-            if output_format not in ALLOWED_OUTPUT_FORMATS:
-                self.close_handlers()
-                raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
-        if len(self.contents) == 0:
-            self.close_handlers()
-            raise RuntimeError("Log not read!")
+        with self.safe_setup_handler(self.setup_handlers) as _:
+            if self.contents == []:
+                self.load_contents()
+            ALLOWED_OUTPUT_FORMATS = ["file", "console"]
+            for output_format in output_formats:
+                if output_format not in ALLOWED_OUTPUT_FORMATS:
+                    raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
+            if len(self.contents) == 0:
+                raise RuntimeError("Log not read!")
         
-        ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
+            ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
 
-        for content in self.contents:
-            line_number = content.get("line_number", "unknown")
-            turn = content.get("turn", "unknown")
-            level = content.get("level", "unknown")
-            log = content.get("log", "unknown")
-            try:
-                level_index = self.validate_level(level)
-                self.validate_log(log)
-            except KeyError as e:
-                output = {"line_number": line_number, "level": 30, "turn": turn, "log": f"Line can not be analyzed: {e}"}
-                self.output_handler(output_formats, output)
-                continue
-
-            if level_index == 40:
-                if log not in ALLOWED_ERRORS:
-                    output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
+            for content in self.contents:
+                line_number = content.get("line_number", "unknown")
+                turn = content.get("turn", "unknown")
+                level = content.get("level", "unknown")
+                log = content.get("log", "unknown")
+                try:
+                    level_index = self.validate_level(level)
+                    self.validate_log(log)
+                except KeyError as e:
+                    output = {"line_number": line_number, "level": 30, "turn": turn, "log": f"Line can not be analyzed: {e}"}
                     self.output_handler(output_formats, output)
+                    continue
 
-        output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
-        self.output_handler(output_formats, output)
-        self.reset_contents()
+                if level_index == 40:
+                    if log not in ALLOWED_ERRORS:
+                        output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
+                        self.output_handler(output_formats, output)
+
+            output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
+            self.output_handler(output_formats, output)
+            self.reset_contents()
 
     def validate_contents(self, contents):
         if not isinstance(contents, list):
@@ -203,7 +210,6 @@ class LogAnalyzer():
             raise KeyError("To execute called analyzation the log needs clear lines!")
 
     def output_handler(self, output_handlers, output):
-        self.setup_handlers()
         self.add_handler(output_handlers)
         if len(self.logger.handlers) == 0:
             raise RuntimeError("Logger needs one or more handlers!")
@@ -212,7 +218,7 @@ class LogAnalyzer():
         log = output.get("log", "unknown")
         line_number = output.get("line_number", "unknown")
         self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
-        self.close_handlers()
+        self.remove_handler()
         
     def reset_contents(self):
         self.contents = []
