@@ -4,8 +4,8 @@ A Python-based agent which processes Battlesnake game_states and figures out the
 
 # Features
 - two-stage evaluation — moves are filtered as safe/unsafe, then ranked by an integer priority score using calculation functions like calculate_opponents_positions, calculate_food, calculate_not_wall_collision, ...
-- fallback system which isolates calculation functions -> ensures a move is always returned even if calculation functions fail
-- detailed error logging which includes level, turn and message
+- fallback system which wraps calculation functions - ensures a move is always returned even if calculation functions fail
+- detailed error logging that captures level, turn and message asynchronously for performance — avoids blocking the main pipeline
 - tree based future simulation which simulates the possibilities (only safe paths) of a selected move for a configurable number of turns in the future
 - basic api infrastructure takes an server handler to handle post requests on fixed endpoints e.g. /info ; /start ; /move ; /end
 - keyword pattern which validates keyword arguments for type and contents
@@ -73,22 +73,33 @@ flowchart TD
 ```
 
 # Project structure
-main.py
-server.py
-├─ validate_game_state.py
-move.py
-├─ keywords.py
-├─ future_safety.py
-│   └─ future_safety_tree.py
-└─ emergency_system.py
-    └─ emergency_logger.py
-        └─ runtime_logger.py
+future
+|
+|--future_safety_tree.py #creates tree based on a move
+|--future_safety.py #analyze safe paths of the tree
+logger
+|
+|--emergency_logger.py #logs fallbacks asynchronously which are stored in a queue 
+|--runtime_logger.py #setup logger + logger handlers in general
+tests
+|
+|--tests_emergency_logger/
+|--test_emergency_system/
+|--test_future_safety/ #includes future_safety_tree.py
+|--test_keywords/
+|--test_move/ #also includes basic api tests
+tools
+|
+|--log_analyzer/ #includes CLI Tool log_analyzer
+emergency_system.py #fallback system, wraps calculation functions, guarantees a move is always returned
+keywords.py #keyword pattern
+main.py #starts server
+move.py #agent´s interface, orchestrates all calculations and simulations, returns final move
+server.py #ServerHandler which includes agent´s interface + setup server
+validate_game_state.py #validates Battlesnake´s requests by checking received game state
 
-tools/
-└─ log_analyzer/
-    ├─ log_analyzer.py
-    └─ resources/
-        └─ contents.json   <-- required for error analysis
+# License
+This project is licensed under the MIT License - see the [License](License) file for details.
 
 # Log Analyzer
 Developed a CLI Tool to analyze log entries for crucial errors.

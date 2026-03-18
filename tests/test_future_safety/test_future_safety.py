@@ -2,8 +2,8 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-from future_safety import FutureSafety
-from future_safety_tree import FutureSafetyTree
+from future.future_safety import FutureSafety
+from future.future_safety_tree import FutureSafetyTree
 from move import Move
 from keywords import Keywords
 
