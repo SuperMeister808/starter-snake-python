@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-from future_safety_tree import FutureSafetyTree
+from future.future_safety_tree import FutureSafetyTree
 
 class TestFutureSafetyTree(unittest.TestCase):
 

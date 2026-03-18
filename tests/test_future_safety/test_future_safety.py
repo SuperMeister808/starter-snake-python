@@ -16,7 +16,7 @@ class TestFutureSafety(unittest.TestCase):
 
         self.head = "head"
         self.game_state = "game_state"
-        self.body = "body"
+        self.body = []
         self.neck = "neck"
         self.my_length = "my_length"
         
