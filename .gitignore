@@ -6,3 +6,4 @@ game_state_example.txt
 run_local_game.txt
 *.log
 tools/log_analyzer/ressources/*.json
+request_server/
