@@ -50,8 +50,27 @@ battlesnake play -W 11 -H 11 --name 'Battlesnake Game Agent' --url http://localh
 ```
 
 # How it works
+The agent processes each game state through a fixed pipeline on every turn:
 ```mermaid
+flowchart TD
+    A[Reset data] --> B[Extract game state]
+    B --> C
 
+    subgraph C[Two-stage evaluation]
+        D[Fallback system]
+        E[Keyword pattern]
+    end
+
+    C --> F[Tree simulation]
+    F --> G[Select best move]
+    G --> H[Return move]
+
+    I[Error logging] -.-> A
+    I -.-> B
+    I -.-> C
+    I -.-> F
+    I -.-> G
+```
 
 # Project structure
 main.py
