@@ -53,50 +53,49 @@ battlesnake play -W 11 -H 11 --name 'Battlesnake Game Agent' --url http://localh
 The agent processes each game state through a fixed pipeline on every turn:
 ```mermaid
 flowchart TD
-    A[Reset data] --> B[Extract game state]
+    A[reset data] --> B[extract game state]
+    
     B --> C
-
     subgraph C[Two-stage evaluation]
         D[Fallback system]
-        E[Keyword pattern]
+        E2[Error logging]
+        I[Keyword pattern]
     end
+    C --> F
 
-    C --> F[Tree simulation]
+    subgraph F[Tree simulation]
+        E3[Error logging]
+        I2[Keyword pattern]
+    end
     F --> G[Select best move]
-    G --> H[Return move]
 
-    I[Error logging] -.-> A
-    I -.-> B
-    I -.-> C
-    I -.-> F
-    I -.-> G
+    G --> H[Return move]
 ```
 
 # Project structure
-future
-|
-|--future_safety_tree.py #creates tree based on a move
-|--future_safety.py #analyze safe paths of the tree
-logger
-|
-|--emergency_logger.py #logs fallbacks asynchronously which are stored in a queue 
-|--runtime_logger.py #setup logger + logger handlers in general
-tests
-|
-|--tests_emergency_logger/
-|--test_emergency_system/
-|--test_future_safety/ #includes future_safety_tree.py
-|--test_keywords/
-|--test_move/ #also includes basic api tests
-tools
-|
-|--log_analyzer/ #includes CLI Tool log_analyzer
-emergency_system.py #fallback system, wraps calculation functions, guarantees a move is always returned
-keywords.py #keyword pattern
-main.py #starts server
-move.py #agent´s interface, orchestrates all calculations and simulations, returns final move
-server.py #ServerHandler which includes agent´s interface + setup server
-validate_game_state.py #validates Battlesnake´s requests by checking received game state
+```
+battlesnake/
+├── future/
+│   ├── future_safety.py         # analyzes safe paths of the tree
+│   └── future_safety_tree.py    # creates tree based on a move
+├── logger/
+│   ├── emergency_logger.py      # logs fallbacks asynchronously, stored in a queue
+│   └── runtime_logger.py        # sets up logger and logger handlers
+├── tests/
+│   ├── tests_emergency_logger/
+│   ├── test_emergency_system/
+│   ├── test_future_safety/      # includes future_safety_tree.py
+│   ├── test_keywords/
+│   └── test_move/               # includes basic api tests
+├── tools/
+│   └── log_analyzer/            # CLI tool for log analysis
+├── emergency_system.py          # fallback system, wraps calculation functions, guarantees a move is always returned
+├── keywords.py                  # keyword pattern
+├── main.py                      # starts server
+├── move.py                      # agent's interface, orchestrates all calculations and simulations, returns final move
+├── server.py                    # Flask server, routes requests to move logic
+└── validate_game_state.py       # validates Battlesnake's requests by checking received game state
+```
 
 # Log Analyzer
 A CLI tool to analyze log files for critical errors and fallback events. 
