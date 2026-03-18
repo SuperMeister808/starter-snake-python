@@ -102,4 +102,5 @@ validate_game_state.py #validates Battlesnake´s requests by checking received g
 This project is licensed under the MIT License - see the [License](License) file for details.
 
 # Log Analyzer
-Developed a CLI Tool to analyze log entries for crucial errors.
+A CLI tool to analyze log files for critical errors and fallback events. 
+See the [Log Analyzer README](tools/log_analyzer/README.md) for full documentation.
