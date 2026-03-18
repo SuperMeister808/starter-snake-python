@@ -17,7 +17,7 @@ import threading
 import time
 
 from move import Move
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 
 # info is called when you create your Battlesnake on play.battlesnake.com
 # and controls your Battlesnake's appearance

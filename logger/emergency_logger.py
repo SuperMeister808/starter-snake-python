@@ -7,7 +7,7 @@ import time
 
 import logging
 
-from runtime_logger import RuntimeLogger , DefaultTurnAdapter
+from logger.runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
 class EmergencyLogger():
 

@@ -3,9 +3,9 @@ import typing
 from copy import deepcopy
 
 from keywords import Keywords
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 from emergency_system import EmergencySystem
-from future_safety_tree import FutureSafetyTree
+from future.future_safety_tree import FutureSafetyTree
 
 class FutureSafety():
 

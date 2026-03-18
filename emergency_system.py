@@ -3,7 +3,7 @@ import typing
 
 import random
 
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 
 class EmergencySystem():
     
