@@ -1,59 +1,78 @@
-# Battlesnake Python Starter Project
+# Battlesnake Game Agent
 
-An official Battlesnake template written in Python. Get started at [play.battlesnake.com](https://play.battlesnake.com).
+A Python-based agent which processes Battlesnake game_states and figures out the best possible moves.
 
-![Battlesnake Logo](https://media.battlesnake.com/social/StarterSnakeGitHubRepos_Python.png)
+# Features
+- two-stage evaluation — moves are filtered as safe/unsafe, then ranked by an integer priority score using calculation functions like calculate_opponents_positions, calculate_food, calculate_not_wall_collision, ...
+- fallback system which isolates calculation functions -> ensures a move is always returned even if calculation functions fail
+- detailed error logging which includes level, turn and message
+- tree based future simulation which simulates the possibilities (only safe paths) of a selected move for a configurable number of turns in the future
+- basic api infrastructure takes an server handler to handle post requests on fixed endpoints e.g. /info ; /start ; /move ; /end
+- keyword pattern which validates keyword arguments for type and contents
 
-This project is a great starting point for anyone wanting to program their first Battlesnake in Python. It can be run locally or easily deployed to a cloud provider of your choosing. See the [Battlesnake API Docs](https://docs.battlesnake.com/api) for more detail. 
+# Usage
 
-[![Run on Replit](https://repl.it/badge/github/BattlesnakeOfficial/starter-snake-python)](https://replit.com/@Battlesnake/starter-snake-python)
-
-## Technologies Used
-
-This project uses [Python 3](https://www.python.org/) and [Flask](https://flask.palletsprojects.com/). It also comes with an optional [Dockerfile](https://docs.docker.com/engine/reference/builder/) to help with deployment.
-
-## Run Your Battlesnake
-
-Install dependencies using pip
-
-```sh
+## Install dependencies using pip
+Make sure you have Python3.x installed.
+```bash
 pip install -r requirements.txt
 ```
 
-Start your Battlesnake
-
-```sh
+## Run the battlesnake
+```bash
 python main.py
 ```
 
-You should see the following output once it is running
-
-```sh
-Running your Battlesnake at http://0.0.0.0:8000
- * Serving Flask app 'My Battlesnake'
+## Example
+Open console and you should see:
+```
+ * Serving Flask app 'Battlesnake'
  * Debug mode: off
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8000
+ * Running on http://192.168.2.127:8000
+Press CTRL+C to quit
+```
+Open http://localhost:8000 in your browser and you should see:
+```
+{"apiversion":"1","author":"","color":"#FF0000","head":"default","tail":"default"}
 ```
 
-Open [localhost:8000](http://localhost:8000) in your browser and you should see
+## Play a game locally
+Install the battlesnake CLI
+Choose one of the following instalation methods:
+- Download compiled binaries on https://github.com/BattlesnakeOfficial/rules/releases
+- Install as go package on https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation (requires Go 1.18 or higher)
 
-```json
-{"apiversion":"1","author":"","color":"#888888","head":"default","tail":"default"}
+### Command to run a local game
+```bash
+battlesnake play -W 11 -H 11 --name 'Battlesnake Game Agent' --url http://localhost:8000 -g solo --browser
 ```
 
-## Play a Game Locally
+# How it works
+1. resets data
+2. extracts data from game_state 
+3. calculate safe and priority moves
+4. simulates possible moves for each safe move in future turns
+5. select randomly a move from priority > safe_moves > fallback
 
-Install the [Battlesnake CLI](https://github.com/BattlesnakeOfficial/rules/tree/main/cli)
-* You can [download compiled binaries here](https://github.com/BattlesnakeOfficial/rules/releases)
-* or [install as a go package](https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation) (requires Go 1.18 or higher)
+# Project structure
+main.py
+server.py
+├─ validate_game_state.py
+move.py
+├─ keywords.py
+├─ future_safety.py
+│   └─ future_safety_tree.py
+└─ emergency_system.py
+    └─ emergency_logger.py
+        └─ runtime_logger.py
 
-Command to run a local game
+tools/
+└─ log_analyzer/
+    ├─ log_analyzer.py
+    └─ resources/
+        └─ contents.json   <-- required for error analysis
 
-```sh
-battlesnake play -W 11 -H 11 --name 'Python Starter Project' --url http://localhost:8000 -g solo --browser
-```
-
-## Next Steps
-
-Continue with the [Battlesnake Quickstart Guide](https://docs.battlesnake.com/quickstart) to customize and improve your Battlesnake's behavior.
-
-**Note:** To play games on [play.battlesnake.com](https://play.battlesnake.com) you'll need to deploy your Battlesnake to a live web server OR use a port forwarding tool like [ngrok](https://ngrok.com/) to access your server locally.
+# Log Analyzer
+Developed a CLI Tool to analyze log entries for crucial errors.

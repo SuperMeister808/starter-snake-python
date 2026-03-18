@@ -7,3 +7,4 @@ run_local_game.txt
 *.log
 tools/log_analyzer/ressources/*.json
 request_server/
+create_opponent.py
