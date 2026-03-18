@@ -7,7 +7,6 @@ import time
 
 import logging
 
-from print_collector import PrintCollector
 from runtime_logger import RuntimeLogger , DefaultTurnAdapter
 
 class EmergencyLogger():
@@ -22,8 +21,6 @@ class EmergencyLogger():
     loger_queue = queue.Queue()  
 
     flags = {"is_running": False, "worker_thread": None}
-
-    print_collector = PrintCollector()
 
     @classmethod
     def setup(cls, logger):
@@ -108,8 +105,6 @@ class EmergencyLogger():
     def clear_emergency_logger(cls):
 
         cls.flags = {"is_running": False, "worker_thread": None}
-
-        cls.print_collector.clear_messages()
 
         RuntimeLogger.close_file_handlers(cls.runtime_logger)
 
