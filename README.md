@@ -1,12 +1,12 @@
 # Battlesnake Game Agent
 
-A Python-based agent which processes Battlesnake game_states and figures out the best possible moves.
+A Python-based agent which processes Battlesnake game states and figures out the best possible moves.
 
 # Features
 - two-stage evaluation — moves are filtered as safe/unsafe, then ranked by an integer priority score using calculation functions like calculate_opponents_positions, calculate_food, calculate_not_wall_collision, ...
 - fallback system which wraps calculation functions - ensures a move is always returned even if calculation functions fail
 - detailed error logging that captures level, turn and message asynchronously for performance — avoids blocking the main pipeline
-- tree based future simulation which simulates the possibilities (only safe paths) of a selected move for a configurable number of turns in the future
+- tree-based future simulation which simulates the possibilities (only safe paths) of a selected move for a configurable number of turns in the future
 - basic api infrastructure takes an server handler to handle post requests on fixed endpoints e.g. /info ; /start ; /move ; /end
 - keyword pattern which validates keyword arguments for type and contents
 
@@ -98,9 +98,9 @@ move.py #agent´s interface, orchestrates all calculations and simulations, retu
 server.py #ServerHandler which includes agent´s interface + setup server
 validate_game_state.py #validates Battlesnake´s requests by checking received game state
 
-# License
-This project is licensed under the MIT License - see the [License](License) file for details.
-
 # Log Analyzer
 A CLI tool to analyze log files for critical errors and fallback events. 
 See the [Log Analyzer README](tools/log_analyzer/README.md) for full documentation.
+
+# License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
