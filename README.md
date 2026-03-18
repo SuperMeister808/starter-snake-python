@@ -13,7 +13,7 @@ A Python-based agent which processes Battlesnake game_states and figures out the
 # Usage
 
 ## Install dependencies using pip
-Make sure you have Python3.x installed.
+Make sure you have Python 3.x installed.
 ```bash
 pip install -r requirements.txt
 ```
@@ -40,9 +40,9 @@ Open http://localhost:8000 in your browser and you should see:
 
 ## Play a game locally
 Install the battlesnake CLI
-Choose one of the following instalation methods:
-- Download compiled binaries on https://github.com/BattlesnakeOfficial/rules/releases
-- Install as go package on https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation (requires Go 1.18 or higher)
+Choose one of the following installation methods:
+- [Download compiled binaries](https://github.com/BattlesnakeOfficial/rules/releases)
+- [Install as go package](https://github.com/BattlesnakeOfficial/rules/tree/main/cli#installation) (requires Go 1.18 or higher)
 
 ### Command to run a local game
 ```bash
@@ -50,11 +50,8 @@ battlesnake play -W 11 -H 11 --name 'Battlesnake Game Agent' --url http://localh
 ```
 
 # How it works
-1. resets data
-2. extracts data from game_state 
-3. calculate safe and priority moves
-4. simulates possible moves for each safe move in future turns
-5. select randomly a move from priority > safe_moves > fallback
+```mermaid
+
 
 # Project structure
 main.py
