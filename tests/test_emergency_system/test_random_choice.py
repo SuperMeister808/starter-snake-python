@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch , MagicMock , call
 
 from move import Move
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 
 class TestRandomChoice(unittest.TestCase):
 
@@ -117,7 +117,7 @@ class TestRandomChoice(unittest.TestCase):
         
         result = self.bot.random_choice()
         
-        self.mock_loger_queue.put.assert_called_once_with(("random_choice", "side effect", self.bot.turn_counter, 40))
+        self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.bot.turn_counter, 40))
         
         next_move = result ["move"]
         expected = ["left", "right", "down", "up"]
