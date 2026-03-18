@@ -2,8 +2,8 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-from emergency_logger import EmergencyLogger
-from runtime_logger import RuntimeLogger
+from logger.emergency_logger import EmergencyLogger
+from logger.runtime_logger import RuntimeLogger
 
 class TestEmergencyLog(unittest.TestCase):
 

@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch , MagicMock , call , ANY
 
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 
 import queue
 

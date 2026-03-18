@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-from emergency_logger import EmergencyLogger
+from logger.emergency_logger import EmergencyLogger
 from emergency_system import EmergencySystem
 from move import Move
 
