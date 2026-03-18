@@ -14,24 +14,23 @@ class TestFutureSafety(unittest.TestCase):
         self.bot = Move()
         self.future_safety = FutureSafety(self.bot)
 
-        self.head = "head"
-        self.game_state = "game_state"
+        self.head = {}
+        self.game_state = {}
         self.body = []
-        self.neck = "neck"
-        self.my_length = "my_length"
+        self.neck = {}
+        self.my_length = 0
         
         self.child_id = 0
         self.patchers = [
             patch.object(self.future_safety, "log_data"),
             patch.object(Move, "check_moves"),
-            patch.object(Keywords, "extract_keywords", return_value=("head", "game_state", "body", "neck", "my_length")),
             patch.object(self.future_safety, "create_future_safety_tree", return_value="root id"),
             patch.object(self.future_safety, "reset_safe_moves"),
-            patch.object(self.future_safety, "extract_data_from_tree", return_value=("head", "body", "neck", "my_length")),
-            patch.object(self.future_safety, "get_move", return_value="move possition"),
+            patch.object(self.future_safety, "extract_data_from_tree", return_value=(self.head, self.body, self.neck, self.my_length)),
+            patch.object(self.future_safety, "get_move", return_value=self.head),
             patch.object(self.future_safety.future_safety_tree, "add_node", side_effect=self.fake_add_node),
-            patch.object(Move, "call_get_body", return_value=("head", "body")),
-            patch.object(Move, "get_neck", return_value=("body"))
+            patch.object(Move, "call_get_body", return_value=(self.head, self.body)),
+            patch.object(Move, "get_neck", return_value=(self.body))
         ]
         self.mocks = {}
 
