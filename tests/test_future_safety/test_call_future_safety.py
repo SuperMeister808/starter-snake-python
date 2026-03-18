@@ -2,7 +2,7 @@
 import unittest
 from unittest.mock import patch , MagicMock
 
-from future_safety import FutureSafety
+from future.future_safety import FutureSafety
 from move import Move
 
 class TestCallFutureSafety(unittest.TestCase):
