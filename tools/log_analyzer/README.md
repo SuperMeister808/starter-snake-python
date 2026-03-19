@@ -31,3 +31,25 @@ Scans parsed log contents for critical errors and fallback events. Requires vali
 ```bash
 python -m tools.log_analyzer.main analyse_errors --output file console
 ```
+
+# How it works
+The pipeline of read_logs.
+```mermaid
+flowchart TD
+
+subgraph A[Recieves command]
+    B[Recieves log file]
+    C[Recieves level index]
+    D[Recieves turn index]
+    E[Recieves log index]
+end
+A --> F[Parse lines and map them to keys in contents]
+F --> G[Save contents as json cache]
+```
+
+The pipeline of analyse_errors.
+```mermaid
+flowchart TD
+
+subgraph A[Recieves command]
+
