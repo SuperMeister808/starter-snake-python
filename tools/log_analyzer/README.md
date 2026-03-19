@@ -3,7 +3,7 @@
 A CLI tool that parses log entries, analyzes them for critical errors and fallback events. Designed to be used alongside the Battlesnake Game Agent to debug and monitor runtime behavior.
 
 # Features
-- log reader that parses log entries and maps them to keys like level, turn, message, ... — independent of log structure
+- log reader that iterates through lines and maps the contents of each line to keys like level, turn, message, ... — independent of log structure
 - error analyzer that iterates through all contents and finds critical errors and fallback events with help of a whitelist
 - caches parsed contents as JSON to allow multiple analysis operations without re-reading the log file
 - multiple logging handlers like file handler, stream handler, ... - for flexible log output configuration
@@ -29,7 +29,7 @@ ERROR | TURN 0 | "Something went wrong"
 ## Analyze errors
 Scans parsed log contents for critical errors and fallback events. Requires valid level and message in contents. Specify one or more output methods:
 ```bash
-python -m tools.log_analyzer.main analyse_errors --output file console
+python -m tools.log_analyzer.main analyse_errors --output file console  --file_handler file_path
 ```
 
 # How it works
@@ -52,4 +52,17 @@ The pipeline of analyse_errors.
 flowchart TD
 
 subgraph A[Recieves command]
-
+    B[Recieves output]
+    C[Recieves file handler]
+end
+A --> D[load contents]
+D --> E[Scans level of a line]
+E --> F[level is equal 40]
+E --> F1[level is unequal 40]
+F --> G[message is not in whitelist]
+F --> G1[message is in whitelist]
+G --> H[log output on activated handlers]
+H --> I[continue with next line]
+G1 --> I1[continue with next line]
+F1 --> I2[continue with next line]
+```
