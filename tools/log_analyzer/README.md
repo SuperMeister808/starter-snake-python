@@ -11,12 +11,23 @@ A CLI tool that parses log entries, analyzes them for critical errors and fallba
 # Usage
 
 ## Install dependencies using pip
-Make sure you´ve Python 3.x installed.
+Make sure you have Python 3.x installed:
 ```bash
 pip install -r requirements.txt
 ```
 ## Read the log file
-Log entries are split by `|`. Provide indices to map each part to level, turn and message. Note: `--log_index` refers to the message content.
+Log entries are split by `|`. Provide indices to map each part to level, turn and message. Note: `--log_index` refers to message:
 ```bash
-python -m tools.log_analyzer.main --file file_path --level_index 0 --turn_index 1 --log_index 2
+python -m tools.log_analyzer.main read_log --file file_path --level_index 0 --turn_index 1 --log_index 2
+```
+
+### Example
+```bash
+ERROR | TURN 0 | "Something went wrong"
+```
+
+## Analyze errors
+Scans parsed log contents for critical errors and fallback events. Requires valid level and message in contents. Specify one or more output methods:
+```bash
+python -m tools.log_analyzer.main analyse_errors --output file console
 ```
