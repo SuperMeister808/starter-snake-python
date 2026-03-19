@@ -59,8 +59,5 @@ A --> D[Load contents]
 D --> E[Scan entry]
 E --> F{Level is ERROR?}
 F -- yes --> G{Message is in whitelist?}
-F -- no --> G1[continue with next entry]
-G -- yes --> H[continue with next entry]
 G -- no --> H1[log in output handlers]
-H1 --> I[continue with next entry]
 ```
