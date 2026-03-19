@@ -37,32 +37,30 @@ The pipeline of read_logs.
 ```mermaid
 flowchart TD
 
-subgraph A[Recieves command]
-    B[Recieves log file]
-    C[Recieves level index]
-    D[Recieves turn index]
-    E[Recieves log index]
+subgraph A[Receives command]
+    B[Receives log file]
+    C[Receives level index]
+    D[Receives turn index]
+    E[Receives log index]
 end
 A --> F[Parse lines and map them to keys in contents]
 F --> G[Save contents as json cache]
 ```
 
-The pipeline of analyse_errors.
+The pipeline of analyse_errors. The pipeline runs for each log entry:
 ```mermaid
 flowchart TD
 
-subgraph A[Recieves command]
-    B[Recieves output]
-    C[Recieves file handler]
+subgraph A[Receives command]
+    B[Receives output]
+    C[Receives file handler]
 end
-A --> D[load contents]
-D --> E[Scans level of a line]
-E --> F[level is equal 40]
-E --> F1[level is unequal 40]
-F --> G[message is not in whitelist]
-F --> G1[message is in whitelist]
-G --> H[log output on activated handlers]
-H --> I[continue with next line]
-G1 --> I1[continue with next line]
-F1 --> I2[continue with next line]
+A --> D[Load contents]
+D --> E[Scan entry]
+E --> F{Level is ERROR?}
+F -- yes --> G{Message is in whitelist?}
+F -- no --> G1[continue with next entry]
+G -- yes --> H[continue with next entry]
+G -- no --> H1[log in output handlers]
+H1 --> I[continue with next entry]
 ```
