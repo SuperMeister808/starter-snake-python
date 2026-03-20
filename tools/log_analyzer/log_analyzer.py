@@ -62,22 +62,25 @@ class LogAnalyzer():
         handler.setFormatter(formatter)
         self.handlers["console"] = handler
 
-    def add_handler(self, handlers:typing.List[str]):
+    # Adds the specified handlers to the logger by name.
+    # Silently skips unknown handler names.
+    def add_handler(self, handlers: typing.List[str]):
         for handler_name in handlers:
             handler = self.handlers.get(handler_name, "unknown")
             if not isinstance(handler, logging.Handler):
                 continue
             self.logger.addHandler(handler)
 
+    # Removes all active handlers from the logger.
     def remove_handler(self):
         for handler in self.logger.handlers:
             if not isinstance(handler, logging.Handler):
                 continue
             self.logger.removeHandler(handler)
 
+    # Removes all handlers from the logger and closes them to release file resources.
     def close_handlers(self):
         self.remove_handler()
-
         for name, handler in self.handlers.items():
             if isinstance(handler, logging.Handler):
                 handler.close()
