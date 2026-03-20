@@ -93,67 +93,39 @@ class Move():
                 if move == body_part:
                     is_move_safe[direction]["is_safe"] = False
 
-    #calculation method - evalkuates if snake collides with an enemy by using calculated enemies positions
+    # Marks moves that would collide with an opponent as unsafe.
+    # Rewards moves that lead to a winning head-to-head position with priority + 2.
     def not_enemy_collision(self, is_move_safe, **kwargs):
-        
-        NEEDED_KEYWORDS = ["head", "game_state"]
+
+        NEEDED_KEYWORDS = ["head", "game_state", "my_length"]
+        head, game_state, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         if self.opponents_positions is None:
-            self.opponents_positions = {}
+            self.calculate_opponents_positions(game_state, my_length)
 
-        head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        possible_moves = self._get_possible_moves(head)
+        you_id = game_state["you"]["id"]
 
-        #set your possible moves
-        first_move = {"x": head["x"] + 1, "y": head["y"]}
+        for snake_id, position in self.opponents_positions.items():
+            # skip yourself
+            if snake_id == you_id:
+                continue
 
-        second_move = {"x": head["x"] - 1, "y": head["y"]}
+            self._apply_unsafe_positions(is_move_safe, possible_moves, position["unsafe"])
+            self._apply_priority_positions(is_move_safe, possible_moves, position["priority"])
 
-        third_move = {"x": head["x"], "y": head["y"] + 1}
+    # Marks moves that overlap with opponent unsafe positions as unsafe.
+    def _apply_unsafe_positions(self, is_move_safe, possible_moves, unsafe_positions):
+        for direction, move in possible_moves.items():
+            if move in unsafe_positions:
+                is_move_safe[direction]["is_safe"] = False
 
-        fourth_move = {"x": head["x"], "y": head["y"] - 1}
-
-        for snake , position in self.opponents_positions.items():
-                
-            #check if entry of opponents_positions is you
-            if snake != game_state["you"]["id"]:
-            
-                #check if unsafe positions matches to positions of your moves
-                for entry in position["unsafe"]:
-            
-                    if entry == first_move:
-
-                        is_move_safe["right"]["is_safe"] = False
-
-                    if entry == second_move:
-
-                        is_move_safe["left"]["is_safe"] = False
-
-                    if entry == third_move:
-
-                        is_move_safe["up"]["is_safe"] = False
-
-                    if entry == fourth_move:
-
-                        is_move_safe["down"]["is_safe"] = False
-
-                #check if priority positions matches to positions of your moves - Head to Head - priority + 2
-                for entry in position["priority"]:
-
-                    if entry == first_move:
-
-                        is_move_safe["right"]["priority"] += 2
-
-                    if entry == second_move:
-
-                        is_move_safe["left"]["priority"] += 2
-
-                    if entry == third_move:
-
-                        is_move_safe["up"]["priority"] += 2
-
-                    if entry == fourth_move:
-
-                        is_move_safe["down"]["priority"] += 2
+    # Increases priority of moves that lead to a winning head-to-head position.
+    # Priority + 2 rewards aggressive positioning against smaller opponents.
+    def _apply_priority_positions(self, is_move_safe, possible_moves, priority_positions):
+        for direction, move in possible_moves.items():
+            if move in priority_positions:
+                is_move_safe[direction]["priority"] += 2
 
     #calculation method - evaluates is_growing by using food positions
     def is_growing(self, **kwargs):
