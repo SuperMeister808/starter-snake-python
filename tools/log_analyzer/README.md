@@ -71,6 +71,3 @@ log_analyzer/
 └── ressources/ #stores persistent data
     └── contents.json # JSON cache storing parsed log entries that are mapped to keys like level, turn, message
 ```
-
-# License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
