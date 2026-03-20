@@ -311,23 +311,21 @@ class Move():
 
         return new_body
 
-    #extract game state method - neck is the second indece
+    # Returns the neck position (second body part).
+    # Falls back to body[0] on turn 0 when the body has only one segment.
     def get_neck(self, **kwargs):
 
         NEEDED_KEYWORDS = ["body"]
-
         body, = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         try:
-            neck = body[1]
+            return body[1]
         except IndexError:
-            #Edge-Case turn 0
+            # turn 0 edge case — body has only one segment
             try:
-                neck = body[0]
+                return body[0]
             except IndexError:
-                raise IndexError("Body ist leer")
-        
-        return neck
+                raise IndexError("Body is empty")
     
     #extract game state method - length == len(body)
     def get_length(self, body):
