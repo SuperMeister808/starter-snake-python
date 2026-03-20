@@ -35,25 +35,24 @@ class Move():
 
         self.priority_moves = []
 
-    #calculation method - evaluates if move is backward by comparing head and neck
+    # Marks the backward move as unsafe by comparing head and neck positions.
     def not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
+        head, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        head , neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        backward = self._get_backward_direction(head, neck)
+    
+        if backward:
+            is_move_safe[backward]["is_safe"] = False
 
-            
-        if neck["x"] < head["x"]:  
-            is_move_safe["left"]["is_safe"] = False
-
-        elif neck["x"] > head["x"]:  
-            is_move_safe["right"]["is_safe"] = False
-
-        elif neck["y"] < head["y"]:  
-            is_move_safe["down"]["is_safe"] = False
-
-        elif neck["y"] > head["y"]: 
-            is_move_safe["up"]["is_safe"] = False         
+    # Determines the backward direction by comparing head and neck coordinates.
+    def _get_backward_direction(self, head, neck):
+        if neck["x"] < head["x"]: return "left"
+        if neck["x"] > head["x"]: return "right"
+        if neck["y"] < head["y"]: return "down"
+        if neck["y"] > head["y"]: return "up"
+        return None
        
     #calculation method - evaluates if move leads into a wall by by setting board_width, board_heigh and zero as walls
     def not_wall_collision(self, is_move_safe, **kwargs):
