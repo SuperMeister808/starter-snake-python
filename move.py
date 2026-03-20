@@ -431,12 +431,14 @@ class Move():
             EmergencyLogger.loger_queue.put(("select_move", e, self.turn_counter, 40))
             return {"move": random.choice(EMERGENCY_MOVES)}
     
-    def choose_move(self, game_state:typing.Dict):
-         
+    # Main entry point for move selection.
+    # Orchestrates the full pipeline: extract state → check moves → simulate future → select move.
+    def choose_move(self, game_state: typing.Dict):
+
         self.reset_is_move_safe()
-        
         self.future_safety.log_data("choose_move", {"game_state": game_state})
 
+        # extract required game state variables
         try:
             head = game_state["you"]["head"]
             raw_body = game_state["you"]["body"]
@@ -444,28 +446,34 @@ class Move():
             my_length = game_state["you"]["length"]
             self.future_safety.log_data("choose_move", {"head": head, "body": body, "my_length": my_length})
         except Exception:
-            raise RuntimeError("Variabele game_state nicht vorhanden!")
-        
+            raise RuntimeError("game_state is missing or invalid!")
+
+        # get neck position — falls back to emergency move if it fails
         result = self.emergency_system.emergency_system(self.get_neck, body=body, game_state=game_state)
         if self.emergency_system.is_emergency(result):
             Move.turn_counter += 1
             return {"move": result["move"]}
         neck = result
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
-        
-        result = self.emergency_system.emergency_system(self.check_moves, self.is_move_safe, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+
+        # run all calculation methods to determine safe and priority moves - falls back to emergency move if it fails
+        result = self.emergency_system.emergency_system(
+            self.check_moves, self.is_move_safe,
+            head=head, game_state=game_state, body=body, neck=neck, my_length=my_length
+        )
         if self.emergency_system.is_emergency(result):
             Move.turn_counter += 1
             return {"move": result["move"]}
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
 
+        # simulate future turns to verify safe moves remain safe
         self.check_safe_moves(2, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
+
         self.check_priority_moves()
-        
-        next_move = self.random_choice()
+
         Move.turn_counter += 1
-        return next_move
+        return self.select_move()
 
 # TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
 # board_width = game_state['board']['width']
