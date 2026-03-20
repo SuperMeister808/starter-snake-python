@@ -49,6 +49,9 @@ Choose one of the following installation methods:
 battlesnake play -W 11 -H 11 --name 'Battlesnake Game Agent' --url http://localhost:8000 -g solo --browser
 ```
 
+#### Example local game
+See [Example local game](docs/local_game_screenshot.png)
+
 # How it works
 The agent processes each game state through a fixed pipeline on every turn:
 ```mermaid
