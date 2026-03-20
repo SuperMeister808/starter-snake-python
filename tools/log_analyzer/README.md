@@ -61,3 +61,17 @@ E --> F{Level is ERROR?}
 F -- yes --> G{Message is in whitelist?}
 G -- no --> H1[log in output handlers]
 ```
+
+# Project structure
+# Project structure
+```
+log_analyzer/
+├── log_analyzer.py      # core logic for parsing and analyzing log entries
+├── main.py              # CLI entry point, exposes read_log and analyse_errors commands
+├── tests/               # unit tests for log reader and error analyzer
+└── ressources/ #stores persistent data
+    └── contents.json # JSON cache storing parsed log entries that are mapped to keys like level, turn, message
+```
+
+# License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
