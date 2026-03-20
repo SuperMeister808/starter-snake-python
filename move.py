@@ -286,31 +286,27 @@ class Move():
         new_body.append(head)
         return new_body
         
-    #extract game state method - calculate body after a move - length is equal but new head - one body part falls out
+    # Simulates the body after a move — shifts each body part forward
+    # and drops the tail, keeping the length equal.
     def call_get_body(self, **kwargs):
-        
+
         NEEDED_KEYWORDS = ["head", "body"]
-        
-        head, body= self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        head, body = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         new_body = None
-        
         calls = 0
-
         required_calls = len(body)
-        
-        for body_part in body:
-            
-            if calls == required_calls:
 
+        for body_part in body:
+
+            if calls == required_calls:
                 return new_body
 
-            #add new head
+            # append current head to new body
             new_body = self.get_body(new_body, head=head)
 
-            #body part will be the next head
+            # each body part becomes the next head in the shift
             head = body_part
-
             calls += 1
 
         return new_body
