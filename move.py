@@ -273,18 +273,17 @@ class Move():
     def reset_turn_counter(cls):
         cls.turn_counter = 0
     
-    #extract game state method
-    def get_body(self, new_body:typing.List[dict]=None, **kwargs):
-        
-        NEEDED_KEYWORDS = ["head"]
+    # Appends the current head position to the new body list.
+    # Uses None as default to avoid mutable default argument pitfall.
+    def get_body(self, new_body: typing.List[dict] = None, **kwargs):
 
+        NEEDED_KEYWORDS = ["head"]
         head, = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         if new_body is None:
             new_body = []
 
         new_body.append(head)
-
         return new_body
         
     #extract game state method - calculate body after a move - length is equal but new head - one body part falls out
