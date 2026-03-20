@@ -268,10 +268,9 @@ class Move():
     def reset_priority_moves(self):
         self.priority_moves = []
 
-    #clean method
+    # Resets the turn counter at the start of a new game.
     @classmethod
     def reset_turn_counter(cls):
-
         cls.turn_counter = 0
     
     #extract game state method
