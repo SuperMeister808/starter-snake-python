@@ -231,27 +231,26 @@ class Move():
             "down":  {"x": head["x"],     "y": head["y"] - 1},
         }
 
-    #call calculation methods
+    # Runs all calculation methods to determine safe and priority moves.
+    # Opponent positions are calculated first as they are required by not_enemy_collision.
     def check_moves(self, is_move_safe, **kwargs):
-        
-        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
 
+        NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
         head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         self.calculate_opponents_positions(game_state=game_state, my_length=my_length)
 
         checks = [
-                  self.not_backward, 
-                  self.not_wall_collision, 
-                  self.not_itself_collision, 
-                  self.not_enemy_collision, 
-                  self.calculate_food]
+            self.not_backward,
+            self.not_wall_collision,
+            self.not_itself_collision,
+            self.not_enemy_collision,
+            self.calculate_food,
+        ]
 
         for check in checks:
-
             check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
 
-            
     #clean method
     def reset_is_move_safe(self):
         
