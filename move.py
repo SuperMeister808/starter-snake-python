@@ -276,37 +276,28 @@ class Move():
         if snake["length"] >= my_length:
             self.opponents_positions[snake["id"]]["unsafe"].extend(moves)
 
-    #calculation method - evalu
+    # Increases priority of moves that lead directly to a food item.
     def calculate_food(self, is_move_safe, **kwargs):
-        
+    
         NEEDED_KEYWORDS = ["head", "game_state"]
-
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        
+    
         food_list = game_state["board"]["food"]
+        moves = self._get_possible_moves(head)
 
-        left_move = {"x": head["x"] -1, "y": head["y"]}
-        right_move = {"x": head["x"] + 1, "y": head["y"]}
-        up_move = {"x": head["x"], "y": head["y"] + 1}
-        down_move = {"x": head["x"], "y": head["y"] - 1}
+        for food in food_list:
+            for direction, move in moves.items():
+                if move == food:
+                    is_move_safe[direction]["priority"] += 1
 
-        for item in food_list:
-
-            if left_move["x"] == item["x"] and left_move["y"] == item["y"]:
-
-                is_move_safe["left"]["priority"] += 1
-
-            if right_move["x"] == item["x"] and right_move["y"] == item["y"]:
-
-                is_move_safe["right"]["priority"] += 1
-
-            if up_move["x"] == item["x"] and up_move["y"] == item["y"]:
-
-                is_move_safe["up"]["priority"] += 1
-
-            if down_move["x"] == item["x"] and down_move["y"] == item["y"]:
-
-                is_move_safe["down"]["priority"] += 1
+    # Returns all four possible next positions mapped to their direction.
+    def _get_possible_moves(self, head):
+        return {
+            "left":  {"x": head["x"] - 1, "y": head["y"]},
+            "right": {"x": head["x"] + 1, "y": head["y"]},
+            "up":    {"x": head["x"],     "y": head["y"] + 1},
+            "down":  {"x": head["x"],     "y": head["y"] - 1},
+        }
 
     #call calculation methods
     def check_moves(self, is_move_safe, **kwargs):
