@@ -54,32 +54,29 @@ class Move():
         if neck["y"] > head["y"]: return "up"
         return None
        
-    #calculation method - evaluates if move leads into a wall by by setting board_width, board_heigh and zero as walls
+    # Marks moves that would lead into a wall as unsafe.
+    # Board coordinates run from 0 to width/height - 1.
     def not_wall_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
-
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-
 
         board_width = game_state["board"]["width"]
         board_height = game_state["board"]["height"]
-    
-        if head["x"] >= board_width -1:
 
-            is_move_safe["right"]["is_safe"] = False
+        wall_collisions = self._get_wall_collisions(head, board_width, board_height)
 
-        if head["x"] <= 0:
+        for direction in wall_collisions:
+            is_move_safe[direction]["is_safe"] = False
 
-            is_move_safe["left"]["is_safe"] = False
-
-        if head["y"] >= board_height -1:
-
-            is_move_safe["up"]["is_safe"] = False
-
-        if head["y"] <= 0:
-
-            is_move_safe["down"]["is_safe"] = False
+    # Returns a list of directions that would result in a wall collision.
+    def _get_wall_collisions(self, head, board_width, board_height):
+        collisions = []
+        if head["x"] >= board_width - 1:  collisions.append("right")
+        if head["x"] <= 0:                collisions.append("left")
+        if head["y"] >= board_height - 1: collisions.append("up")
+        if head["y"] <= 0:                collisions.append("down")
+        return collisions
 
     #calculation method - evaluates if snake colide into itself by using own body parts
     def not_itself_collision(self, is_move_safe, **kwargs):
