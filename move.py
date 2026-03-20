@@ -127,34 +127,17 @@ class Move():
             if move in priority_positions:
                 is_move_safe[direction]["priority"] += 2
 
-    #calculation method - evaluates is_growing by using food positions
+    # Returns True if the snake is about to eat food on its next move.
+    # Used to determine if the tail should be treated as unsafe.
     def is_growing(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
-
-        head , game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+        head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
         food = game_state["board"]["food"]
+        possible_moves = self._get_possible_moves(head)
 
-        for entry in food:
-
-            if entry == {"x": head["x"] + 1,"y": head["y"]}:
-
-                return True
-            
-            if entry == {"x": head["x"] - 1, "y": head["y"]}:
-
-                return True
-            
-            if entry == {"x": head["x"], "y": head["y"] + 1}:
-
-                return True
-            
-            if entry == {"x": head["x"], "y": head["y"] - 1}:
-
-                return True
-            
-        return False
+        return any(move in food for move in possible_moves.values())
 
     # Calculates unsafe and priority positions for all opponent snakes.
     # Unsafe positions block moves, priority positions reward head-to-head wins.
