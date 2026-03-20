@@ -264,9 +264,8 @@ class Move():
     def reset_opponents_positions(self):
         self.opponents_positions = {}
 
-    #clean method
+    # Resets priority moves before recalculating each turn.
     def reset_priority_moves(self):
-
         self.priority_moves = []
 
     #clean method
