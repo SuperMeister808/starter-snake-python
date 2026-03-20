@@ -28,87 +28,85 @@ class Server():
 
 
 
+    # Registers all API routes and their handlers.
     def setup_routes(self):
 
         @self.app.get("/")
-        def on_info(): 
+        def on_info():
+            # returns snake appearance and metadata
             try:
                 return self.handlers["info"]()
             except Exception as e:
-                return jsonify({"Error": f"Infos not available: {e}"})
+                return jsonify({"error": f"Info not available: {e}"})
 
         @self.app.post("/start")
         def on_start():
+            # initializes logger and resets state for a new game
             game_state = request.get_json()
-            if validate_game_state(game_state):
-                try:
-                    self.handlers["start"](game_state, self.logger_name, self.logger_file, self.debug)
-                    return jsonify({"status": "ok"})
-                except Exception as e:
-                    print(f"Error: {e}")
-                    return jsonify({"Error": f"{e}"})
-            else:
-                print("Game State Validation Failed!")
-                return jsonify({"Error": "Game State Validation Failed!"}) , 400
+            if not validate_game_state(game_state):
+                print("Game state validation failed")
+                return jsonify({"error": "Game state validation failed"}), 400
+            try:
+                self.handlers["start"](game_state, self.logger_name, self.logger_file, self.debug)
+                return jsonify({"status": "ok"})
+            except Exception as e:
+                print(f"Error: {e}")
+                return jsonify({"error": str(e)}), 500
 
         @self.app.post("/move")
         def on_move():
+            # returns the next move for the current turn
             game_state = request.get_json()
-            if validate_game_state(game_state):
-                try:
-                    return self.handlers["move"](game_state)
-                except Exception as e:
-                    print(f"Error: {e}")
-                    return jsonify({"Error": f"{e}"}) , 500
-            else:
-                print("Game State Validation Failed!")
-                return jsonify({"Error": "Game State Validation Failed!"}) , 400
-
+            if not validate_game_state(game_state):
+                print("Game state validation failed")
+                return jsonify({"error": "Game state validation failed"}), 400
+            try:
+                return self.handlers["move"](game_state)
+            except Exception as e:
+                print(f"Error: {e}")
+                return jsonify({"error": str(e)}), 500
 
         @self.app.post("/end")
         def on_end():
+            # stops the logging worker and clears the logger
             game_state = request.get_json()
-            if validate_game_state(game_state):
-                try:
-                    self.handlers["end"](game_state)
-                    return jsonify({"status": "ok"})
-                except Exception as e:
-                    print(f"Error: {e}")
-                    return jsonify({"Error": f"Error: {e}"}) , 500
-            else:
-                print("Game State Validation Failed!")
-                return jsonify({"Error": "Game State Validation Failed!"}) , 400
-            
+            if not validate_game_state(game_state):
+                print("Game state validation failed")
+                return jsonify({"error": "Game state validation failed"}), 400
+            try:
+                self.handlers["end"](game_state)
+                return jsonify({"status": "ok"})
+            except Exception as e:
+                print(f"Error: {e}")
+                return jsonify({"error": str(e)}), 500
+
         @self.app.get("/admin/push")
         @self.admin_required
         def on_push():
-            
+            # pushes logs to remote git repository
             try:
                 return self.handlers["push"]()
             except Exception as e:
-                return jsonify({"Error": f"Failed to push on git:{e}"}) , 500
-            
+                print(f"Error: {e}")
+                return jsonify({"error": f"Failed to push to git: {e}"}), 500
+
         @self.app.after_request
         def identify_server(response):
-            response.headers.set(
-                "server", "battlesnake/github/starter-snake-python"
-            )
+            # adds server identification header to every response
+            response.headers.set("server", "battlesnake/github/starter-snake-python")
             return response
         
+    # Decorator that protects admin routes by validating the admin token.
+    # Expects the token in the X-Admin-Token request header.
     def admin_required(self, f):
-
         @wraps(f)
         def decorated(*args, **kwargs):
             token = os.environ.get("ADMIN_TOKEN")
-
             if token != request.headers.get("X-Admin-Token"):
                 abort(403)
             return f(*args, **kwargs)
-        
         return decorated
         
+    # Starts the Flask server on all network interfaces.
     def run_server(self):
-
-        host = "0.0.0.0"
-
-        self.app.run(host=host, port=self.port)
+        self.app.run(host="0.0.0.0", port=self.port)
