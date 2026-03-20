@@ -251,13 +251,14 @@ class Move():
         for check in checks:
             check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
 
-    #clean method
+    # Resets all moves to safe with zero priority before each turn.
     def reset_is_move_safe(self):
-        
-        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
+        self.is_move_safe = {
+            "up":    {"is_safe": True, "priority": 0},
+            "down":  {"is_safe": True, "priority": 0},
+            "left":  {"is_safe": True, "priority": 0},
+            "right": {"is_safe": True, "priority": 0},
+        }
         
     #clean method
     def reset_opponents_positions(self):
