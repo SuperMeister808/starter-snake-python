@@ -78,39 +78,20 @@ class Move():
         if head["y"] <= 0:                collisions.append("down")
         return collisions
 
-    #calculation method - evaluates if snake colide into itself by using own body parts
+    # Marks moves that would collide with the snake's own body as unsafe.
+    # Skips the head (index 0) since the head is the current position.
     def not_itself_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "body"]
-        
-
         head, body = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
+        possible_moves = self._get_possible_moves(head)
 
-        position_x = head["x"]
-
-        position_y = head["y"]
-        
-        for e in body[1:]:
-
-            x = e["x"]
-            y = e["y"]
-
-            if (position_x) + 1 == x and position_y == y:
-
-                is_move_safe["right"]["is_safe"] = False
-
-            if (position_x) - 1 == x and position_y == y:
-
-                is_move_safe["left"]["is_safe"] = False
-
-            if (position_y) + 1 == y and position_x == x:
-
-                is_move_safe["up"]["is_safe"] = False
-
-            if (position_y) - 1 == y and position_x == x:
-
-                is_move_safe["down"]["is_safe"] = False
+        # skip index 0 since body[0] is the head itself
+        for body_part in body[1:]:
+            for direction, move in possible_moves.items():
+                if move == body_part:
+                    is_move_safe[direction]["is_safe"] = False
 
     #calculation method - evalkuates if snake collides with an enemy by using calculated enemies positions
     def not_enemy_collision(self, is_move_safe, **kwargs):
