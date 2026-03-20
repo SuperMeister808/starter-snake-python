@@ -35,7 +35,7 @@ class Move():
 
         self.priority_moves = []
 
-
+    #calculation method - evaluates if move is backward by comparing head and neck
     def not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
@@ -55,6 +55,7 @@ class Move():
         elif neck["y"] > head["y"]: 
             is_move_safe["up"]["is_safe"] = False         
        
+    #calculation method - evaluates if move leads into a wall by by setting board_width, board_heigh and zero as walls
     def not_wall_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
@@ -81,6 +82,7 @@ class Move():
 
             is_move_safe["down"]["is_safe"] = False
 
+    #calculation method - evaluates if snake colide into itself by using own body parts
     def not_itself_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "body"]
@@ -114,6 +116,7 @@ class Move():
 
                 is_move_safe["down"]["is_safe"] = False
 
+    #calculation method - evalkuates if snake collides with an enemy by using calculated enemies positions
     def not_enemy_collision(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
@@ -123,6 +126,7 @@ class Move():
 
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
+        #set your possible moves
         first_move = {"x": head["x"] + 1, "y": head["y"]}
 
         second_move = {"x": head["x"] - 1, "y": head["y"]}
@@ -133,8 +137,10 @@ class Move():
 
         for snake , position in self.opponents_positions.items():
                 
+            #check if entry of opponents_positions is you
             if snake != game_state["you"]["id"]:
             
+                #check if unsafe positions matches to positions of your moves
                 for entry in position["unsafe"]:
             
                     if entry == first_move:
@@ -153,6 +159,7 @@ class Move():
 
                         is_move_safe["down"]["is_safe"] = False
 
+                #check if priority positions matches to positions of your moves - Head to Head - priority + 2
                 for entry in position["priority"]:
 
                     if entry == first_move:
@@ -171,6 +178,7 @@ class Move():
 
                         is_move_safe["down"]["priority"] += 2
 
+    #calculation method - evaluates is_growing by using food positions
     def is_growing(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
@@ -199,74 +207,76 @@ class Move():
             
         return False
 
+    # Calculates unsafe and priority positions for all opponent snakes.
+    # Unsafe positions block moves, priority positions reward head-to-head wins.
     def calculate_opponents_positions(self, **kwargs):
-        
+    
         NEEDED_KEYWORDS = ["game_state", "my_length"]
-
-        game_state , my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "extract_kwargs", "game_state": game_state, "my_length": my_length})
-        
+        game_state, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
+    
+        # reset before recalculating to avoid stale positions from previous turn
         self.reset_opponents_positions()
-        copy_opponent_positions = deepcopy(self.opponents_positions)
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "reset_calculate_opponents_positions", "opponent_positions": copy_opponent_positions})
-        
+    
         snakes = game_state["board"]["snakes"]
         you = game_state["you"]
-        self.future_safety.log_data("calculate_opponents_positions", {"process": "get snakes + you", "snakes": snakes, "you": you})
-        
+    
         for snake in snakes:
-
-            if not isinstance(snake, dict):
+            if not self._is_valid_opponent(snake, you):
                 continue
+        
+            self.opponents_positions[snake["id"]] = {"unsafe": [], "priority": []}
+        
+            self._map_body_parts(snake, game_state)
+            self._map_head_to_head_moves(snake, my_length)
 
-            required_snake_keys = ["id", "head", "length", "body"]
-            if any(key not in snake for key in required_snake_keys):
-                continue
+    # Validates that a snake entry is a valid opponent and not yourself.
+    def _is_valid_opponent(self, snake, you):
+        if not isinstance(snake, dict):
+            return False
+        required_keys = ["id", "head", "length", "body"]
+        if any(key not in snake for key in required_keys):
+            return False
+        if snake["id"] == you["id"]:
+            return False
+        return True
 
-            if you["id"] == snake["id"]:
-                continue
-
-            self.opponents_positions [snake["id"]] = {"unsafe": [],"priority": []}
-            copy = deepcopy(self.opponents_positions)
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "add snake into positions", "positions": copy})
-            
-            opponent_length = snake["length"]
-            for i , body_part in enumerate(snake["body"]):
-                
-                if i == 0:
-                    unsafe_positions = self.opponents_positions [snake["id"]] ["unsafe"]
-                    unsafe_positions.append(body_part)
-                    copy = deepcopy(self.opponents_positions)
-                    self.future_safety.log_data("calculate_opponents_positions", {"process": "append head", "positions": copy})
-                    continue
-                if i == len(snake["body"]) - 1:
-                    if self.is_growing(head=snake["head"], game_state=game_state):
-                        unsafe_positions = self.opponents_positions[snake["id"]] ["unsafe"]
-                        unsafe_positions.append(body_part)
-                        copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=True", "positions": copy})
-                        continue
-                    else:
-                        copy = deepcopy(self.opponents_positions)
-                        self.future_safety.log_data("calculate_opponents_positions", {"process": "append tail, is_growing=False", "positions": copy})
-                        continue
-
+    # Maps each body part of an opponent to unsafe positions.
+    # Head is always unsafe. Tail is only unsafe if the snake is growing.
+    def _map_body_parts(self, snake, game_state):
+        for i, body_part in enumerate(snake["body"]):
+        
+            # head is always unsafe
+            if i == 0:
                 self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
-                copy = deepcopy(self.opponents_positions)
-                self.future_safety.log_data("calculate_opponents_positions", {"process": "append body part", "positions": copy})       
-                          
-            first_move = {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]} #right
-            second_move = {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]} #left
-            third_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1} #up
-            fourth_move = {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1} #down      
-            moves = [first_move, second_move, third_move, fourth_move]      
+                continue
+        
+            # tail is only unsafe if the snake ate food this turn
+            if i == len(snake["body"]) - 1:
+                if self.is_growing(head=snake["head"], game_state=game_state):
+                    self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
+                continue
+        
+            # all other body parts are always unsafe
+            self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
 
-            self.opponents_positions[snake["id"]]["priority"].extend(moves)
-            if opponent_length >= my_length:
-                self.opponents_positions [snake["id"]]["unsafe"].extend(moves)
-            copy = deepcopy(self.opponents_positions)
-            self.future_safety.log_data("calculate_opponents_positions", {"process": "appended moves", "positions": copy})
+    # Maps all possible next moves of an opponent to priority positions.
+    # If the opponent is the same size or larger, their moves are also unsafe
+    # since a head-to-head collision would be fatal.
+    def _map_head_to_head_moves(self, snake, my_length):
+        moves = [
+            {"x": snake["head"]["x"] + 1, "y": snake["head"]["y"]},  # right
+            {"x": snake["head"]["x"] - 1, "y": snake["head"]["y"]},  # left
+            {"x": snake["head"]["x"], "y": snake["head"]["y"] + 1},  # up
+            {"x": snake["head"]["x"], "y": snake["head"]["y"] - 1},  # down
+        ]
+    
+        self.opponents_positions[snake["id"]]["priority"].extend(moves)
+    
+        # head-to-head is fatal if opponent is same size or larger
+        if snake["length"] >= my_length:
+            self.opponents_positions[snake["id"]]["unsafe"].extend(moves)
 
+    #calculation method - evalu
     def calculate_food(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state"]
@@ -298,6 +308,7 @@ class Move():
 
                 is_move_safe["down"]["priority"] += 1
 
+    #call calculation methods
     def check_moves(self, is_move_safe, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
@@ -318,6 +329,7 @@ class Move():
             check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
 
             
+    #clean method
     def reset_is_move_safe(self):
         
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
@@ -325,19 +337,23 @@ class Move():
                              "left": {"is_safe": True, "priority": 0}, 
                              "right": {"is_safe": True, "priority": 0}}
         
+    #clean method
     def reset_opponents_positions(self):
 
         self.opponents_positions = {}
 
+    #clean method
     def reset_priority_moves(self):
 
         self.priority_moves = []
 
+    #clean method
     @classmethod
     def reset_turn_counter(cls):
 
         cls.turn_counter = 0
     
+    #extract game state method
     def get_body(self, new_body:typing.List[dict]=None, **kwargs):
         
         NEEDED_KEYWORDS = ["head"]
@@ -351,6 +367,7 @@ class Move():
 
         return new_body
         
+    #extract game state method - calculate body after a move - length is equal but new head - one body part falls out
     def call_get_body(self, **kwargs):
         
         NEEDED_KEYWORDS = ["head", "body"]
@@ -368,19 +385,18 @@ class Move():
             if calls == required_calls:
 
                 return new_body
-            
-            if "id" in body_part:
-                required_calls = required_calls - 1
-                continue
 
+            #add new head
             new_body = self.get_body(new_body, head=head)
 
+            #body part will be the next head
             head = body_part
 
             calls += 1
 
         return new_body
 
+    #extract game state method - neck is the second indece
     def get_neck(self, **kwargs):
 
         NEEDED_KEYWORDS = ["body"]
@@ -390,6 +406,7 @@ class Move():
         try:
             neck = body[1]
         except IndexError:
+            #Edge-Case turn 0
             try:
                 neck = body[0]
             except IndexError:
@@ -397,12 +414,13 @@ class Move():
         
         return neck
     
+    #extract game state method - length == len(body)
     def get_length(self, body):
 
         length = len(body)
         return length
     
-    #Edge-Case: turn 0
+    #extract game state method -- adds body parts
     def edit_body(self, body):
         new_body = []
         for seg in body:
