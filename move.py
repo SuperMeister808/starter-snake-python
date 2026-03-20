@@ -474,22 +474,3 @@ class Move():
 
         Move.turn_counter += 1
         return self.select_move()
-
-# TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-# board_width = game_state['board']['width']
-# board_height = game_state['board']['height']
-
-
-#x von 0 bis board_width -1
-#y von 0 bis board_height -1
-#Koordinaten zählen von 0, 
-#während board_width und board_height von 1 zählen
-    
-# TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-# my_body = game_state['you']['body']
-
-# TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-# opponents = game_state['board']['snakes']
-
-# TODO: Step 4 - Move towards food instead of random, to regain health and survive longer
-# food = game_state['board']['food']
