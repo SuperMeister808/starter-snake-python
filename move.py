@@ -327,11 +327,9 @@ class Move():
             except IndexError:
                 raise IndexError("Body is empty")
     
-    #extract game state method - length == len(body)
+    # Returns the length of the snake's body.
     def get_length(self, body):
-
-        length = len(body)
-        return length
+        return len(body)
     
     #extract game state method -- adds body parts
     def edit_body(self, body):
