@@ -16,6 +16,7 @@ class LogAnalyzer():
         self.handlers = {}
         self.setup_logger()
 
+    # Context manager that sets up logging handlers and ensures they are closed afterwards.
     @contextmanager
     def safe_setup_handler(self, setup_handlers):
         try:
@@ -24,35 +25,42 @@ class LogAnalyzer():
         finally:
             self.close_handlers()
     
+    # Initializes the log analyzer logger with INFO level.
     def setup_logger(self):
         self.logger = logging.getLogger("log_analyzer")
         self.logger.setLevel(logging.INFO)
         
+    # Sets up all logging handlers with a shared formatter.
     def setup_handlers(self):
         formatter = self.setup_formatter()
         self.setup_file_handler(self.file_handler, formatter)
         self.setup_stream_handler(formatter)
 
+    # Creates a formatter that includes timestamp, level, line number, turn and message.
     def setup_formatter(self):
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - %(message)s", 
-                                      datefmt="%Y-%m-%d %H:%M:%S")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - LINE %(line_number)s - TURN %(turn)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
         return formatter
     
+    # Adds a file handler to the logger using the provided formatter.
     def setup_file_handler(self, file_handler, formatter):
         if not isinstance(formatter, logging.Formatter):
-            raise RuntimeError("Formatter object is required to be logging.Formatter()")
+            raise RuntimeError("Formatter must be a logging.Formatter instance")
 
         handler = logging.FileHandler(file_handler)
         handler.setFormatter(formatter)
-        self.handlers ["file"] = handler
+        self.handlers["file"] = handler
     
+    # Adds a stream handler for console output using the provided formatter.
     def setup_stream_handler(self, formatter):
         if not isinstance(formatter, logging.Formatter):
-            raise TypeError("Formatter object is required to be logging.Formatter()")
-        
+            raise TypeError("Formatter must be a logging.Formatter instance")
+
         handler = logging.StreamHandler()
         handler.setFormatter(formatter)
-        self.handlers ["console"] = handler
+        self.handlers["console"] = handler
 
     def add_handler(self, handlers:typing.List[str]):
         for handler_name in handlers:
