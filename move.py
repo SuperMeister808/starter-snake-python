@@ -249,7 +249,7 @@ class Move():
         ]
 
         for check in checks:
-            check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck)
+            check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
 
     # Resets all moves to safe with zero priority before each turn.
     def reset_is_move_safe(self):
