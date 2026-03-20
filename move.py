@@ -403,33 +403,33 @@ class Move():
             EmergencyLogger.loger_queue.put(("check_priority_moves", e, self.turn_counter, 40))
             self.priority_moves = []
 
-    def random_choice(self):
+    # Selects the best available move in order of preference:
+    # priority moves → safe moves → emergency moves (fallback).
+    # Random selection within each tier to avoid predictable behavior.
+    def select_move(self):
 
-        safe_opperturnities = []
-        priority_opperturnities = []
+        safe_moves = [move for move, data in self.is_move_safe.items() if data["is_safe"]]
+        priority_moves = [move for move in safe_moves if move in self.priority_moves]
         EMERGENCY_MOVES = ["left", "right", "up", "down"]
+
         try:
-            for move , data in self.is_move_safe.items():
-                if data["is_safe"] == True:
-                    safe_opperturnities.append(move)
-            for move in safe_opperturnities:
-                if move in self.priority_moves:
-                    priority_opperturnities.append(move)
-            if len(priority_opperturnities) > 0:
-                next_move = random.choice(priority_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed priority move", self.turn_counter, 20))
+            if priority_moves:
+                next_move = random.choice(priority_moves)
+                EmergencyLogger.loger_queue.put(("select_move", "Selected priority move", self.turn_counter, 20))
                 return {"move": next_move}
-            if len(safe_opperturnities) > 0:
-                next_move = random.choice(safe_opperturnities)
-                EmergencyLogger.loger_queue.put(("random_choice", "Successfully choosed safe move", self.turn_counter, 20))
+
+            if safe_moves:
+                next_move = random.choice(safe_moves)
+                EmergencyLogger.loger_queue.put(("select_move", "Selected safe move", self.turn_counter, 20))
                 return {"move": next_move}
+
+            # no safe moves available — fall back to random emergency move
             next_move = random.choice(EMERGENCY_MOVES)
-            EmergencyLogger.loger_queue.put(("random_choice", "Choosed emergency move", self.turn_counter, 40))
+            EmergencyLogger.loger_queue.put(("select_move", "Selected emergency move", self.turn_counter, 40))
             return {"move": next_move}
         except Exception as e:
-            EmergencyLogger.loger_queue.put(("random_choice", e, self.turn_counter, 40))
-            next_move = random.choice(EMERGENCY_MOVES)
-            return {"move": next_move}
+            EmergencyLogger.loger_queue.put(("select_move", e, self.turn_counter, 40))
+            return {"move": random.choice(EMERGENCY_MOVES)}
     
     def choose_move(self, game_state:typing.Dict):
          
