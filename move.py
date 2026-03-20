@@ -380,21 +380,25 @@ class Move():
             EmergencyLogger.loger_queue.put(("get_safe_moves", e, self.turn_counter, 40))
             self.reset_is_move_safe()
     
+    # Finds the highest priority moves and stores them in priority_moves.
+    # If multiple moves share the highest priority, all are kept as candidates.
     def check_priority_moves(self):
 
         self.reset_priority_moves()
-        
+
         try:
             priority_counter = 0
-            for move , data in self.is_move_safe.items():
-                if data["priority"] >  priority_counter:
+            for move, data in self.is_move_safe.items():
+
+                # new highest priority found — replace current candidates
+                if data["priority"] > priority_counter:
                     self.priority_moves.clear()
                     self.priority_moves.append(move)
                     priority_counter = data["priority"]
-                    continue
-                if data["priority"] == priority_counter and data["priority"] > 0:
+
+                # tied for highest priority — add as additional candidate
+                elif data["priority"] == priority_counter and data["priority"] > 0:
                     self.priority_moves.append(move)
-                    continue
         except Exception as e:
             EmergencyLogger.loger_queue.put(("check_priority_moves", e, self.turn_counter, 40))
             self.priority_moves = []
