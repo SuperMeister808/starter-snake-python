@@ -331,7 +331,8 @@ class Move():
     def get_length(self, body):
         return len(body)
     
-    #extract game state method -- adds body parts
+    # Removes duplicate body parts — on turn 0 the Battlesnake engine
+    # initializes three identical segments at the same position.
     def edit_body(self, body):
         new_body = []
         for seg in body:
