@@ -260,9 +260,8 @@ class Move():
             "right": {"is_safe": True, "priority": 0},
         }
         
-    #clean method
+    # Resets opponent positions before recalculating each turn.
     def reset_opponents_positions(self):
-
         self.opponents_positions = {}
 
     #clean method
