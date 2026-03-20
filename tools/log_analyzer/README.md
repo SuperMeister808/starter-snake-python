@@ -21,9 +21,10 @@ Log entries are split by `|`. Provide indices to map each part to level, turn an
 python -m tools.log_analyzer.main read_log --file file_path --level_index 0 --turn_index 1 --log_index 2
 ```
 
-### Example
+### Example output
 ```bash
-ERROR | TURN 0 | "Something went wrong"
+2024-03-15 12:34:45 - ERROR - LINE 0 - TURN 0 - "Something went wrong"
+2024-03-15 12:34:45 - INFO - LINE unknown - TURN unknown - "Analyse errors completed!"
 ```
 
 ## Analyze errors
