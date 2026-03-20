@@ -85,7 +85,3 @@ class FutureSafetyTree():
     # Resets the tree to an empty root node before a new simulation is started.
     def reset_tree(self):
         self.root = {"id": [0], "data": None, "children": []}
-
-
-
-
