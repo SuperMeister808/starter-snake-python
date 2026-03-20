@@ -4,7 +4,7 @@ A CLI tool that parses log entries, analyzes them for critical errors and fallba
 
 # Features
 - log reader that iterates through lines and maps the contents of each line to keys like level, turn, message, ... — independent of log structure
-- error analyzer that iterates through all contents and finds critical errors and fallback events with help of a whitelist
+- error analyzer that iterates through all contents and finds critical errors and fallback events using a whitelist
 - caches parsed contents as JSON to allow multiple analysis operations without re-reading the log file
 - multiple logging handlers like file handler, stream handler, ... - for flexible log output configuration
 
@@ -62,7 +62,6 @@ F -- yes --> G{Message is in whitelist?}
 G -- no --> H1[log in output handlers]
 ```
 
-# Project structure
 # Project structure
 ```
 log_analyzer/
