@@ -383,7 +383,7 @@ class Move():
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
 
         # simulate future turns to verify safe moves remain safe
-        self.check_safe_moves(3, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+        self.check_safe_moves(2, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
         self.future_safety.log_data("choose_move", {"head": head, "neck": neck, "body": body, "my_length": my_length})
 
         self.check_priority_moves()
