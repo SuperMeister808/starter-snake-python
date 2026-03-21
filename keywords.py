@@ -4,15 +4,6 @@ import typing
 # Validates and extracts keyword arguments passed to calculation methods.
 # Ensures each keyword has the correct type before use.
 class Keywords():
-
-    def __init__(self):
-
-        self.ALLOWED_KEYWORDS =  ["head", "game_state", "body", "neck", "snake", "calls", "move", "new_head", "safe_moves", "memory_moves", "my_length"]
-        self.DICTIONARY_KEYS = ["head", "game_state", "neck", "new_head", "safe_moves", "snake"]
-        self.LIST_KEYS = ["body", "memory_moves"]
-        self.STRING_KEYS = ["move"]
-        self.INTEGER_KEYS = ["calls", "my_length"]
-        self.FLOAT_KEYS = []
     
     # Filters kwargs to only include allowed keywords.
     # Silently ignores any kwargs that are not in the allowed list.
