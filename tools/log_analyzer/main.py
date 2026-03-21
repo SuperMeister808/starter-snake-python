@@ -1,6 +1,8 @@
 from tools.log_analyzer.log_analyzer import LogAnalyzer
 import argparse
 
+# Entry point — parses CLI arguments and routes to the correct analyzer method.
+# Run with 'python -m tools.log_analyzer.main --help' to see all available options.
 def main():
     # CLI entry point — parses arguments and routes to the correct analyzer method
     parser = argparse.ArgumentParser(description="Analyse log files for critical errors and fallback events")

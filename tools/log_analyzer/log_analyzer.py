@@ -3,6 +3,9 @@ import typing
 import os
 import json
 from contextlib import contextmanager
+
+# Parses and analyzes Battlesnake log files for critical errors and fallback events.
+# Supports multiple output formats and caches parsed contents as JSON.
 class LogAnalyzer():
 
     def __init__(self, file, file_handler, level_index, turn_index, log_index):
