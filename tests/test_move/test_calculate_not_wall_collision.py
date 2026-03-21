@@ -3,7 +3,7 @@ import unittest
 from unittest.mock import patch , ANY , MagicMock
 from move import Move
 
-class TestNotWallCollision(unittest.TestCase):
+class TestCalculateNotWallCollision(unittest.TestCase):
 
     bot = Move()
     def setUp(self):
@@ -53,7 +53,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 10, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(True, 0, False, 0, True, 0, True, 0)
 
     
@@ -62,7 +62,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 0, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(False, 0, True, 0, True, 0, True, 0)
 
 
@@ -73,7 +73,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 2, "y": 0}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(True, 0, True, 0, False, 0, True, 0)
 
     def test_not_wall_collision_up(self):
@@ -81,7 +81,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 2, "y": 10}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(True, 0, True, 0, True, 0, False, 0)
 
     #Edge-Case
@@ -91,7 +91,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 2, "y": -1}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(True, 0, True, 0, False, 0, True, 0)
     
     def test_not_wall_collision_corner(self):
@@ -99,7 +99,7 @@ class TestNotWallCollision(unittest.TestCase):
         head = {"x": 10, "y": 10}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, self.game_state)) as self.mock_extract_keywords:
 
-            self.bot.not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_wall_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
             self.move_assertions(True, 0, False, 0, True, 0, False, 0)
 
 if __name__ == "__main__":
