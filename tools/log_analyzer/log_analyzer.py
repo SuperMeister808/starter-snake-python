@@ -164,8 +164,8 @@ class LogAnalyzer():
     def analyse_errors(self, output_formats):
 
         ALLOWED_OUTPUT_FORMATS = ["file", "console"]
-        # whitelist of known non-critical error messages to ignore
-        ALLOWED_ERRORS = ["select_move: Selected emergency move"]
+        # both entries kept for backward compatibility with logs generated before refactoring
+        ALLOWED_ERRORS = ["random_choice: Choosed emergency move", "select_move: Selected emergency move"]
 
         with self.safe_setup_handler(self.setup_handlers) as _:
 
