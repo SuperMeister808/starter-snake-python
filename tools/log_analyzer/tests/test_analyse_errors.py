@@ -119,7 +119,7 @@ class TestAnalyseErrors(TestCase):
                 else:
                     turns = ["unknown"]
                     self.assertIn(turn, turns)
-                logs = ["Line can not be analyzed:", "Analyse errors completed!", "random_choice: Failed!"]
+                logs = ["Line cannot be analyzed:", "Analyse errors completed!", "random_choice: Failed!"]
                 self.assertTrue(any(e in log for e in logs))
                 
 
