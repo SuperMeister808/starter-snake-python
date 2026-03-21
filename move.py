@@ -105,8 +105,8 @@ class Move():
         NEEDED_KEYWORDS = ["head", "game_state", "my_length"]
         head, game_state, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        if self.opponents_positions is None:
-            self.calculate_opponents_positions(game_state, my_length)
+        if not self.opponents_positions:
+            self.calculate_opponents_positions(game_state=game_state, my_length=my_length)
 
         possible_moves = self._get_possible_moves(head)
         you_id = game_state["you"]["id"]
@@ -189,7 +189,7 @@ class Move():
         
             # tail is only unsafe if the snake ate food this turn
             if i == len(snake["body"]) - 1:
-                if self.is_growing(head=snake["head"], game_state=game_state):
+                if self.calculate_is_growing(head=snake["head"], game_state=game_state):
                     self.opponents_positions[snake["id"]]["unsafe"].append(body_part)
                 continue
         
@@ -282,7 +282,7 @@ class Move():
                         )
                         if self.emergency_system.is_emergency(result):
                             return result
-                        if result == False:
+                        if result is False:
                             copy[move]["is_safe"] = False
 
                 # if at least one safe move remains, stop reducing turns
