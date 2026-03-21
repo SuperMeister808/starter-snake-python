@@ -250,18 +250,24 @@ class LogAnalyzer():
         if not isinstance(line_number, int):
             raise KeyError("Line number could not be parsed — analysis requires a valid integer")
 
+    # Routes a log entry to the specified output handlers.
+    # Adds handlers before logging and removes them afterwards to avoid duplicate output.
     def output_handler(self, output_handlers, output):
         self.add_handler(output_handlers)
-        if len(self.logger.handlers) == 0:
-            raise RuntimeError("Logger needs one or more handlers!")
+
+        if not self.logger.handlers:
+            raise RuntimeError("Logger requires at least one active handler")
         if not isinstance(output, dict):
-            raise RuntimeError("Invalid output")
+            raise RuntimeError("Output must be a dictionary")
+
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")
         log = output.get("log", "unknown")
         line_number = output.get("line_number", "unknown")
+
         self.logger.log(level, log, extra={"line_number": line_number, "turn": turn})
         self.remove_handler()
         
+    # Resets parsed contents after analysis is complete.
     def reset_contents(self):
         self.contents = []
