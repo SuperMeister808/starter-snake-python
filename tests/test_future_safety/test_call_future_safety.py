@@ -9,8 +9,8 @@ class TestCallFutureSafety(unittest.TestCase):
     
     def setUp(self):
         
-        self.move = Move()
-        self.future_safety = FutureSafety(self.move)
+        self.bot = Move()
+        self.future_safety = FutureSafety(self.bot)
 
         self.game_state = "game_state"
         self.body = "body"
@@ -20,9 +20,8 @@ class TestCallFutureSafety(unittest.TestCase):
         self.neck = "neck"
 
         self.patchers = [
-            patch.object(self.future_safety, "log_data"),
-            patch.object(Move, "call_get_body", return_value="new_body"),
-            patch.object(Move, "get_neck", return_value="new_neck"),
+            patch.object(self.bot.extract_data, "call_get_body", return_value="new_body"),
+            patch.object(self.bot.extract_data, "get_neck", return_value="new_neck"),
             patch.object(self.future_safety, "future_safety")
         ]
         self.mocks = {}
