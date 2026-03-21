@@ -1,6 +1,11 @@
 import typing
+
 class ExtractData():
 
+    def __init__(self, keywords):
+
+        self.keywords = keywords
+    
     # Appends the current head position to the new body list.
     # Uses None as default to avoid mutable default argument pitfall.
     def get_body(self, new_body: typing.List[dict] = None, **kwargs):

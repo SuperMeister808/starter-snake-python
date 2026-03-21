@@ -75,15 +75,15 @@ class FutureSafety():
     
     # Calculates the new body, neck and length after a move without growing.
     def create_data_from_head(self, head, body, length):
-        new_body = self.move.call_get_body(head=head, body=body)
-        new_neck = self.move.get_neck(body=new_body)
+        new_body = self.move.extract_data.call_get_body(head=head, body=body)
+        new_neck = self.move.extract_data.get_neck(body=new_body)
         return new_body, new_neck, length
     
     # Calculates the new body, neck and length after a move when the snake is growing.
     # Inserts the new head at the front and increments the length by 1.
     def create_data_from_head_is_growing(self, head, body, length):
         body.insert(0, head)
-        new_neck = self.move.get_neck(body=body)
+        new_neck = self.move.extract_data.get_neck(body=body)
         return body, new_neck, length + 1
     
     # Returns all four possible next positions from the current head position.
@@ -123,8 +123,8 @@ class FutureSafety():
 
         # calculate the new head position and body for the move being simulated
         head = self.get_move(move, head)
-        new_body = self.move.call_get_body(body=body, head=head)
-        new_neck = self.move.get_neck(body=new_body)
+        new_body = self.move.extract_data.call_get_body(body=body, head=head)
+        new_neck = self.move.extract_data.get_neck(body=new_body)
 
         # simulate future turns and track whether any safe path remains
         node_ids = None

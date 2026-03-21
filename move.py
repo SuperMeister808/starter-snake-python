@@ -13,6 +13,7 @@ from logger.emergency_logger import EmergencyLogger
 from keywords import Keywords
 from emergency_system import EmergencySystem
 from future.future_safety import FutureSafety
+from extract_data import ExtractData
 
 # Orchestrates the full move selection pipeline — evaluates safe and priority moves
 # and returns the best available move each turn.
@@ -32,6 +33,8 @@ class Move():
         self.emergency_system = EmergencySystem(self)
 
         self.future_safety = FutureSafety(self)
+
+        self.extract_data = ExtractData(self.keywords)
 
         self.opponents_positions = {}
 
@@ -377,14 +380,14 @@ class Move():
         try:
             head = game_state["you"]["head"]
             raw_body = game_state["you"]["body"]
-            body = self.edit_body(raw_body)
+            body = self.extract_data.edit_body(raw_body)
             my_length = game_state["you"]["length"]
             self.future_safety.log_data("choose_move", {"head": head, "body": body, "my_length": my_length})
         except Exception:
             raise RuntimeError("game_state is missing or invalid!")
 
         # get neck position — falls back to emergency move if it fails
-        result = self.emergency_system.emergency_system(self.get_neck, body=body, game_state=game_state)
+        result = self.emergency_system.emergency_system(self.extract_data.get_neck, body=body, game_state=game_state)
         if self.emergency_system.is_emergency(result):
             Move.turn_counter += 1
             return {"move": result["move"]}
