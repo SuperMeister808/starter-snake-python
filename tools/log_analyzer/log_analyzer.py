@@ -155,37 +155,49 @@ class LogAnalyzer():
         except RuntimeError:
             self.read_log()
     
+    # Scans parsed log contents for critical errors using a whitelist.
+    # Outputs results to the specified formats — file, console or both.
+    # Level 40 (ERROR) entries not in the whitelist are flagged as critical.
     def analyse_errors(self, output_formats):
+
+        ALLOWED_OUTPUT_FORMATS = ["file", "console"]
+        # whitelist of known non-critical error messages to ignore
+        ALLOWED_ERRORS = ["select_move: Selected emergency move"]
+
         with self.safe_setup_handler(self.setup_handlers) as _:
-            if self.contents == []:
+
+            # load contents from cache if not already loaded
+            if not self.contents:
                 self.load_contents()
-            ALLOWED_OUTPUT_FORMATS = ["file", "console"]
+
             for output_format in output_formats:
                 if output_format not in ALLOWED_OUTPUT_FORMATS:
-                    raise RuntimeError(f"Analyse_errors does not accept the output format: {output_format}!")
-            if len(self.contents) == 0:
-                raise RuntimeError("Log not read!")
-        
-            ALLOWED_ERRORS = ["random_choice: Choosed emergency move"]
+                    raise RuntimeError(f"analyse_errors does not accept output format: {output_format}")
+
+            if not self.contents:
+                raise RuntimeError("No log contents found — run read_log first")
 
             for content in self.contents:
                 line_number = content.get("line_number", "unknown")
                 turn = content.get("turn", "unknown")
                 level = content.get("level", "unknown")
                 log = content.get("log", "unknown")
+
                 try:
                     level_index = self.validate_level(level)
                     self.validate_log(log)
                 except KeyError as e:
-                    output = {"line_number": line_number, "level": 30, "turn": turn, "log": f"Line can not be analyzed: {e}"}
+                    # line could not be analyzed — log as warning
+                    output = {"line_number": line_number, "level": 30, "turn": turn, "log": f"Line cannot be analyzed: {e}"}
                     self.output_handler(output_formats, output)
                     continue
 
-                if level_index == 40:
-                    if log not in ALLOWED_ERRORS:
-                        output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
-                        self.output_handler(output_formats, output)
+                # flag ERROR level entries not in the whitelist as critical
+                if level_index == 40 and log not in ALLOWED_ERRORS:
+                    output = {"line_number": line_number, "level": level_index, "log": log, "turn": turn}
+                    self.output_handler(output_formats, output)
 
+            # signal completion
             output = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
             self.output_handler(output_formats, output)
             self.reset_contents()
