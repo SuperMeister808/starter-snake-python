@@ -3,6 +3,7 @@ from unittest.mock import patch , MagicMock , ANY , mock_open
 from unittest import main
 from tools.log_analyzer.log_analyzer import LogAnalyzer
 import json
+import os
 class TestSaveContents(TestCase):
 
     file = "..."
@@ -22,7 +23,7 @@ class TestSaveContents(TestCase):
         with patch("builtins.open", mock):
             contents_json = json.dumps(self.log_analyzer.contents)
             self.log_analyzer.save_contents()
-            mock.assert_called_once_with(r'C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json', 'w')
+            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), 'w')
             mock().write.assert_called_once_with(contents_json)
 
 if __name__ == "__main__":
