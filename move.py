@@ -41,7 +41,7 @@ class Move():
         self.priority_moves = []
 
     # Marks the backward move as unsafe by comparing head and neck positions.
-    def not_backward(self, is_move_safe, **kwargs):
+    def calculate_not_backward(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "neck"]
         head, neck = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -61,7 +61,7 @@ class Move():
        
     # Marks moves that would lead into a wall as unsafe.
     # Board coordinates run from 0 to width/height - 1.
-    def not_wall_collision(self, is_move_safe, **kwargs):
+    def calculate_not_wall_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -85,7 +85,7 @@ class Move():
 
     # Marks moves that would collide with the snake's own body as unsafe.
     # Skips the head (index 0) since the head is the current position.
-    def not_itself_collision(self, is_move_safe, **kwargs):
+    def calculate_not_itself_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "body"]
         head, body = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -100,7 +100,7 @@ class Move():
 
     # Marks moves that would collide with an opponent as unsafe.
     # Rewards moves that lead to a winning head-to-head position with priority + 2.
-    def not_enemy_collision(self, is_move_safe, **kwargs):
+    def calculate_not_enemy_collision(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state", "my_length"]
         head, game_state, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -134,7 +134,7 @@ class Move():
 
     # Returns True if the snake is about to eat food on its next move.
     # Used to determine if the tail should be treated as unsafe.
-    def is_growing(self, **kwargs):
+    def calculate_is_growing(self, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state"]
         head, game_state = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -246,37 +246,15 @@ class Move():
         self.calculate_opponents_positions(game_state=game_state, my_length=my_length)
 
         checks = [
-            self.not_backward,
-            self.not_wall_collision,
-            self.not_itself_collision,
-            self.not_enemy_collision,
+            self.calculate_not_backward,
+            self.calculate_not_wall_collision,
+            self.calculate_not_itself_collision,
+            self.calculate_not_enemy_collision,
             self.calculate_food,
         ]
 
         for check in checks:
             check(is_move_safe, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
-
-    # Resets all moves to safe with zero priority before each turn.
-    def reset_is_move_safe(self):
-        self.is_move_safe = {
-            "up":    {"is_safe": True, "priority": 0},
-            "down":  {"is_safe": True, "priority": 0},
-            "left":  {"is_safe": True, "priority": 0},
-            "right": {"is_safe": True, "priority": 0},
-        }
-        
-    # Resets opponent positions before recalculating each turn.
-    def reset_opponents_positions(self):
-        self.opponents_positions = {}
-
-    # Resets priority moves before recalculating each turn.
-    def reset_priority_moves(self):
-        self.priority_moves = []
-
-    # Resets the turn counter at the start of a new game.
-    @classmethod
-    def reset_turn_counter(cls):
-        cls.turn_counter = 0
     
     # Simulates future turns to verify that safe moves remain safe.
     # Reduces the number of simulated turns if no safe moves are found.
@@ -412,3 +390,25 @@ class Move():
 
         Move.turn_counter += 1
         return self.select_move()
+    
+    # Resets all moves to safe with zero priority before each turn.
+    def reset_is_move_safe(self):
+        self.is_move_safe = {
+            "up":    {"is_safe": True, "priority": 0},
+            "down":  {"is_safe": True, "priority": 0},
+            "left":  {"is_safe": True, "priority": 0},
+            "right": {"is_safe": True, "priority": 0},
+        }
+        
+    # Resets opponent positions before recalculating each turn.
+    def reset_opponents_positions(self):
+        self.opponents_positions = {}
+
+    # Resets priority moves before recalculating each turn.
+    def reset_priority_moves(self):
+        self.priority_moves = []
+
+    # Resets the turn counter at the start of a new game.
+    @classmethod
+    def reset_turn_counter(cls):
+        cls.turn_counter = 0
