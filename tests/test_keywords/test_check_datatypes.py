@@ -4,86 +4,79 @@ from unittest.mock import patch
 
 from keywords import Keywords
 
+import unittest
+from unittest.mock import patch
+
+from keywords import Keywords
+
+# Tests that check_datatype correctly validates keyword types and raises on invalid input.
 class TestCheckDatatypes(unittest.TestCase):
 
-    keywords = Keywords()
     def setUp(self):
-        
-        self.patchers = [
-            patch.object(self.keywords, "TYPE_MAP", new={
-                "dictionary": dict,
-                "list": list,
-                "string": str,
-                "integer": int,
-                "float": float
-            })
-        ]
+        self.keywords = Keywords()
 
-        self.start_patchers()
-        self.addCleanup(self.stop_patchers)
+        patch.object(self.keywords, "TYPE_MAP", new={
+            "dictionary": dict,
+            "list":       list,
+            "string":     str,
+            "integer":    int,
+            "float":      float,
+        }).start()
 
-    def start_patchers(self):
+        self.addCleanup(patch.stopall)
 
-        for patcher in self.patchers:
-            patcher.start()
+        # base valid keywords used across tests
+        self.valid = {
+            "dictionary": {},
+            "list":       [],
+            "string":     "",
+            "integer":    0,
+            "float":      0.5,
+        }
 
-    def stop_patchers(self):
-
-        for patcher in self.patchers:
-            patcher.stop()
-    
     def test_correct_keys(self):
+        # verifies that no exception is raised for valid keyword types
+        self.keywords.check_datatype(self.valid)
 
-        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": 0.5}
-        self.keywords.check_datatype(keywords)
-    
-    def test_wrong_dictionary_key(self):
-
-        keywords = {"dictionary": [], "list": [], "string": "", "integer": 0, "float": 0.5}
+    def test_wrong_dictionary_type(self):
+        # verifies that TypeError is raised when dictionary receives a list
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
-
-    def test_wrong_list_key(self):
-
-        keywords = {"dictionary": {}, "list": {}, "string": "", "integer": 0, "float": 0.5}
+            self.keywords.check_datatype({**self.valid, "dictionary": []})
+        
+    def test_wrong_list_type(self):
+        # verifies that TypeError is raised when list receives a dict
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "list": {}})
 
-    def test_wrong_string_key(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": {}, "integer": 0, "float": 0.5}
+    def test_wrong_string_type(self):
+        # verifies that TypeError is raised when string receives a dict
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "string": {}})
 
-    def test_wrong_integer_key(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": "", "integer": {}, "float": 0.5}
+    def test_wrong_integer_type(self):
+        # verifies that TypeError is raised when integer receives a dict
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "integer": {}})
 
-    def test_wrong_float_key(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": {}}
+    def test_wrong_float_type(self):
+        # verifies that TypeError is raised when float receives a dict
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "float": {}})
 
     def test_unlisted_key(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": 0.5, "unlisted": ""}
+        # verifies that RuntimeError is raised for an unrecognised keyword
         with self.assertRaises(RuntimeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "unlisted": ""})
 
     def test_unlisted_and_wrong_type(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": "", "integer": 0, "float": {}, "unlisted": ""}
+        # verifies that TypeError is raised when both an unlisted key and wrong type exist
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "float": {}, "unlisted": ""})
 
     def test_multiple_wrong_types(self):
-
-        keywords = {"dictionary": {}, "list": [], "string": {}, "integer": 0, "float": {}}
+        # verifies that TypeError is raised when multiple keywords have wrong types
         with self.assertRaises(TypeError):
-            self.keywords.check_datatype(keywords)
+            self.keywords.check_datatype({**self.valid, "string": {}, "float": {}})
 
 if __name__ == "__main__":
     unittest.main()
