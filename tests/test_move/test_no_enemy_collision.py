@@ -14,8 +14,9 @@ class TestNoEnemyCollision(unittest.TestCase):
                              "right": {"is_safe": True, "priority": 0}}
         self.head = {"x": 2, "y": 2}
         self.game_state = {"you": {"id": "Super Meister"}}
+        self.my_length = 0
         self.patchers = [
-            patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, self.game_state), name="mock_extract_keywords")
+            patch.object(self.bot.keywords, "extract_keywords", return_value=(self.head, self.game_state, self.my_length), name="mock_extract_keywords")
         ]
         self.mocks = {}
 
@@ -46,7 +47,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         if not isinstance(mock_extract_keywords, MagicMock):
             raise TypeError("Object: mock_extract_keywords is not a MagicMock()")
         
-        mock_extract_keywords.assert_called_once_with(ANY, head=self.head, game_state=self.game_state)
+        mock_extract_keywords.assert_called_once_with(ANY, head=self.head, game_state=self.game_state, my_length=self.my_length)
     
     def extract_moves(self):
         
@@ -73,7 +74,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         new_opponents_positions = {"...": {"unsafe": [{"x": 3, "y": 2}, {"x": 1, "y": 2}], "priority": []}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
             self.move_assertions(False, 0, False, 0, True, 0, True, 0)
 
             self.assert_call_extract_keywords()
@@ -83,7 +84,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         new_opponents_positions = {"...": {"unsafe": [], "priority": [{"x": 2, "y": 3}, {"x": 3, "y": 2}]}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
             self.move_assertions(True, 0, True, 2, True, 0, True, 2)
 
             self.assert_call_extract_keywords()
@@ -92,7 +93,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         new_opponents_positions = {"...": {"unsafe": [{"x": 1, "y": 2}, {"x": 2, "y": 3}], "priority": [{"x": 2, "y": 3}, {"x": 3, "y": 2}]}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
             self.move_assertions(False, 0, True, 2, True, 0, False, 2)
 
             self.assert_call_extract_keywords()
@@ -101,7 +102,7 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         new_opponents_positions = {"...": {"unsafe": [], "priority": []}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
             self.move_assertions(True, 0, True, 0, True, 0, True, 0)
 
             self.assert_call_extract_keywords()
@@ -111,20 +112,19 @@ class TestNoEnemyCollision(unittest.TestCase):
         
         new_opponents_positions = {"...": {"unsafe": [{"x": 2, "y": 3}], "priority": [{"x": 3, "y": 2}]}, "opponent": {"unsafe": [{"x": 1, "y": 2}], "priority": [{"x": 2, "y": 1}]}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
             self.move_assertions(False, 0, True, 2, True, 2, False, 0)
 
             self.assert_call_extract_keywords()
 
     #Edge-Case
-    #It´s okay because other methoids edit body correctly
-    #TODO sort double entries in Move().enemy_collision out because in game it is not possible!
+    #sort double entries in Move().enemy_collision out because in game it is not possible!
     def test_doubled_entry(self):
         
         new_opponents_positions = {"...": {"unsafe": [], "priority": [{"x": 1, "y": 2}, {"x": 1, "y": 2}]}}
         with patch.object(self.bot, "opponents_positions", new=new_opponents_positions):
-            self.bot.not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state)
-            self.move_assertions(True, 4, True, 0, True, 0, True, 0)
+            self.bot.calculate_not_enemy_collision(self.is_move_safe, head=self.head, game_state=self.game_state, my_length=self.my_length)
+            self.move_assertions(True, 2, True, 0, True, 0, True, 0)
 
             self.assert_call_extract_keywords()
     
