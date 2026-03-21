@@ -202,48 +202,53 @@ class LogAnalyzer():
             self.output_handler(output_formats, output)
             self.reset_contents()
 
+    # Validates that contents is a list of dictionaries with the required keys.
+    # Raises RuntimeError if the structure is invalid or any key is missing.
     def validate_contents(self, contents):
         if not isinstance(contents, list):
-            raise RuntimeError("Invalid contents!")
-        NEEDED_KEYS = ["line_number", "level", "log", "turn"]
-        for content in contents:
-            found_keys = []
-            for key, value in content.items():
-                if key in NEEDED_KEYS:
-                    found_keys.append(key)
-                else:
-                    raise RuntimeError("Invalid contents!")
-            if len(found_keys) != len(NEEDED_KEYS):
-                raise RuntimeError("Invalid contents!")
+            raise RuntimeError("Invalid contents — expected a list")
 
+        REQUIRED_KEYS = {"line_number", "level", "log", "turn"}
+
+        for content in contents:
+            if not isinstance(content, dict):
+                raise RuntimeError("Invalid contents — each entry must be a dictionary")
+            if set(content.keys()) != REQUIRED_KEYS:
+                raise RuntimeError(f"Invalid contents — expected keys {REQUIRED_KEYS}")
+
+    # Validates the log level and returns its integer value.
+    # Raises KeyError if the level is not a recognised Python log level.
     def validate_level(self, level):
-        ALLOWED_LEVELS = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-        if level not in ALLOWED_LEVELS:
-            raise KeyError("No allowed log leve in contents found")
-        level_int = 0
-        if level == "DEBUG":
-            level_int = 10
-        if level == "INFO":
-            level_int = 20
-        if level == "WARNING":
-            level_int = 30
-        if level == "ERROR":
-            level_int = 40
-        if level == "CRITICAL":
-            level_int = 50
-        return level_int
+        LEVEL_MAP = {
+            "DEBUG":    10,
+            "INFO":     20,
+            "WARNING":  30,
+            "ERROR":    40,
+            "CRITICAL": 50,
+        }
+
+        if level not in LEVEL_MAP:
+            raise KeyError(f"Unrecognised log level: {level}")
+
+        return LEVEL_MAP[level]
         
+    # Validates that the log entry is not unknown before analysis.
+    # Raises KeyError if the log could not be parsed from the original line.
     def validate_log(self, log):
         if log == "unknown":
-            raise KeyError("To execute the called analyzation the log neeeds a clear entry!")
+            raise KeyError("Log entry could not be parsed — analysis requires a valid message")
         
+    # Validates that the turn is a valid integer before analysis.
+    # Raises KeyError if the turn could not be parsed from the original line.
     def validate_turn(self, turn):
         if not isinstance(turn, int):
-            raise KeyError("To execute the called analyzation the log needs clear turns!")
+            raise KeyError("Turn could not be parsed — analysis requires a valid integer")
         
+    # Validates that the line number is a valid integer before analysis.
+    # Raises KeyError if the line number could not be parsed from the original line.
     def validate_line_number(self, line_number):
         if not isinstance(line_number, int):
-            raise KeyError("To execute called analyzation the log needs clear lines!")
+            raise KeyError("Line number could not be parsed — analysis requires a valid integer")
 
     def output_handler(self, output_handlers, output):
         self.add_handler(output_handlers)
