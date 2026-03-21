@@ -14,6 +14,8 @@ from keywords import Keywords
 from emergency_system import EmergencySystem
 from future.future_safety import FutureSafety
 
+# Orchestrates the full move selection pipeline — evaluates safe and priority moves
+# and returns the best available move each turn.
 class Move():
 
     turn_counter = 0

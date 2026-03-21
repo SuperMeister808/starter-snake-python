@@ -14,9 +14,8 @@ import time
 from move import Move
 from logger.emergency_logger import EmergencyLogger
 
-# info is called when you create your Battlesnake on play.battlesnake.com
-# and controls your Battlesnake's appearance
-# TIP: If you open your Battlesnake URL in a browser you should see this data
+# Flask server handler — handles incoming API requests, validates game states
+# and delegates to the move agent and logger.
 class ServerHandler():
 
     # Returns the snake's appearance and author metadata.
@@ -70,7 +69,8 @@ class ServerHandler():
         next_move = Move()
         return next_move.choose_move(game_state)
 
-# Start server when `python main.py` is run
+# Entry point — wires the server handler to the Flask server and starts listening on port 8000.
+# Set debug=True as the third argument to Server to enable DEBUG level logging.
 if __name__ == "__main__":
     from server import Server
 

@@ -11,7 +11,7 @@ from validate_game_state import validate_game_state
 
 import os
 
-
+# Sets up and runs the Flask server on a fixed port.
 class Server():
 
     def __init__(self, handlers: typing.Dict, port, logger_name, logger_file, debug):

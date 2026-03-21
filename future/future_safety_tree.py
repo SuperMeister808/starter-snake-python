@@ -1,6 +1,8 @@
 
 import copy
 
+# Tree data structure used by FutureSafety to store and navigate
+# possible future snake positions across simulated turns.
 class FutureSafetyTree():
 
     def __init__(self):

@@ -5,6 +5,8 @@ import random
 
 from logger.emergency_logger import EmergencyLogger
 
+# Wraps callable functions in a fallback system — guarantees a move
+# is always returned even if a calculation raises an exception.
 class EmergencySystem():
     
     def __init__(self, move):

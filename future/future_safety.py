@@ -7,6 +7,8 @@ from logger.emergency_logger import EmergencyLogger
 from emergency_system import EmergencySystem
 from future.future_safety_tree import FutureSafetyTree
 
+# Simulates future turns for a given move using a tree structure.
+# Verifies that safe moves remain safe N turns ahead.
 class FutureSafety():
 
     def __init__(self, move):

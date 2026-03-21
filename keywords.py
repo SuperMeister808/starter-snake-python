@@ -1,6 +1,8 @@
 
 import typing
 
+# Validates and extracts keyword arguments passed to calculation methods.
+# Ensures each keyword has the correct type before use.
 class Keywords():
 
     def __init__(self):
