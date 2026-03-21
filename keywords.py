@@ -5,22 +5,14 @@ import typing
 # Ensures each keyword has the correct type before use.
 class Keywords():
     
-    # Filters kwargs to only include allowed keywords.
-    # Silently ignores any kwargs that are not in the allowed list.
-    def get_allowed_keywords(self, **kwargs):
+    def __init__(self):
 
-        ALLOWED_KEYWORDS = [
+        self.ALLOWED_KEYWORDS = [
             "head", "game_state", "body", "neck", "snake",
             "calls", "move", "new_head", "safe_moves", "memory_moves", "my_length"
         ]
 
-        return {key: kwargs[key] for key in ALLOWED_KEYWORDS if key in kwargs}
-    
-    # Validates that each keyword matches its expected type.
-    # Raises TypeError if a keyword has the wrong type, RuntimeError if it is unlisted.
-    def check_datatype(self, keywords: typing.Dict):
-
-        TYPE_MAP = {
+        self.TYPE_MAP = {
             "head":         dict,
             "game_state":   dict,
             "neck":         dict,
@@ -33,14 +25,23 @@ class Keywords():
             "calls":        int,
             "my_length":    int,
         }
+    
+    # Filters kwargs to only include allowed keywords.
+    # Silently ignores any kwargs that are not in the allowed list.
+    def get_allowed_keywords(self, **kwargs):
+
+        return {key: kwargs[key] for key in self.ALLOWED_KEYWORDS if key in kwargs}
+    
+    # Validates that each keyword matches its expected type.
+    # Raises TypeError if a keyword has the wrong type, RuntimeError if it is unlisted.
+    def check_datatype(self, keywords: typing.Dict):
 
         for key, value in keywords.items():
-            if key not in TYPE_MAP:
+            if key not in self.TYPE_MAP:
                 raise RuntimeError(f"{key} is not a listed keyword")
 
-            expected_type = TYPE_MAP[key]
-            if not isinstance(value, expected_type):
-                raise TypeError(f"{key} requires type {expected_type.__name__}")
+            if not isinstance(value, self.TYPE_MAP[key]):
+                raise TypeError(f"{key} requires type {self.TYPE_MAP[key].__name__}")
     
     # Extracts and validates required keywords from kwargs.
     # Raises KeyError if a required keyword is missing.
