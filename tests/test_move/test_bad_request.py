@@ -46,7 +46,7 @@ class TestBadRequest(unittest.TestCase):
         
         mock_validate_game_state.assert_called_once_with(data)
 
-        self.assertEqual(response.json, {"Error": "Game State Validation Failed!"})
+        self.assertEqual(response.json, {'error': 'Game state validation failed'})
         self.assertEqual(response.status_code, 400)
 
 if __name__ == "__main__":
