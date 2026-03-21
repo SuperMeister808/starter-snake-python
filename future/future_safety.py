@@ -52,7 +52,7 @@ class FutureSafety():
                 move_position = self.get_move(move, head)
 
                 # body calculation depends on whether the snake is growing
-                if self.move.is_growing(head=move_position, game_state=game_state):
+                if self.move.calculate_is_growing(head=move_position, game_state=game_state):
                     new_body, new_neck, new_length = self.create_data_from_head_is_growing(move_position, new_body, my_length)
                 else:
                     new_body, new_neck, new_length = self.create_data_from_head(move_position, new_body, my_length)
