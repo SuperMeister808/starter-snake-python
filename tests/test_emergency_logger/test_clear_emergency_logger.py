@@ -5,6 +5,7 @@ from unittest.mock import patch
 from logger.emergency_logger import EmergencyLogger
 from logger.runtime_logger import RuntimeLogger
 
+# Tests that clear_emergency_logger resets flags and closes file handlers.
 class TestClearEmergencyLogger(unittest.TestCase):
 
     @patch.object(EmergencyLogger, "flags", new={})
