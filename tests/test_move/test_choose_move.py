@@ -25,7 +25,7 @@ class TestChooseMove(unittest.TestCase):
             patch.object(self.bot.future_safety, "log_data", name="log_data"),
             patch.object(self.bot, "check_safe_moves", name="check_safe_moves"),
             patch.object(self.bot, "check_priority_moves", name="check_priority_moves"),
-            patch.object(self.bot, "random_choice", return_value={"move": "left"}, name="random_choice")
+            patch.object(self.bot, "select_move", return_value={"move": "left"}, name="random_choice")
         ]
         self.mocks = {}
 
@@ -89,8 +89,8 @@ class TestChooseMove(unittest.TestCase):
         mock_check_safe_moves.assert_called_once_with(ANY, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
     
     @patch.object(bot, "check_moves")
-    @patch.object(bot, "get_neck", return_value=neck)
-    @patch.object(bot, "edit_body", return_value=body)
+    @patch.object(bot.extract_data, "get_neck", return_value=neck)
+    @patch.object(bot.extract_data, "edit_body", return_value=body)
     def test_no_fallback(self, mock_edit_body, mock_get_neck, mock_check_moves):
 
         result = self.bot.choose_move(self.game_state)
@@ -104,8 +104,8 @@ class TestChooseMove(unittest.TestCase):
         mock_get_neck.assert_called_once_with(body=self.body, game_state=self.game_state)
         mock_check_moves.assert_called_once_with(self.bot.is_move_safe, head=self.head, game_state=self.game_state, body=self.body, neck=self.neck, my_length=self.my_length)
 
-    @patch.object(bot, "get_neck", side_effect=RuntimeError("side_effect"))
-    @patch.object(bot, "edit_body", side_effect=RuntimeError("side effect"))
+    @patch.object(bot.extract_data, "get_neck", side_effect=RuntimeError("side_effect"))
+    @patch.object(bot.extract_data, "edit_body", side_effect=RuntimeError("side effect"))
     def test_fallback_extract_game_state(self, mock_edit_body, mock_get_neck):
 
         mock_reset_is_move_safe = self.mocks.get("reset_is_move_safe", "unknown")
@@ -125,8 +125,8 @@ class TestChooseMove(unittest.TestCase):
         mock_get_neck.assert_not_called()
 
     @patch.object(bot, "check_moves", side_effect=RuntimeError("side effect"))
-    @patch.object(bot, "get_neck", side_effect=RuntimeError("side effect"))
-    @patch.object(bot, "edit_body", return_value=body)
+    @patch.object(bot.extract_data, "get_neck", side_effect=RuntimeError("side effect"))
+    @patch.object(bot.extract_data, "edit_body", return_value=body)
     def test_fallback_get_neck(self, mock_edit_body, mock_get_neck, mock_check_moves):
 
         mock_reset_is_move_safe = self.mocks.get("reset_is_move_safe", "unknown")
@@ -154,8 +154,8 @@ class TestChooseMove(unittest.TestCase):
         mock_check_moves.assert_not_called()
         
     @patch.object(bot, "check_moves", side_effect=RuntimeError("side effect"))
-    @patch.object(bot, "get_neck", return_value=neck)
-    @patch.object(bot, "edit_body", return_value=body)
+    @patch.object(bot.extract_data, "get_neck", return_value=neck)
+    @patch.object(bot.extract_data, "edit_body", return_value=body)
     def test_fallback_check_moves(self, mock_edit_body, mock_get_neck, mock_check_moves):
 
         mock_reset_is_move_safe = self.mocks.get("reset_is_move_safe", "unknown")
