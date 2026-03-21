@@ -146,7 +146,7 @@ class Move():
 
     # Calculates unsafe and priority positions for all opponent snakes.
     # Unsafe positions block moves, priority positions reward head-to-head wins.
-    def calculate_opponents_positions(self, **kwargs):
+    def calculate_opponents_positions(self, *args, **kwargs):
     
         NEEDED_KEYWORDS = ["game_state", "my_length"]
         game_state, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
@@ -243,9 +243,8 @@ class Move():
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
         head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
 
-        self.calculate_opponents_positions(game_state=game_state, my_length=my_length)
-
         checks = [
+            self.calculate_opponents_positions,
             self.calculate_not_backward,
             self.calculate_not_wall_collision,
             self.calculate_not_itself_collision,
