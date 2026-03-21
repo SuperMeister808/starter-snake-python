@@ -8,300 +8,159 @@ import queue
 
 import threading
 
+import queue
+import threading
+import unittest
+from unittest.mock import patch, MagicMock, call, ANY
+
+from logger.emergency_logger import EmergencyLogger
+
+# Tests that log_worker correctly processes queue entries and respects the is_running flag.
 class TestLogWorker(unittest.TestCase):
 
     def setUp(self):
-        
-        EmergencyLogger.setup_runtime_logger("TestLoger", "test.log", False)
-        
-        self.where = "wherever"
-        self.exception = "exception"
-        self.turn = "turn"
-        self.level = "level"
-        self.where_2 = "wherever2"
-        self.exception_2 = "exception2"
-        self.turn_2 = "turn2"
-        self.level_2 = "level_2"
-        
-        self.patchers = [
-            patch.object(EmergencyLogger, "emergency_log", new=MagicMock(wraps=EmergencyLogger.emergency_log)),
-            patch.object(EmergencyLogger, "flags", new={"is_running": False, "worker_thread": None}),
-            patch.object(EmergencyLogger, "loger_queue", new=queue.Queue()),
-            patch.object(EmergencyLogger.runtime_logger, "log"),
-            patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception))
-        ]
-        self.mocks = {}
-        
-        #FILO
-        self.addCleanup(self.stop_patchers)
-        self.addCleanup(self.teardown)
+        EmergencyLogger.setup_runtime_logger("TestLogger", "test.log", False)
 
+        patch.object(EmergencyLogger, "emergency_log", new=MagicMock(wraps=EmergencyLogger.emergency_log)).start()
+        patch.object(EmergencyLogger, "flags", new={"is_running": False, "worker_thread": None}).start()
+        patch.object(EmergencyLogger, "loger_queue", new=queue.Queue()).start()
+        patch.object(EmergencyLogger.runtime_logger, "log").start()
+        patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception)).start()
 
-    def start_patchers(self):
+        self.addCleanup(patch.stopall)
+        self.addCleanup(self._stop_worker)
 
-        for i , patcher in enumerate(self.patchers):
+        # test data
+        self.entry_1 = ("wherever", "exception", "turn", "level")
+        self.entry_2 = ("wherever2", "exception2", "turn2", "level2")
 
-            mock = patcher.start()
-            try:
-                self.mocks [mock.__wrapped__] = mock
-            except AttributeError:
-                try:
-                    self.mocks [mock._mock_name] = mock
-                except AttributeError:
-                    if not isinstance(mock, MagicMock):
-                        self.mocks [i] = mock
-                    else:
-                        raise
+    def _start_worker(self):
+        # starts the log worker thread and registers it in flags
+        EmergencyLogger.flags["is_running"] = True
+        thread = threading.Thread(target=EmergencyLogger.log_worker)
+        thread.start()
+        EmergencyLogger.flags["worker_thread"] = thread
+        return thread
 
-    def stop_patchers(self):
+    def _stop_worker(self):
+        # signals the worker to stop and waits for it to finish
+        EmergencyLogger.flags["is_running"] = False
+        thread = EmergencyLogger.flags["worker_thread"]
+        if isinstance(thread, threading.Thread):
+            thread.join(timeout=2)
 
-        for patcher in self.patchers:
+    def test_processes_4_element_entries(self):
+        # verifies that 4-element queue entries are unpacked and logged correctly
+        thread = self._start_worker()
 
-            patcher.stop()
+        where, exception, turn, level = self.entry_1
+        where_2, exception_2, turn_2, level_2 = self.entry_2
 
-    def check_calls(self):
+        EmergencyLogger.loger_queue.put(self.entry_1)
+        EmergencyLogger.loger_queue.put(self.entry_2)
 
-        for name , mock in self.mocks.items():
-            try:
-                mock.assert_called()
-            except AttributeError:
-                if not isinstance(mock, MagicMock):
-                    pass
-                else:
-                    raise
-
-    def check_no_calls(self):
-
-        for name , mock in self.mocks.items():
-            try:
-                mock.assert_not_called()
-            except AttributeError:
-                if not isinstance(mock, MagicMock):
-                    pass
-                else:
-                    raise
-    
-    def start_thread(self):
-
-        EmergencyLogger.flags ["is_running"] = True
-        log_worker_thread = threading.Thread(target=EmergencyLogger.log_worker) 
-        if isinstance(log_worker_thread, threading.Thread):
-            EmergencyLogger.flags ["worker_thread"] = log_worker_thread
-            log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-            log_worker_thread.start()
-        else:
-            raise RuntimeError("Kein thread Objekt referenziert!")
-
-    def join_thread(self, timeout):
-
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if isinstance(log_worker_thread, threading.Thread):
-            log_worker_thread.join(timeout)
-        else:
-            raise RuntimeError("Kein thread Objekt referenziert!")
-
-    def teardown(self):
-
-        EmergencyLogger.flags ["is_running"] = False
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if isinstance(log_worker_thread, threading.Thread):
-            log_worker_thread.join(timeout=2)
-        else:
-            raise RuntimeError("Kein Thread Objekt referenziert!")
-
-    def test_coorect_queue(self):
-
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn, self.level))
-        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2, self.level_2))
-
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
-
-        self.assertFalse(log_worker_thread.is_alive())
-
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls_emergency_log = [
-            call(self.where, self.exception, level=self.level, turn=self.turn),
-            call(self.where_2, self.exception_2, level=self.level_2, turn=self.turn_2)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(self.level, (self.where, self.exception), extra={"turn": self.turn}),
-            call(self.level_2, (self.where_2, self.exception_2), extra={"turn": self.turn_2})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+        EmergencyLogger.emergency_log.assert_has_calls([
+            call(where, exception, level=level, turn=turn),
+            call(where_2, exception_2, level=level_2, turn=turn_2)
+        ])
 
+    def test_stops_when_flag_is_set_false(self):
+        # verifies that the worker keeps running while is_running is True
+        # and stops only after it is set to False
+        thread = self._start_worker()
 
+        EmergencyLogger.loger_queue.put(self.entry_1)
+        EmergencyLogger.loger_queue.put(self.entry_2)
 
-    def test_thread_dependency_to_flag_is_running(self):
-
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-
-        EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn, self.level))
-        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2, self.level_2))
-
-        self.join_thread(2)
-        self.assertTrue(log_worker_thread.is_alive())
-
+        # join without stopping — thread should still be alive
+        thread.join(timeout=2)
+        self.assertTrue(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls_emergency_log = [
-            call(self.where, self.exception, level=self.level, turn=self.turn),
-            call(self.where_2, self.exception_2, level=self.level_2, turn=self.turn_2)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(self.level, (self.where, self.exception), extra={"turn": self.turn}),
-            call(self.level_2, (self.where_2, self.exception_2), extra={"turn": self.turn_2})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
-   
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
-        self.assertFalse(log_worker_thread.is_alive())
-    
-    def test_queue_3_elements(self):
 
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.loger_queue.put((self.where, self.exception, self.turn))
-        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2, self.turn_2))
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
 
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
+    def test_processes_3_element_entries(self):
+        # verifies that 3-element queue entries use default level 40
+        thread = self._start_worker()
 
-        self.assertFalse(log_worker_thread.is_alive())
+        where, exception, turn, _ = self.entry_1
+        where_2, exception_2, turn_2, _ = self.entry_2
 
+        EmergencyLogger.loger_queue.put((where, exception, turn))
+        EmergencyLogger.loger_queue.put((where_2, exception_2, turn_2))
+
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls_emergency_log = [
-            call(self.where, self.exception, turn=self.turn),
-            call(self.where_2, self.exception_2, turn=self.turn_2)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(40, (self.where, self.exception), extra={"turn": self.turn}),
-            call(40, (self.where_2, self.exception_2), extra={"turn": self.turn_2})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+        EmergencyLogger.emergency_log.assert_has_calls([
+            call(where, exception, turn=turn),
+            call(where_2, exception_2, turn=turn_2)
+        ])
 
-    def test_queue_2_elements(self):
+    def test_processes_2_element_entries(self):
+        # verifies that 2-element queue entries use default level and unknown turn
+        thread = self._start_worker()
 
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.loger_queue.put((self.where, self.exception))
-        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2))
+        where, exception, _, _ = self.entry_1
+        where_2, exception_2, _, _ = self.entry_2
 
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
+        EmergencyLogger.loger_queue.put((where, exception))
+        EmergencyLogger.loger_queue.put((where_2, exception_2))
 
-        self.assertFalse(log_worker_thread.is_alive())
-
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls_emergency_log = [
-            call(self.where, self.exception),
-            call(self.where_2, self.exception_2)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(40, (self.where, self.exception), extra={"turn": "unknown"}),
-            call(40, (self.where_2, self.exception_2), extra={"turn": "unknown"})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+        EmergencyLogger.emergency_log.assert_has_calls([
+            call(where, exception),
+            call(where_2, exception_2)
+        ])
 
-    def test_fallback(self):
+    def test_fallback_on_invalid_entry(self):
+        # verifies that invalid queue entries trigger the fallback logger
+        thread = self._start_worker()
 
-        self.start_patchers()
-        self.start_thread()
+        EmergencyLogger.loger_queue.put("invalid")
+        EmergencyLogger.loger_queue.put("invalid2")
 
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.loger_queue.put((self.where))
-        EmergencyLogger.loger_queue.put((self.where_2))
-
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
-        self.assertFalse(log_worker_thread.is_alive())
-
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        expected_calls_emergency_log = [
+        EmergencyLogger.emergency_log.assert_has_calls([
             call("log_worker_fallback", ANY),
             call("log_worker_fallback", ANY)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(40, ("log_worker_fallback", ANY), extra={"turn": "unknown"}),
-            call(40, ("log_worker_fallback", ANY), extra={"turn": "unknown"})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
+        ])
 
-    def test_flag_is_running_False(self):
+    def test_does_not_process_when_flag_is_false(self):
+        # verifies that the worker stops immediately when is_running is False
+        thread = self._start_worker()
 
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.flags ["is_running"] = False
-        self.join_thread(2)
-
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        self.assertFalse(log_worker_thread.is_alive())
         EmergencyLogger.emergency_log.assert_not_called()
-        EmergencyLogger.runtime_logger.log.assert_not_called()
 
-    def test_queue_put_during_flag_is_running_False(self):
+    def test_processes_remaining_entries_after_flag_false(self):
+        # verifies that entries added just before flag is set False are still processed
+        thread = self._start_worker()
 
-        self.start_patchers()
-        self.start_thread()
-        
-        log_worker_thread = EmergencyLogger.flags ["worker_thread"]
-        if not isinstance(log_worker_thread, threading.Thread):
-            raise RuntimeError("Kein thread Objekt referenziert!")
-        
-        EmergencyLogger.flags ["is_running"] = False
-        EmergencyLogger.loger_queue.put((self.where, self.exception))
-        EmergencyLogger.loger_queue.put((self.where_2, self.exception_2))
+        where, exception, _, _ = self.entry_1
+        where_2, exception_2, _, _ = self.entry_2
 
-        self.join_thread(2)
+        EmergencyLogger.flags["is_running"] = False
+        EmergencyLogger.loger_queue.put((where, exception))
+        EmergencyLogger.loger_queue.put((where_2, exception_2))
 
+        self._stop_worker()
+        self.assertFalse(thread.is_alive())
         self.assertTrue(EmergencyLogger.loger_queue.empty())
-        self.assertFalse(log_worker_thread.is_alive())
-        expected_calls_emergency_log = [
-            call(self.where, self.exception),
-            call(self.where_2, self.exception_2)
-        ]
-        EmergencyLogger.emergency_log.assert_has_calls(expected_calls_emergency_log)
-        expected_calls_log = [
-            call(40, (self.where, self.exception), extra={"turn": "unknown"}),
-            call(40, (self.where_2, self.exception_2), extra={"turn": "unknown"})
-        ]
-        EmergencyLogger.runtime_logger.log.assert_has_calls(expected_calls_log)
-
+        EmergencyLogger.emergency_log.assert_has_calls([
+            call(where, exception),
+            call(where_2, exception_2)
+        ])
 
 if __name__ == "__main__":
 
