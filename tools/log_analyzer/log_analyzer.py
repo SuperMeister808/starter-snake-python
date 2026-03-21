@@ -137,20 +137,23 @@ class LogAnalyzer():
         except IndexError:
             return "unknown"
     
+    # Saves parsed log contents to the JSON cache for reuse in analysis operations.
     def save_contents(self):
-        with open(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "w") as f:
-            contents_json = json.dumps(self.contents)
-            f.write(contents_json)
+        cache_path = os.path.join(os.path.dirname(__file__), "resources", "contents.json")
+        with open(cache_path, "w") as f:
+            f.write(json.dumps(self.contents))
 
+    # Loads parsed log contents from the JSON cache.
+    # Falls back to re-reading the log file if the cache is invalid.
     def load_contents(self):
-        with open(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "r") as f:
-            contents_json = f.read()
-            contents = json.loads(contents_json)
-            try:
-                self.validate_contents(contents)
-                self.contents = contents
-            except RuntimeError:
-                self.read_log()
+        cache_path = os.path.join(os.path.dirname(__file__), "resources", "contents.json")
+        with open(cache_path, "r") as f:
+            contents = json.loads(f.read())
+        try:
+            self.validate_contents(contents)
+            self.contents = contents
+        except RuntimeError:
+            self.read_log()
     
     def analyse_errors(self, output_formats):
         with self.safe_setup_handler(self.setup_handlers) as _:
