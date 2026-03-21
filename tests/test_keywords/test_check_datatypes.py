@@ -10,11 +10,13 @@ class TestCheckDatatypes(unittest.TestCase):
     def setUp(self):
         
         self.patchers = [
-            patch.object(self.keywords, "DICTIONARY_KEYS", new=["dictionary"]),
-            patch.object(self.keywords, "LIST_KEYS", new=["list"]),
-            patch.object(self.keywords, "STRING_KEYS", new=["string"]),
-            patch.object(self.keywords, "INTEGER_KEYS", new=["integer"]),
-            patch.object(self.keywords, "FLOAT_KEYS", new=["float"])
+            patch.object(self.keywords, "TYPE_MAP", new={
+                "dictionary": dict,
+                "list": list,
+                "string": str,
+                "integer": int,
+                "float": float
+            })
         ]
 
         self.start_patchers()
@@ -82,7 +84,6 @@ class TestCheckDatatypes(unittest.TestCase):
         keywords = {"dictionary": {}, "list": [], "string": {}, "integer": 0, "float": {}}
         with self.assertRaises(TypeError):
             self.keywords.check_datatype(keywords)
-
 
 if __name__ == "__main__":
     unittest.main()
