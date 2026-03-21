@@ -40,7 +40,7 @@ class TestCalculateOpponentsPositions(unittest.TestCase):
 
         game_state = {"you": {"id": "you"}, "board": {"snakes": [{"id": "opponent", "length": 3, "head": {"x": 2, "y": 2}, "body": [{"x": 2, "y": 2}, {"x": 2, "y": 3}, {"x": 2, "y": 4}]}]}}
         my_length = 4
-        with patch.object(self.bot, "is_growing", return_value=False) as mock_is_growing:
+        with patch.object(self.bot, "calculate_is_growing", return_value=False) as mock_is_growing:
             
             self.bot.calculate_opponents_positions(game_state=game_state, my_length=my_length)
             #priority order: right, left, up, down
