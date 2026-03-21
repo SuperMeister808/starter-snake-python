@@ -2,21 +2,32 @@ from tools.log_analyzer.log_analyzer import LogAnalyzer
 import argparse
 
 def main():
-    parser = argparse.ArgumentParser(description="Analyse log files for errors")
-    parser.add_argument("method", choices=["read_log", "analyse_errors"])
-    parser.add_argument("--file", type=str, default=r"C:\Users\emilc\AppData\Local\game_agent\starter-snake-python\logs\runtime.log", help="Path to file log")
-    parser.add_argument("--file_handler", type=str, default=r"C:\Users\emilc\AppData\Local\game_agent\starter-snake-python\tools\log_analyzer\log_analyzer.log", help="File handler for output format file")
-    parser.add_argument("--level_index", type=int, default=None, help="Which word of the log names the level")
-    parser.add_argument("--turn_index", type=int, default=None, help="Which word of the log names the turn")
-    parser.add_argument("--log_index", type=int, default=None, help="Which word of the log names the log/message")
-    parser.add_argument("--output", nargs="+", default=["console"], help="Output formats")
+    # CLI entry point — parses arguments and routes to the correct analyzer method
+    parser = argparse.ArgumentParser(description="Analyse log files for critical errors and fallback events")
+
+    parser.add_argument("method", choices=["read_log", "analyse_errors"],
+                        help="Operation to perform")
+    parser.add_argument("--file", type=str, default=r"C:\Users\emilc\AppData\Local\game_agent\starter-snake-python\logs\runtime.log",
+                        help="Path to the log file")
+    parser.add_argument("--file_handler", type=str, default=r"C:\Users\emilc\AppData\Local\game_agent\starter-snake-python\tools\log_analyzer\log_analyzer.log",
+                        help="Path to the log analyzer output file")
+    parser.add_argument("--level_index", type=int, default=None,
+                        help="Index of the level field in each log entry")
+    parser.add_argument("--turn_index", type=int, default=None,
+                        help="Index of the turn field in each log entry")
+    parser.add_argument("--log_index", type=int, default=None,
+                        help="Index of the message field in each log entry")
+    parser.add_argument("--output", nargs="+", default=["console"],
+                        help="Output formats — file, console or both")
 
     args = parser.parse_args()
     analyzer = LogAnalyzer(args.file, args.file_handler, args.level_index, args.turn_index, args.log_index)
-    if args.method == "analyse_errors":
-        analyzer.analyse_errors(args.output)
+
+    # route to the correct method based on the command argument
     if args.method == "read_log":
         analyzer.read_log()
+    if args.method == "analyse_errors":
+        analyzer.analyse_errors(args.output)
 
 if __name__ == "__main__":
     main()
