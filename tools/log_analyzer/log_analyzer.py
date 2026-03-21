@@ -85,10 +85,13 @@ class LogAnalyzer():
             if isinstance(handler, logging.Handler):
                 handler.close()
     
+    # Reads the log file, parses each line into structured contents and saves them to cache.
+    # Lines are split by '|' and mapped to keys using the configured indices.
     def read_log(self):
         self.reset_contents()
         if not isinstance(self.file, str):
-            raise RuntimeError(f"Log not found")
+            raise RuntimeError("Log file path must be a string")
+
         try:
             with open(self.file, "r") as f:
                 for i, line in enumerate(f):
@@ -99,40 +102,40 @@ class LogAnalyzer():
         except FileNotFoundError:
             raise RuntimeError("Log file not found!")
 
+    # Parses a single log line into a structured dictionary.
+    # Falls back to "unknown" for any field that is missing or invalid.
     def create_contents(self, words, line_number=None, level_index=None, turn_index=None, log_index=None):
-        if line_number is None or not isinstance(line_number, int):
-            line_number = "unknown"
-        else:
-            line_number = line_number
-        if level_index is None or level_index > len(words) - 1:
-            level = "unknown"
-        else:
-            try:
-                raw_level = words[level_index]
-                level = raw_level.strip().strip('"').strip("'")
-            except IndexError:
-                level = "unknown"
-        if turn_index is None or turn_index > len(words) - 1:
-            turn = "unknown"
-        else:
-            try:
-                raw_turn = words[turn_index]
-                for word in raw_turn.split():
-                    if word.isdigit():
-                        turn_string = word
-                        turn = int(turn_string)
-            except IndexError:
-                turn = "unknown"
-        if log_index is None or log_index > len(words) - 1:
-            log = "unknown"
-        else:
-            try:
-                raw_log = words[log_index]
-                log = raw_log.strip().strip('"').strip("'")
-            except IndexError:
-                log = "unknown"
-        content = {"line_number": line_number, "level": level, "turn": turn, "log": log}
-        return content
+
+        line_number = line_number if isinstance(line_number, int) else "unknown"
+        level = self._extract_string(words, level_index)
+        turn = self._extract_turn(words, turn_index)
+        log = self._extract_string(words, log_index)
+
+        return {"line_number": line_number, "level": level, "turn": turn, "log": log}
+
+    # Extracts and cleans a string value from a word list at the given index.
+    # Returns "unknown" if the index is invalid or out of range.
+    def _extract_string(self, words, index):
+        if index is None or index > len(words) - 1:
+            return "unknown"
+        try:
+            return words[index].strip().strip('"').strip("'")
+        except IndexError:
+            return "unknown"
+
+    # Extracts the turn number from a word list at the given index.
+    # Returns "unknown" if no digit is found or the index is invalid.
+    def _extract_turn(self, words, index):
+        if index is None or index > len(words) - 1:
+            return "unknown"
+        try:
+            raw_turn = words[index]
+            for word in raw_turn.split():
+                if word.isdigit():
+                    return int(word)
+            return "unknown"
+        except IndexError:
+            return "unknown"
     
     def save_contents(self):
         with open(r"C:\Users\emilc\game_agent\starter-snake-python\tools\log_analyzer\ressources\contents.json", "w") as f:
