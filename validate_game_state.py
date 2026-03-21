@@ -15,6 +15,10 @@ def validate_game_state(game_state):
     if not isinstance(game_state, dict):
         return False
 
+    # check all required keys are present
+    if not all(key in game_state for key in REQUIRED_KEYS):
+        return False
+
     for key, data in game_state.items():
         if key not in REQUIRED_KEYS:
             return False
