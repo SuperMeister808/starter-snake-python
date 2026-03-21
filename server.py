@@ -9,8 +9,6 @@ from functools import wraps
 
 from validate_game_state import validate_game_state
 
-import os
-
 # Sets up and runs the Flask server on a fixed port.
 class Server():
 
