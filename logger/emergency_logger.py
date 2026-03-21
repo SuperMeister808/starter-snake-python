@@ -3,11 +3,9 @@ import queue
 
 from git import Repo
 
-import time
-
 import logging
 
-from logger.runtime_logger import RuntimeLogger , DefaultTurnAdapter
+from logger.runtime_logger import RuntimeLogger
 
 # Async logger that processes log entries from a queue in a worker thread.
 # Supports variable log entry formats — (where, exception, turn, level) being the most complete.
@@ -42,7 +40,7 @@ class EmergencyLogger:
 
         try:
             message = cls.create_message(where, exception)
-            log = cls.runtime_logger.log(level, message, extra={"turn": turn})
+            cls.runtime_logger.log(level, message, extra={"turn": turn})
         except Exception as e:
             raise RuntimeError(f"Could not log to runtime log: {e}")
 
