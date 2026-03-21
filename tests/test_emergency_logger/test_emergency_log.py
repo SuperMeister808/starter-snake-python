@@ -5,114 +5,52 @@ from unittest.mock import patch , MagicMock
 from logger.emergency_logger import EmergencyLogger
 from logger.runtime_logger import RuntimeLogger
 
+# Tests that emergency_log correctly logs messages with default and custom parameters.
 class TestEmergencyLog(unittest.TestCase):
 
     def setUp(self):
-        
         EmergencyLogger.setup_runtime_logger("TestLogger", "test.log", False)
-        
-        self.mocks = {}
-        self.patchers = [
-            patch.object(EmergencyLogger, "create_message", side_effect=lambda where, exception: (where, exception)),
-            patch.object(EmergencyLogger.runtime_logger, "log", side_effect=lambda level, message, extra: (level, message, extra))
-        ]
 
-        self.addCleanup(self.stop_patchers)
-    
-    def start_patchers(self):
+        self.mock_create_message = patch.object(
+            EmergencyLogger, "create_message",
+            side_effect=lambda where, exception: f"{where}: {exception}"
+        ).start()
 
-        for i , patcher in enumerate(self.patchers):
-            mock = patcher.start()
-            try:
-                self.mocks [mock._mock_name] = mock
-            except AttributeError:
-                if not isinstance(mock, MagicMock):
-                    self.mocks [i] = mock
-                else:
-                    raise
+        self.mock_log = patch.object(
+            EmergencyLogger.runtime_logger, "log"
+        ).start()
 
-    def stop_patchers(self):
+        self.addCleanup(patch.stopall)
 
-        for patcher in self.patchers:
-            patcher.stop()
+    def test_default_level_and_turn(self):
+        # verifies that level defaults to 40 (ERROR) and turn defaults to "unknown"
+        EmergencyLogger.emergency_log("wherever", "Testing...")
 
-    def check_calls(self):
+        self.mock_log.assert_called_once_with(
+            40, "wherever: Testing...", extra={"turn": "unknown"}
+        )
 
-        for name , mock in self.mocks.items():
+    def test_customized_level_and_turn(self):
+        # verifies that custom level and turn are passed through correctly
+        EmergencyLogger.emergency_log("wherever", "Testing...", 20, 0)
 
-            try:
-                mock.assert_called()
-            except AttributeError:
-                if not isinstance(mock, MagicMock):
-                    pass
-                else:
-                    raise
-
-    def test_default_message(self):
-
-        self.start_patchers()
-
-        where_expected = "wherever"
-        exception_expected = "Testing..."
-
-        log = EmergencyLogger.emergency_log(where_expected, exception_expected)
-
-        level , message , extra = log
-        turn = extra ["turn"]
-        where_result , exception_result = message
-
-        default_level = 40
-        default_turn = "unknown"
-
-        self.assertEqual(level, default_level)
-        self.assertEqual(turn, default_turn)
-        self.assertEqual(where_result, where_expected)
-        self.assertEqual(exception_result, exception_expected)
-
-    def test_customized_message(self):
-
-        self.start_patchers()
-
-        where_expected = "wherever"
-        exception_expected = "Testing..."
-        level_expected = 20
-        turn_expected = 0
-
-        log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
-
-        level , message , extra = log
-        turn = extra ["turn"]
-        where_result , exception_result = message
-
-        self.assertEqual(level, level_expected)
-        self.assertEqual(turn, turn_expected)
-        self.assertEqual(where_result, where_expected)
-        self.assertEqual(exception_result, exception_expected)
+        self.mock_log.assert_called_once_with(
+            20, "wherever: Testing...", extra={"turn": 0}
+        )
 
     @patch.object(EmergencyLogger, "create_message")
-    def test_exception(self, mock_create_message):
-
-        exc = RuntimeError("side effect")
-        mock_create_message.side_effect = exc
-
-        where_expected = "wherever"
-        exception_expected = "Testing..."
-        level_expected = 20
-        turn_expected = 0
+    def test_exception_raises_runtime_error(self, mock_create_message):
+        # verifies that a RuntimeError is raised if create_message fails
+        mock_create_message.side_effect = RuntimeError("side effect")
 
         with self.assertRaises(RuntimeError):
-            log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
+            EmergencyLogger.emergency_log("wherever", "Testing...", 20, 0)
 
     @patch.object(EmergencyLogger, "runtime_logger", new=None)
-    def test_no_runtime_logger(self):
-
-        where_expected = "wherever"
-        exception_expected = "Testing..."
-        level_expected = 20
-        turn_expected = 0
-
+    def test_no_runtime_logger_raises_runtime_error(self):
+        # verifies that a RuntimeError is raised if the logger is not initialized
         with self.assertRaises(RuntimeError):
-            log = EmergencyLogger.emergency_log(where_expected, exception_expected, level_expected, turn_expected)
+            EmergencyLogger.emergency_log("wherever", "Testing...", 20, 0)
 
 if __name__ == "__main__":
 
