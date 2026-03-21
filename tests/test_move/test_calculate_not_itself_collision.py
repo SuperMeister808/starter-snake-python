@@ -5,7 +5,7 @@ from unittest.mock import patch , MagicMock , ANY
 
 from move import Move
 
-class TestNotItselfCollision(unittest.TestCase):
+class TestCalculateNotItselfCollision(unittest.TestCase):
 
     bot = Move()
     def setUp(self):
@@ -62,7 +62,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(True, 0, True, 0, True, 0, True, 0)
     
     def test_not_itself_collision_right(self):
@@ -72,7 +72,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(True, 0, False, 0, True, 0, True, 0)
     
     def test_not_itself_collision_left(self):
@@ -82,7 +82,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(False, 0, True, 0, True, 0, True, 0)
     
     
@@ -93,7 +93,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(True, 0, True, 0, True, 0, False, 0)
     
     def test_not_itself_collision_down(self):
@@ -103,7 +103,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(True, 0, True, 0, False, 0, True, 0)
     
     def test_not_itself_collision_multiple_collisions(self):
@@ -113,7 +113,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(False, 0, True, 0, False, 0, False, 0)
     
     def test_body_parts_out_of_range(self):
@@ -123,7 +123,7 @@ class TestNotItselfCollision(unittest.TestCase):
             
             self.mock_extract_keywords = mock
             
-            self.bot.not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
+            self.bot.calculate_not_itself_collision(self.is_move_safe, head=self.head, body=self.body)
             self.move_assertions(True, 0, False, 0, False, 0, True, 0)
 
 
