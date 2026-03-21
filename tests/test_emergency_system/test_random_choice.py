@@ -60,9 +60,9 @@ class TestRandomChoice(unittest.TestCase):
         
         self.start_patchers()
 
-        result = self.bot.random_choice()
+        result = self.bot.select_move()
 
-        self.mock_loger_queue.put.assert_called_with(("random_choice", "Successfully choosed priority move", self.bot.turn_counter, 20))
+        self.mock_loger_queue.put.assert_called_with(("select_move", "Selected priority move", self.bot.turn_counter, 20))
 
         expected = ["left", "down"]
         next_move = result["move"]
@@ -76,9 +76,9 @@ class TestRandomChoice(unittest.TestCase):
 
         self.start_patchers()
         
-        result = self.bot.random_choice()
+        result = self.bot.select_move()
 
-        self.mock_loger_queue.put.assert_called_once_with(("random_choice",  "Successfully choosed safe move", self.bot.turn_counter, 20))
+        self.mock_loger_queue.put.assert_called_once_with(("select_move",  "Selected safe move", self.bot.turn_counter, 20))
 
         next_move = result ["move"]
         expected = ["right", "up"]
@@ -92,10 +92,10 @@ class TestRandomChoice(unittest.TestCase):
 
         self.start_patchers()
 
-        result = self.bot.random_choice()
+        result = self.bot.select_move()
 
         expected_calls = [
-            call(("random_choice", "Choosed emergency move", self.bot.turn_counter, 40))
+            call(("select_move", "Selected emergency move", self.bot.turn_counter, 40))
         ]
         
         self.mock_loger_queue.put.assert_has_calls(expected_calls)
@@ -106,29 +106,23 @@ class TestRandomChoice(unittest.TestCase):
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
 
+    exc = RuntimeError("side effect")
     @patch.object(bot, "is_move_safe", new=MagicMock(wraps={"left": {"is_safe": False}, "right": {"is_safe": False}, "up": {"is_safe": False}, "down": {"is_safe": False}}))
     @patch.object(bot, "priority_moves", new=[])
-    def test_fallback(self):
+    @patch("move.random.choice", side_effect=exc)
+    def test_fallback(self, mock_random_choice):
         
-        self.bot.is_move_safe.items = MagicMock()
-        exc = RuntimeError("side effect")
-        self.bot.is_move_safe.items.side_effect = exc
         self.start_patchers()
         
-        result = self.bot.random_choice()
+        result = self.bot.select_move()
         
-        self.mock_loger_queue.put.assert_called_once_with(("random_choice", exc, self.bot.turn_counter, 40))
-        
+        self.mock_loger_queue.put.assert_called_once_with(("select_move", self.exc, self.bot.turn_counter, 40))
+        mock_random_choice.assert_called_once()
+
         next_move = result ["move"]
         expected = ["left", "right", "down", "up"]
         self.assertEqual(result, {"move": next_move})
         self.assertIn(next_move, expected)
-
-        
-
-
-
-        
 
 if __name__ == "__main__":
 

@@ -343,8 +343,9 @@ class Move():
             EmergencyLogger.loger_queue.put(("select_move", "Selected emergency move", self.turn_counter, 40))
             return {"move": next_move}
         except Exception as e:
+            #hard fallback
             EmergencyLogger.loger_queue.put(("select_move", e, self.turn_counter, 40))
-            return {"move": random.choice(EMERGENCY_MOVES)}
+            return {"move": "down"}
     
     # Main entry point for move selection.
     # Orchestrates the full pipeline: extract state → check moves → simulate future → select move.
