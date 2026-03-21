@@ -49,7 +49,7 @@ class TestNotBackward(unittest.TestCase):
         head = {"x": 2, "y": 2}
         neck = {"x": 2, "y": 3}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.not_backward(self.is_move_safe, head=self.head, neck=self.neck)
+            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
             self.move_assertions(True, 0, True, 0, True, 0, False, 0)
 
             self.assert_extract_keywords(mock_extract_keywords)
@@ -59,7 +59,7 @@ class TestNotBackward(unittest.TestCase):
         head = {"x": 2, "y": 2}
         neck = {"x": 2, "y": 1}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.not_backward(self.is_move_safe, head=self.head, neck=self.neck)
+            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
             self.move_assertions(True, 0, True, 0, False, 0, True, 0)
 
             self.assert_extract_keywords(mock_extract_keywords)
@@ -70,7 +70,7 @@ class TestNotBackward(unittest.TestCase):
         head = {"x": 2, "y": 2}
         neck = {"x": 1, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.not_backward(self.is_move_safe, head=self.head, neck=self.neck)
+            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
             self.move_assertions(False, 0, True, 0, True, 0, True, 0)
 
             self.assert_extract_keywords(mock_extract_keywords)
@@ -80,7 +80,7 @@ class TestNotBackward(unittest.TestCase):
         head = {"x": 2, "y": 2}
         neck = {"x": 3, "y": 2}
         with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.not_backward(self.is_move_safe, head=self.head, neck=self.neck)
+            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
             self.move_assertions(True, 0, False, 0, True, 0, True, 0)
 
             self.assert_extract_keywords(mock_extract_keywords)
