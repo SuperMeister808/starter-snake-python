@@ -5,11 +5,8 @@
 #  |________/(______/__|  |__| |____/\_____>______>___|__(______/__|__\\_____>
 #
 
-import random
 import typing
 import threading
-
-import time
 
 from move import Move
 from logger.emergency_logger import EmergencyLogger
