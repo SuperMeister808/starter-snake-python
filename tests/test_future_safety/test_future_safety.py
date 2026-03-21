@@ -22,7 +22,6 @@ class TestFutureSafety(unittest.TestCase):
         
         self.child_id = 0
         self.patchers = [
-            patch.object(self.future_safety, "log_data"),
             patch.object(Move, "check_moves"),
             patch.object(self.future_safety, "create_future_safety_tree", return_value="root id"),
             patch.object(self.future_safety, "reset_safe_moves"),
@@ -30,7 +29,7 @@ class TestFutureSafety(unittest.TestCase):
             patch.object(self.future_safety.future_safety_tree, "add_node", side_effect=self.fake_add_node),
             patch.object(self.future_safety, "get_move", return_value=self.head),
             patch.object(self.future_safety, "create_data_from_head", return_value=(self.body, self.neck, self.my_length)),
-            patch.object(self.future_safety.move, "is_growing", return_value=False)
+            patch.object(self.future_safety.move, "calculate_is_growing", return_value=False)
         ]
         self.mocks = {}
 
