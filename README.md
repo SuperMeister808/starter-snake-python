@@ -85,18 +85,22 @@ battlesnake/
 │   ├── emergency_logger.py      # logs fallbacks asynchronously, stored in a queue
 │   └── runtime_logger.py        # sets up logger and logger handlers
 ├── tests/
-│   ├── tests_emergency_logger/
-│   ├── test_emergency_system/
-│   ├── test_future_safety/      # includes future_safety_tree.py
-│   ├── test_keywords/
-│   └── test_move/               # includes basic api tests
+│   ├── test_api/                # basic api tests
+│   ├── test_calculation/        # calculation method tests
+│   ├── test_emergency_system/   # fallback system tests
+│   ├── test_future/             # includes future_safety_tree.py 
+│   ├── test_keywords/           # keyword pattern tests
+│   ├── test_logger/             # logger tests
+│   └── test_select_move/        # move selection tests
 ├── tools/
 │   └── log_analyzer/            # CLI tool for log analysis
 ├── emergency_system.py          # fallback system, wraps calculation functions, guarantees a move is always returned
+├── extract_data.py              # extracts and processes game state data — body, neck, length
 ├── keywords.py                  # keyword pattern
 ├── main.py                      # starts server
 ├── move.py                      # agent's interface, orchestrates all calculations and simulations, returns final move
 ├── server.py                    # Flask server, routes requests to move logic
+├── server_handler.py            # handles incoming API requests, delegates to move agent and logger
 └── validate_game_state.py       # validates Battlesnake's requests by checking received game state
 ```
 
