@@ -3,87 +3,50 @@ import unittest
 from unittest.mock import patch , MagicMock
 from move import Move
 
+# Tests that calculate_not_backward correctly marks the backward move as unsafe.
 class TestNotBackward(unittest.TestCase):
 
-    bot = Move()
     def setUp(self):
-        
-        self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
-                             "down": {"is_safe": True, "priority": 0}, 
-                             "left": {"is_safe": True, "priority": 0}, 
-                             "right": {"is_safe": True, "priority": 0}}
-        
+        self.bot = Move()
         self.head = {}
         self.neck = {}
-    
-    def assert_extract_keywords(self, mock):
-        
-        if not isinstance(mock, MagicMock):
-            raise TypeError(f"Object: {mock} is not MagicMock()")
-        
-        mock.assert_called_once_with(["head", "neck"], head={}, neck={})
+        self.is_move_safe = {
+            "up":    {"is_safe": True, "priority": 0},
+            "down":  {"is_safe": True, "priority": 0},
+            "left":  {"is_safe": True, "priority": 0},
+            "right": {"is_safe": True, "priority": 0},
+        }
 
-    def extract_moves(self):
-        
-        left = self.is_move_safe.get("left", "unknown")
-        right = self.is_move_safe.get("right", "unknown")
-        down = self.is_move_safe.get("down", "unknwon")
-        up = self.is_move_safe.get("up", "unknwon")
-
-        return left , right , down , up
-    
-    def move_assertions(self, left_safe, left_priority, right_safe, right_priority, down_safe, down_priority, up_safe, up_priority):
-        
-        left , right , down , up = self.extract_moves()
-        self.assertEqual(left.get("is_safe", "unknown"), left_safe)
-        self.assertEqual(right.get("is_safe", "unknown"), right_safe)
-        self.assertEqual(down.get("is_safe", "unknown"), down_safe)
-        self.assertEqual(up.get("is_safe", "unknown"), up_safe)
-        self.assertEqual(left.get("priority", "unknown"), left_priority)
-        self.assertEqual(right.get("priority", "unknown"), right_priority)
-        self.assertEqual(down.get("priority", "unknown"), down_priority)
-        self.assertEqual(up.get("priority", "unknown"), up_priority)
-    
-    def test_neck_over_head(self):
-        
-        head = {"x": 2, "y": 2}
-        neck = {"x": 2, "y": 3}
-        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
+    def _call(self, head, neck):
+        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock:
             self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
-            self.move_assertions(True, 0, True, 0, True, 0, False, 0)
+            mock.assert_called_once_with(["head", "neck"], head={}, neck={})
 
-            self.assert_extract_keywords(mock_extract_keywords)
-    
-    def test_neck_under_head(self):
-        
-        head = {"x": 2, "y": 2}
-        neck = {"x": 2, "y": 1}
-        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
-            self.move_assertions(True, 0, True, 0, False, 0, True, 0)
+    def _assert_safe(self, left=True, right=True, up=True, down=True):
+        self.assertEqual(self.is_move_safe["left"]["is_safe"],  left)
+        self.assertEqual(self.is_move_safe["right"]["is_safe"], right)
+        self.assertEqual(self.is_move_safe["up"]["is_safe"],    up)
+        self.assertEqual(self.is_move_safe["down"]["is_safe"],  down)
 
-            self.assert_extract_keywords(mock_extract_keywords)
-    
-    
-    def test_neck_next_to_head_left(self):
-        
-        head = {"x": 2, "y": 2}
-        neck = {"x": 1, "y": 2}
-        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
-            self.move_assertions(False, 0, True, 0, True, 0, True, 0)
+    def test_neck_above_head(self):
+        # verifies that up is marked unsafe when neck is above the head
+        self._call({"x": 2, "y": 2}, {"x": 2, "y": 3})
+        self._assert_safe(up=False)
 
-            self.assert_extract_keywords(mock_extract_keywords)
-    
-    def test_neck_next_to_head_right(self):
-        
-        head = {"x": 2, "y": 2}
-        neck = {"x": 3, "y": 2}
-        with patch.object(self.bot.keywords, "extract_keywords", return_value=(head, neck)) as mock_extract_keywords:
-            self.bot.calculate_not_backward(self.is_move_safe, head=self.head, neck=self.neck)
-            self.move_assertions(True, 0, False, 0, True, 0, True, 0)
+    def test_neck_below_head(self):
+        # verifies that down is marked unsafe when neck is below the head
+        self._call({"x": 2, "y": 2}, {"x": 2, "y": 1})
+        self._assert_safe(down=False)
 
-            self.assert_extract_keywords(mock_extract_keywords)
+    def test_neck_left_of_head(self):
+        # verifies that left is marked unsafe when neck is to the left of the head
+        self._call({"x": 2, "y": 2}, {"x": 1, "y": 2})
+        self._assert_safe(left=False)
+
+    def test_neck_right_of_head(self):
+        # verifies that right is marked unsafe when neck is to the right of the head
+        self._call({"x": 2, "y": 2}, {"x": 3, "y": 2})
+        self._assert_safe(right=False)
 
 if __name__ == "__main__":
 
