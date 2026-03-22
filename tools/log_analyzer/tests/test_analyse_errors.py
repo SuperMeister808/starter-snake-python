@@ -2,173 +2,106 @@ from unittest import TestCase
 from unittest.mock import patch , MagicMock , ANY , call
 from unittest import main
 from tools.log_analyzer.log_analyzer import LogAnalyzer
-class TestAnalyseErrors(TestCase):
-        
-    file = "..."
-    file_handler = "..."
-    level_index = "..."
-    turn_index = "..."
-    log_index = "..."
-    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
-    
-    def setUp(self):
-        
-        self.capture_output = []
-        
-        self.patchers = [patch.object(self.log_analyzer, "output_handler", side_effect=self.fake_output_handler, name="mock_output_handler"),
-                         patch.object(self.log_analyzer, "validate_level", wraps=self.log_analyzer.validate_level, name="mock_validate_level"),
-                         patch.object(self.log_analyzer, "validate_log", wraps=self.log_analyzer.validate_log, name="mock_validate_log"),
-                         patch.object(self.log_analyzer, "setup_logger"),
-                         patch.object(self.log_analyzer, "setup_file_handler")]
-        self.mocks = {}
 
-        self.start_patchers()
-        #LIFO
-        self.addCleanup(self.reset_capture_output)
-        self.addCleanup(self.stop_patchers)
-    
-    
-    def fake_output_handler(self, output_format, output):
+# Tests that analyse_errors correctly scans contents and outputs critical errors.
+class TestAnalyseErrors(TestCase):
+
+    def setUp(self):
+        self.log_analyzer = LogAnalyzer("...", "...", "...", "...", "...")
+        self.capture_output = []
+
+        patch.object(self.log_analyzer, "output_handler", side_effect=self._fake_output_handler).start()
+        patch.object(self.log_analyzer, "validate_level", wraps=self.log_analyzer.validate_level).start()
+        patch.object(self.log_analyzer, "validate_log", wraps=self.log_analyzer.validate_log).start()
+        patch.object(self.log_analyzer, "setup_logger").start()
+        patch.object(self.log_analyzer, "setup_file_handler").start()
+
+        self.addCleanup(patch.stopall)
+        self.addCleanup(self._reset_capture_output)
+
+    def _fake_output_handler(self, output_format, output):
         self.capture_output.append(output)
 
-    def fake_validate_level(self, level):
-        if level == "unknown":
-            raise self.exc
-
-    def start_patchers(self):
-        for patcher in self.patchers:
-            mock = patcher.start()
-            if isinstance(mock, MagicMock):
-                self.mocks [mock._mock_name] = mock
-
-    def stop_patchers(self):
-        for patcher in self.patchers:
-            patcher.stop()
-
-    def find_mocks(self, mock_names):
-        found_mocks = []
-        for name in mock_names:
-            mock = self.mocks.get(name, "unknown")
-            found_mocks.append(mock)
-
-        return found_mocks
-    
-    def reset_capture_output(self):
-
+    def _reset_capture_output(self):
         self.capture_output = []
 
-    new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Choosed emergency move"},
-                    {"line_number": 1, "level": "INFO", "turn": 0, "log": "random_choice: Success!"}]
-    @patch.object(log_analyzer, "contents", new=new_contents)
+    def _call(self, contents, output_formats=None):
+        if output_formats is None:
+            output_formats = ["console"]
+        with patch.object(self.log_analyzer, "contents", new=contents):
+            return self.log_analyzer.analyse_errors(output_formats)
+
+    ALLOWED_ERROR = "random_choice: Choosed emergency move"
+    UNALLOWED_ERROR = "random_choice: Failed!"
+    COMPLETION = {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}
+
     def test_only_allowed_errors(self):
+        # verifies that allowed errors are not flagged and only completion message is output
+        contents = [
+            {"line_number": 0, "level": "ERROR", "turn": 0, "log": self.ALLOWED_ERROR},
+            {"line_number": 1, "level": "INFO",  "turn": 0, "log": "random_choice: Success!"},
+        ]
+        self._call(contents)
 
-        output_formats = ["console"]
-        result = self.log_analyzer.analyse_errors(output_formats)
-        expected_outputs = [{"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}]
-        self.assertEqual(self.capture_output, expected_outputs)
+        self.assertEqual(self.capture_output, [self.COMPLETION])
+        self.log_analyzer.output_handler.assert_called_once_with(["console"], ANY)
+        self.assertEqual(self.log_analyzer.validate_level.call_count, 2)
+        self.assertEqual(self.log_analyzer.validate_log.call_count, 2)
 
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
-        mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        mock_output_handler.assert_called_once_with(output_formats, ANY)
-        self.assertEqual(mock_validate_level.call_count, 2)
-        self.assertEqual(mock_validate_log.call_count, 2)
-
-    new_contents = [{"line_number": 1, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
-                    {"line_number": 0, "level": "INFO", "turn": 0, "log": "random_choice: Success!"}]
-    @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_errors(self):
+        # verifies that unallowed errors are flagged and included in output
+        contents = [
+            {"line_number": 1, "level": "ERROR", "turn": 0, "log": self.UNALLOWED_ERROR},
+            {"line_number": 0, "level": "INFO",  "turn": 0, "log": "random_choice: Success!"},
+        ]
+        self._call(contents)
 
-        output_formats = ["console"]
-        result = self.log_analyzer.analyse_errors(output_formats)
-        expected_outputs = [{"line_number": 1, "level": 40, "log": "random_choice: Failed!", "turn": 0}, {"line_number": "unknown", "level": 20, "log": "Analyse errors completed!", "turn": "unknown"}]
+        expected_outputs = [
+            {"line_number": 1, "level": 40, "log": self.UNALLOWED_ERROR, "turn": 0},
+            self.COMPLETION,
+        ]
         self.assertEqual(self.capture_output, expected_outputs)
+        self.assertEqual(self.log_analyzer.output_handler.call_count, 2)
+        self.assertEqual(self.log_analyzer.validate_level.call_count, 2)
+        self.assertEqual(self.log_analyzer.validate_log.call_count, 2)
 
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
-        mock_output_handler , mock_validate_level , mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        expected_calls = [
-            call(output_formats, ANY),
-            call(output_formats, ANY)
+    def test_validation_failed(self):
+        # verifies that invalid contents produce warning outputs and are not flagged as errors
+        contents = [
+            {"line_number": 0, "level": "ERROR", "turn": 0, "log": self.UNALLOWED_ERROR},
+            {"line_number": 1, "turn": 0, "log": "random_choice: Success!"},
         ]
-        mock_output_handler.assert_has_calls(expected_calls)
-        self.assertEqual(mock_output_handler.call_count, 2)
-        self.assertEqual(mock_validate_level.call_count, 2)
-        self.assertEqual(mock_validate_log.call_count, 2)
+        self._call(contents)
 
-    new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
-                    {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
-    @patch.object(log_analyzer, "contents", new=new_contents)
-    @patch.object(log_analyzer, "validate_level", wraps=log_analyzer.validate_level)
-    def test_validation_failed(self, mock_validate_level):
-
-        output_formats = ["console"]
-        result = self.log_analyzer.analyse_errors(output_formats)
         for output in self.capture_output:
-                self.assertIsInstance(output, dict)
-                line_number = output ["line_number"]
-                level = output ["level"]
-                turn = output ["turn"]
-                log = output ["log"]
-                line_numbers = [0, 1, "unknown"]
-                self.assertIn(line_number, line_numbers)
-                levels = [20, 30, 40]
-                self.assertIn(level, levels)
-                self.assertIsInstance(turn, (int, str))
-                if isinstance(turn, int):
-                    turns = [0]
-                    self.assertIn(turn, turns)
-                else:
-                    turns = ["unknown"]
-                    self.assertIn(turn, turns)
-                logs = ["Line cannot be analyzed:", "Analyse errors completed!", "random_choice: Failed!"]
-                self.assertTrue(any(e in log for e in logs))
-                
+            self.assertIsInstance(output, dict)
+            self.assertIn(output["line_number"], [0, 1, "unknown"])
+            self.assertIn(output["level"], [20, 30, 40])
+            self.assertIsInstance(output["turn"], (int, str))
+            logs = ["Line cannot be analyzed:", "Analyse errors completed!", self.UNALLOWED_ERROR]
+            self.assertTrue(any(e in output["log"] for e in logs))
 
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_log"]
-        mock_output_handler, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        expected_calls = [
-            call(output_formats, ANY),
-            call(output_formats, ANY)
-        ]
-        mock_output_handler.assert_has_calls(expected_calls)
-        expected_calls = [
-            call("ERROR"),
-            call("unknown")
-        ]
-        mock_validate_level.assert_has_calls(expected_calls)
-        expected_calls = [
-            call("random_choice: Failed!")
-        ]
-        mock_validate_log.assert_has_calls(expected_calls)
+        self.log_analyzer.validate_level.assert_has_calls([call("ERROR"), call("unknown")])
+        self.log_analyzer.validate_log.assert_has_calls([call(self.UNALLOWED_ERROR)])
 
-    new_contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": "random_choice: Failed!"},
-                    {"line_number": 1, "turn": 0, "log": "random_choice: Success!"}]
-    @patch.object(log_analyzer, "contents", new=new_contents)
     def test_unallowed_output_format(self):
-
-        output_formats = ["..."]
+        # verifies that RuntimeError is raised for an unrecognised output format
+        contents = [{"line_number": 0, "level": "ERROR", "turn": 0, "log": self.UNALLOWED_ERROR}]
         with self.assertRaises(RuntimeError):
-            self.log_analyzer.analyse_errors(output_formats)
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
-        mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        mock_output_handler.assert_not_called()
-        mock_validate_level.assert_not_called()
-        mock_validate_log.assert_not_called()
+            self._call(contents, output_formats=["..."])
 
-    new_contents = []
-    @patch.object(log_analyzer, "contents", new=new_contents)
-    @patch.object(log_analyzer, "load_contents", side_efect=RuntimeError)
+        self.log_analyzer.output_handler.assert_not_called()
+        self.log_analyzer.validate_level.assert_not_called()
+        self.log_analyzer.validate_log.assert_not_called()
+
+    @patch.object(LogAnalyzer, "load_contents", side_effect=RuntimeError)
     def test_log_not_read(self, mock_load_contents):
-
-        output_formats = ["console"]
+        # verifies that RuntimeError is raised when contents are empty and load fails
         with self.assertRaises(RuntimeError):
-            self.log_analyzer.analyse_errors(output_formats)
-        NEEDED_MOCKS = ["mock_output_handler", "mock_validate_level", "mock_validate_log"]
-        mock_output_handler, mock_validate_level, mock_validate_log = found_mocks = self.find_mocks(NEEDED_MOCKS)
-        mock_output_handler.assert_not_called()
-        mock_validate_level.assert_not_called()
-        mock_validate_log.assert_not_called()
-        mock_load_contents.assert_called_once()
+            self._call(contents=[])
 
+        self.log_analyzer.output_handler.assert_not_called()
+        mock_load_contents.assert_called_once()
 
 if __name__ == "__main__":
     main()
