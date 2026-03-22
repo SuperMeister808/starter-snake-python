@@ -23,6 +23,8 @@ class Move():
     
     def __init__(self):
         
+        self.EMERGENCY_MOVES = ["left", "right", "down", "up"]
+        
         self.is_move_safe = {"up": {"is_safe": True, "priority": 0}, 
                              "down": {"is_safe": True, "priority": 0}, 
                              "left": {"is_safe": True, "priority": 0}, 
@@ -325,7 +327,6 @@ class Move():
 
         safe_moves = [move for move, data in self.is_move_safe.items() if data["is_safe"]]
         priority_moves = [move for move in safe_moves if move in self.priority_moves]
-        EMERGENCY_MOVES = ["left", "right", "up", "down"]
 
         try:
             if priority_moves:
@@ -339,7 +340,7 @@ class Move():
                 return {"move": next_move}
 
             # no safe moves available — fall back to random emergency move
-            next_move = random.choice(EMERGENCY_MOVES)
+            next_move = random.choice(self.EMERGENCY_MOVES)
             EmergencyLogger.loger_queue.put(("select_move", "Selected emergency move", self.turn_counter, 40))
             return {"move": next_move}
         except Exception as e:
@@ -361,8 +362,10 @@ class Move():
             body = self.extract_data.edit_body(raw_body)
             my_length = game_state["you"]["length"]
             self.future_safety.log_data("choose_move", {"head": head, "body": body, "my_length": my_length})
-        except Exception:
-            raise RuntimeError("game_state is missing or invalid!")
+        except Exception as e:
+            EmergencyLogger.loger_queue.put(("choose_move", e, self.turn_counter, 40))
+            Move.turn_counter += 1
+            return {"move": random.choice(self.EMERGENCY_MOVES)}
 
         # get neck position — falls back to emergency move if it fails
         result = self.emergency_system.emergency_system(self.extract_data.get_neck, body=body, game_state=game_state)
