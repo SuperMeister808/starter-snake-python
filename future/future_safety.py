@@ -41,7 +41,7 @@ class FutureSafety():
 
             self.reset_safe_moves()
             head, body, neck, my_length = self.extract_data_from_tree(node_id)
-            self.move.check_moves(self.safe_moves, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
+            self.move.calculate_moves(self.safe_moves, head=head, game_state=game_state, body=body, neck=neck, my_length=my_length)
 
             for move, data in self.safe_moves.items():
                 if not data["is_safe"]:

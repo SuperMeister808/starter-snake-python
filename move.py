@@ -377,7 +377,7 @@ class Move():
 
         # run all calculation methods to determine safe and priority moves - falls back to emergency move if it fails
         result = self.emergency_system.emergency_system(
-            self.check_moves, self.is_move_safe,
+            self.calculate_moves, self.is_move_safe,
             head=head, game_state=game_state, body=body, neck=neck, my_length=my_length
         )
         if self.emergency_system.is_emergency(result):
