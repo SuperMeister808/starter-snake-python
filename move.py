@@ -240,7 +240,7 @@ class Move():
 
     # Runs all calculation methods to determine safe and priority moves.
     # Opponent positions are calculated first as they are required by not_enemy_collision.
-    def check_moves(self, is_move_safe, **kwargs):
+    def calculate_moves(self, is_move_safe, **kwargs):
 
         NEEDED_KEYWORDS = ["head", "game_state", "body", "neck", "my_length"]
         head, game_state, body, neck, my_length = self.keywords.extract_keywords(NEEDED_KEYWORDS, **kwargs)
