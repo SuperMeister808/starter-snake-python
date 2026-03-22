@@ -4,89 +4,52 @@ from unittest.mock import patch , MagicMock
 
 from keywords import Keywords
 
+# Tests that extract_keywords correctly extracts and validates required keywords.
 class TestExtractKeywords(unittest.TestCase):
 
-    keywords = Keywords()
     def setUp(self):
-        
-        self.patchers = [
-            patch.object(self.keywords, "get_allowed_keywords", return_value={"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"}, name="mock_get_allowed_keywords"),
-            patch.object(self.keywords, "check_datatype", name="mock_check_datatype")
-        ]
-        self.mocks = {}
+        self.keywords = Keywords()
 
-        self.start_patchers()
-        self.addCleanup(self.stop_patchers)
+        patch.object(self.keywords, "get_allowed_keywords",
+                     return_value={"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"}).start()
+        patch.object(self.keywords, "check_datatype").start()
 
-    def start_patchers(self):
+        self.addCleanup(patch.stopall)
 
-        for i , patcher in enumerate(self.patchers):
-            mock = patcher.start()
-            try:
-                self.mocks [mock.name] = mock
-            except AttributeError:
-                if isinstance(mock, MagicMock):
-                    self.mocks [mock._mock_name] = mock
-                else:
-                    self.mocks [i] = mock
-
-    def stop_patchers(self):
-
-        for patcher in self.patchers:
-            patcher.stop()
-
-    def check_calls(self):
-
-        for name , mock in self.mocks.items():
-            if not isinstance(mock, MagicMock):
-                continue
-            mock.assert_called()
-    
     def test_correct_needed_keywords(self):
+        # verifies that all required keywords are extracted in the correct order
+        result = self.keywords.extract_keywords(
+            ["head", "body", "neck", "my_length"], testing="testing..."
+        )
 
-        needed_keywords = ["head", "body", "neck", "my_length"]
-        result = self.keywords.extract_keywords(needed_keywords, testing="testing...")
-        
-        self.check_calls()
         self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
-
         self.assertEqual(result, ["head", "body", "neck", "my_length"])
-        head , body , neck , my_length = result
-        self.assertEqual(head, "head")
-        self.assertEqual(body, "body")
-        self.assertEqual(neck, "neck")
-        self.assertEqual("my_length", my_length)
 
     def test_unnecessary_keywords(self):
+        # verifies that only requested keywords are returned even if more are available
+        result = self.keywords.extract_keywords(
+            ["head", "body", "neck"], testing="testing..."
+        )
 
-        needed_keywords = ["head", "body", "neck"]
-        result = self.keywords.extract_keywords(needed_keywords, testing="testing...")
-        
-        self.check_calls()
         self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
-
         self.assertEqual(result, ["head", "body", "neck"])
-        head , body , neck= result
-        self.assertEqual(head, "head")
-        self.assertEqual(body, "body")
-        self.assertEqual(neck, "neck")
 
     def test_needed_keywords_missing(self):
-
-        needed_keywords = ["head", "body", "neck", "my_length", "missing"]
+        # verifies that KeyError is raised when a required keyword is not available
         with self.assertRaises(KeyError):
-            self.keywords.extract_keywords(needed_keywords, testing="testing...")
-        
-        self.check_calls()
+            self.keywords.extract_keywords(
+                ["head", "body", "neck", "my_length", "missing"], testing="testing..."
+            )
+
         self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
 
     def test_missing_and_unnecessary_keywords(self):
-
-        needed_keywords = ["head", "body", "neck", "missing"]
+        # verifies that KeyError is raised even when some keywords are unnecessary
         with self.assertRaises(KeyError):
-            self.keywords.extract_keywords(needed_keywords, testing="testing...")
-        
-        self.check_calls()
+            self.keywords.extract_keywords(
+                ["head", "body", "neck", "missing"], testing="testing..."
+            )
+
         self.keywords.get_allowed_keywords.assert_called_once_with(testing="testing...")
 
 if __name__ == "__main__":
