@@ -152,11 +152,11 @@ class LogAnalyzer():
         cache_path = os.path.join(os.path.dirname(__file__), "resources", "contents.json")
         with open(cache_path, "r") as f:
             contents = json.loads(f.read())
-        try:
-            self.validate_contents(contents)
-            self.contents = contents
-        except RuntimeError:
-            self.read_log()
+            try:
+                self.validate_contents(contents)
+                self.contents = contents
+            except RuntimeError:
+                self.read_log()
     
     # Scans parsed log contents for critical errors using a whitelist.
     # Outputs results to the specified formats — file, console or both.

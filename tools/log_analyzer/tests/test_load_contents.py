@@ -4,93 +4,65 @@ from unittest import main
 from tools.log_analyzer.log_analyzer import LogAnalyzer
 import json
 import os
+
+# Tests that load_contents correctly loads and validates the JSON cache.
 class TestLoadContents(TestCase):
 
-    file = "..."
-    file_handler = "..."
-    level_index = "..."
-    turn_index = "..."
-    log_index = "..."
-    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
     def setUp(self):
-        
-        self.mocks = {}
-        self.patchers = [
-            patch.object(self.log_analyzer, "read_log", name="mock_read_log"),
-            patch.object(self.log_analyzer, "validate_contents", wraps=self.log_analyzer.validate_contents, name="mock_validate_contents")
-        ]
-        self.start_patchers()
-        self.addCleanup(self.stop_patchers)
+        self.log_analyzer = LogAnalyzer("...", "...", "...", "...", "...")
+        self.log_analyzer.contents = []
 
-    def start_patchers(self):
-        for patcher in self.patchers:
-            mock = patcher.start()
-            if isinstance(mock, MagicMock):
-                self.mocks [mock._mock_name] = mock
+        patch.object(self.log_analyzer, "read_log").start()
+        patch.object(self.log_analyzer, "validate_contents", wraps=self.log_analyzer.validate_contents).start()
 
-    def stop_patchers(self):
-        for patcher in self.patchers:
-            patcher.stop()
-    
-    @patch.object(log_analyzer, "contents", new=[])
-    def test_load_valide_contents(self):
+        self.addCleanup(patch.stopall)
 
-        contents = [{"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}]
-        read_data = json.dumps(contents)
-        mock = mock_open(read_data=read_data)
+    CACHE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json")
+    VALID_CONTENT = {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log"}
+
+    def _call(self, contents):
+
+        mock = mock_open(read_data=json.dumps(contents))
         with patch("builtins.open", mock):
             self.log_analyzer.load_contents()
-            self.assertEqual(self.log_analyzer.contents, contents) 
-            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), "r")
-            mock_validate_contents = self.mocks ["mock_validate_contents"]
-            mock_validate_contents.assert_called_once_with(contents)
-            mock_read_log = self.mocks ["mock_read_log"]
-            mock_read_log.assert_not_called()
-            
-    @patch.object(log_analyzer, "contents", new=[])
-    def test_load_invalid_contents_less_keys(self):
+            mock.assert_called_once_with(self.CACHE_PATH, "r")
+            return mock
 
+    def test_load_valid_contents(self):
+        # verifies that valid contents are loaded and set correctly
+        contents = [self.VALID_CONTENT]
+        self._call(contents)
+
+        self.assertEqual(self.log_analyzer.contents, contents)
+        self.log_analyzer.validate_contents.assert_called_once_with(contents)
+        self.log_analyzer.read_log.assert_not_called()
+
+    def test_load_invalid_contents_missing_keys(self):
+        # verifies that contents with missing keys trigger a re-read of the log
         contents = [{"line_number": "line_number", "level": "level", "turn": "turn"}]
-        read_data = json.dumps(contents)
-        mock = mock_open(read_data=read_data)
-        with patch("builtins.open", mock):
-            self.log_analyzer.load_contents()
-            self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), "r")
-            mock_validate_contents = self.mocks ["mock_validate_contents"]
-            mock_validate_contents.assert_called_once_with(contents)
-            mock_read_log = self.mocks ["mock_read_log"]
-            mock_read_log.assert_called_once()
+        self._call(contents)
 
-    @patch.object(log_analyzer, "contents", new=[])
-    def test_load_invalid_contents_too_many_keys(self):
+        self.assertEqual(self.log_analyzer.contents, [])
+        self.log_analyzer.validate_contents.assert_called_once_with(contents)
+        self.log_analyzer.read_log.assert_called_once()
 
-        contents = [{"line_number": "line_number", "level": "level", "turn": "turn", "log": "log", "unallowed": "unallowed"}]
-        read_data = json.dumps(contents)
-        mock = mock_open(read_data=read_data)
-        with patch("builtins.open", mock):
-            self.log_analyzer.load_contents()
-            self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), "r")
-            mock_validate_contents = self.mocks ["mock_validate_contents"]
-            mock_validate_contents.assert_called_once_with(contents)
-            mock_read_log = self.mocks ["mock_read_log"]
-            mock_read_log.assert_called_once()
+    def test_load_invalid_contents_extra_keys(self):
+        # verifies that contents with extra keys trigger a re-read of the log
+        contents = [{**self.VALID_CONTENT, "unallowed": "unallowed"}]
+        self._call(contents)
 
-    @patch.object(log_analyzer, "contents", new=[])
+        self.assertEqual(self.log_analyzer.contents, [])
+        self.log_analyzer.validate_contents.assert_called_once_with(contents)
+        self.log_analyzer.read_log.assert_called_once()
+
     def test_load_invalid_contents_wrong_type(self):
+        # verifies that contents with wrong type trigger a re-read of the log
+        contents = {**self.VALID_CONTENT, "unallowed": "unallowed"}
+        self._call(contents)
 
-        contents = {"line_number": "line_number", "level": "level", "turn": "turn", "log": "log", "unallowed": "unallowed"}
-        read_data = json.dumps(contents)
-        mock = mock_open(read_data=read_data)
-        with patch("builtins.open", mock):
-            self.log_analyzer.load_contents()
-            self.assertEqual(self.log_analyzer.contents, []) 
-            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), "r")
-            mock_validate_contents = self.mocks ["mock_validate_contents"]
-            mock_validate_contents.assert_called_once_with(contents)
-            mock_read_log = self.mocks ["mock_read_log"]
-            mock_read_log.assert_called_once()
+        self.assertEqual(self.log_analyzer.contents, [])
+        self.log_analyzer.validate_contents.assert_called_once_with(contents)
+        self.log_analyzer.read_log.assert_called_once()
 
 if __name__ == "__main__":
     main()
