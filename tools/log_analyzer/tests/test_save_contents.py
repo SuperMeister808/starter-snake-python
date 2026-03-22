@@ -4,27 +4,25 @@ from unittest import main
 from tools.log_analyzer.log_analyzer import LogAnalyzer
 import json
 import os
+
+# Tests that save_contents correctly writes contents to the JSON cache file.
 class TestSaveContents(TestCase):
 
-    file = "..."
-    file_handler = "..."
-    level_index = "..."
-    turn_index = "..."
-    log_index = "..."
-    log_analyzer = LogAnalyzer(file, file_handler, level_index, turn_index, log_index)
-    def setUp(self):
-       
-       pass
-    
-    @patch.object(log_analyzer, "contents", new=[])
-    def test_save_contents(self):
+    CACHE_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json")
 
+    def setUp(self):
+        self.log_analyzer = LogAnalyzer("...", "...", "...", "...", "...")
+        self.log_analyzer.contents = []
+
+    def test_save_contents(self):
+        # verifies that contents are correctly serialized and written to the cache file
         mock = mock_open()
         with patch("builtins.open", mock):
-            contents_json = json.dumps(self.log_analyzer.contents)
+            expected_json = json.dumps(self.log_analyzer.contents)
             self.log_analyzer.save_contents()
-            mock.assert_called_once_with(os.path.join(os.path.dirname(os.path.dirname(__file__)), "resources", "contents.json"), 'w')
-            mock().write.assert_called_once_with(contents_json)
+
+            mock.assert_called_once_with(self.CACHE_PATH, "w")
+            mock().write.assert_called_once_with(expected_json)
 
 if __name__ == "__main__":
     main()
