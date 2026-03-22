@@ -4,67 +4,38 @@ from unittest.mock import patch
 
 from keywords import Keywords
 
+# Tests that get_allowed_keywords correctly filters kwargs to only allowed keywords.
 class TestGetAllowedKeywords(unittest.TestCase):
 
-    keywords = Keywords()
-
     def setUp(self):
-        
-        self.patchers = [
-            patch.object(self.keywords, "ALLOWED_KEYWORDS", new=["head", "body", "neck", "my_length"])
-        ]
+        self.keywords = Keywords()
 
-        self.start_patchers()
-        self.addCleanup(self.stop_patchers)
+        patch.object(self.keywords, "ALLOWED_KEYWORDS",
+                     new=["head", "body", "neck", "my_length"]).start()
 
-    def start_patchers(self):
+        self.addCleanup(patch.stopall)
 
-        for patcher in self.patchers:
-            patcher.start()
-
-    def stop_patchers(self):
-
-        for patcher in self.patchers:
-            patcher.stop()
-    
     def test_only_allowed_keywords(self):
+        # verifies that all allowed keywords are returned correctly
+        result = self.keywords.get_allowed_keywords(
+            head="head", body="body", neck="neck", my_length="my_length"
+        )
+        self.assertEqual(result, {"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"})
 
-        result = self.keywords.get_allowed_keywords(head="head", body="body", neck="neck", my_length="my_length")
-        head = result["head"]
-        body = result["body"]
-        neck = result["neck"]
-        my_length = result["my_length"]
-
-        self.assertEqual(head, "head")
-        self.assertEqual(body, "body")
-        self.assertEqual(neck, "neck")
-        self.assertEqual(my_length, "my_length")
-
-    def test_sort_unallowed_keywords_out(self):
-
-        result = self.keywords.get_allowed_keywords(head="head", body="body", neck="neck", my_length="my_length", anything="anything", wherever="wherever")
-        head = result["head"]
-        body = result["body"]
-        neck = result["neck"]
-        my_length = result["my_length"]
-        anything = result.get("anything", "unknown")
-        wherever = result.get("wherever", "unknown")
-
-        self.assertEqual(head, "head")
-        self.assertEqual(body, "body")
-        self.assertEqual(neck, "neck")
-        self.assertEqual(my_length, "my_length")
-        self.assertEqual(anything, "unknown")
-        self.assertEqual(wherever, "unknown")
+    def test_filters_unallowed_keywords(self):
+        # verifies that unallowed keywords are silently removed from the result
+        result = self.keywords.get_allowed_keywords(
+            head="head", body="body", neck="neck", my_length="my_length",
+            anything="anything", wherever="wherever"
+        )
+        self.assertEqual(result, {"head": "head", "body": "body", "neck": "neck", "my_length": "my_length"})
+        self.assertNotIn("anything", result)
+        self.assertNotIn("wherever", result)
 
     def test_only_unallowed_keywords(self):
-
+        # verifies that an empty dict is returned when all keywords are unallowed
         result = self.keywords.get_allowed_keywords(anything="anything", wherever="wherever")
-        anything = result.get("anything", "unknown")
-        wherever = result.get("wherever", "unknown")
-
-        self.assertEqual(anything, "unknown")
-        self.assertEqual(wherever, "unknown")
+        self.assertEqual(result, {})
 
 if __name__ == "__main__":
     unittest.main()
