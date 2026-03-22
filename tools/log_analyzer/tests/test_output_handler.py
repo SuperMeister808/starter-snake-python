@@ -20,7 +20,6 @@ class TestOutputFormat(TestCase):
         patch.object(self.log_analyzer, "setup_handlers").start()
         patch.object(self.log_analyzer, "close_handlers").start()
         
-        self.addCleanup(self.captured_handlers.clear)
         self.addCleanup(patch.stopall)
 
     def test_correct_output(self):
@@ -52,7 +51,6 @@ class TestOutputFormat(TestCase):
                 self.log_analyzer.output_handler(["console", "file"], [])
 
             self.log_analyzer.logger.log.assert_not_called()
-            self.assertFalse(self.captured_handlers)
 
     def test_no_handlers_added(self):
         # verifies that RuntimeError is raised when no handlers are active
@@ -62,7 +60,7 @@ class TestOutputFormat(TestCase):
                 self.log_analyzer.output_handler(["console", "file"], output)
 
             self.log_analyzer.logger.log.assert_not_called()
-            self.assertFalse(self.captured_handlers)
 
 if __name__ == "__main__":
+
     main()

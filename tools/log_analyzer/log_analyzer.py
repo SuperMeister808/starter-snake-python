@@ -256,11 +256,11 @@ class LogAnalyzer():
     # Routes a log entry to the specified output handlers.
     # Adds handlers before logging and removes them afterwards to avoid duplicate output.
     def output_handler(self, output_handlers, output):
-        if not self.logger.handlers:
-            raise RuntimeError("Logger requires at least one active handler")
+        self.add_handler(output_handlers)
         if not isinstance(output, dict):
             raise RuntimeError("Output must be a dictionary")
-        self.add_handler(output_handlers)
+        if not self.logger.handlers:
+            raise RuntimeError("Logger requires at least one active handler")
 
         level = output.get("level", 30)
         turn = output.get("turn", "unknown")

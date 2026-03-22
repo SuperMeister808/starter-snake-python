@@ -5,6 +5,6 @@ game_state_example.txt
 .venv
 run_local_game.txt
 *.log
-tools/log_analyzer/ressources/*.json
+tools/log_analyzer/resources/*.json
 request_server/
 create_opponent.py
