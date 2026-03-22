@@ -13,11 +13,11 @@ def main():
                         help="Path to the log file")
     parser.add_argument("--file_handler", type=str, default=r"C:\Users\emilc\AppData\Local\game_agent\starter-snake-python\tools\log_analyzer\log_analyzer.log",
                         help="Path to the log analyzer output file")
-    parser.add_argument("--level_index", type=int, default=None,
+    parser.add_argument("--level_index", type=int, default=0,
                         help="Index of the level field in each log entry")
-    parser.add_argument("--turn_index", type=int, default=None,
+    parser.add_argument("--turn_index", type=int, default=1,
                         help="Index of the turn field in each log entry")
-    parser.add_argument("--log_index", type=int, default=None,
+    parser.add_argument("--log_index", type=int, default=2,
                         help="Index of the message field in each log entry")
     parser.add_argument("--output", nargs="+", default=["console"],
                         help="Output formats — file, console or both")
