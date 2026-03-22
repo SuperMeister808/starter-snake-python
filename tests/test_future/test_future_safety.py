@@ -21,7 +21,7 @@ class TestFutureSafety(unittest.TestCase):
         self.my_length = 0
         self.child_id = 0
 
-        patch.object(Move, "check_moves").start()
+        patch.object(Move, "calculate_moves").start()
         patch.object(self.future_safety, "create_future_safety_tree", return_value="root id").start()
         patch.object(self.future_safety, "reset_safe_moves").start()
         patch.object(self.future_safety, "extract_data_from_tree", return_value=(self.head, self.body, self.neck, self.my_length)).start()

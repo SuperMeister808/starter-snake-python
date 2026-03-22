@@ -33,7 +33,7 @@ class TestCheckMoves(unittest.TestCase):
 
     def test_correct_check_moves(self):
         # verifies that all calculation methods are called with the correct arguments
-        self.bot.check_moves(self.is_move_safe, **self._expected_call())
+        self.bot.calculate_moves(self.is_move_safe, **self._expected_call())
 
         self.mock_calculate_opponents_positions.assert_called_with(self.is_move_safe, **self._expected_call())
         self.mock_not_backward.assert_called_with(self.is_move_safe, **self._expected_call())
@@ -43,7 +43,7 @@ class TestCheckMoves(unittest.TestCase):
         self.mock_calculate_opponents_positions.side_effect = RuntimeError("side effect")
 
         with self.assertRaises(RuntimeError):
-            self.bot.check_moves(self.is_move_safe, **self._expected_call())
+            self.bot.calculate_moves(self.is_move_safe, **self._expected_call())
 
         self.mock_calculate_opponents_positions.assert_called_with(self.is_move_safe, **self._expected_call())
         self.mock_not_backward.assert_not_called()
